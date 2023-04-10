@@ -1,0 +1,499 @@
+---
+title: "Report_Exercise_2"
+author: "Patrick Bigler"
+date: "2023-04-10"
+output: html_document
+---
+
+## Report Exercises 2
+
+### Introduction
+
+Air quality depends on factors such as particulate matter (PM10 or
+PM2.5), nitrogen dioxide $(NO_2)$ or ozone $(O_3)$. In this short paper,
+only the tropospheric ozone is considered for air quality. All other
+parameters are neglected. In general, ozone occurs naturally in the
+troposphere and is not a health hazard per se (Brönnimann 2013, 23). But
+how high the ozone concentration in the planetary boundary layer would
+be without human influence is difficult to quantify (Brönnimann 2013,
+87). The measured values for ozone must therefore be compared with a
+reference value. Here, the threshold value for Switzerland is used,
+which is $120\: \frac{\mu g}{m^3}$ (Brönnimann 2013, 23). However, this
+unit depends on the air pressure, which decreases with altitude. The
+volume mixing ratio with the unit parts per million is more suitable
+which is 60 ppm (Brönnimann 2013, 26). It should be noted that countries
+are basically free to define their own threshold values (most of it
+doing it with the WHO). It is therefore possible that the USA (where the
+original data come from) would use a different value.
+
+Ozone is a molecule consisting of 3 oxygen atoms and has various
+physical (absorption of UV and IR radiation) and chemical properties
+(high reactivity). Interesting for the air quality is the concentration
+near the ground. During a summer smog situation, this concentration can
+be 5 to 6 times higher than the normal value (more than 100 ppm)
+(Brönnimann 2013, 27). Ozone emerges due to a 2 phase chemical reaction:
+
+1.  $NO_2 + h\nu \left(\lambda < 420 nm \right) \rightleftharpoons NO + O$
+
+2.  $NO + O_3 \rightleftharpoons NO_2 + O_2$
+
+From the reaction equations it follows that UV radiation, oxygen and
+nitrogen dioxide are needed for the formation of ozone (Brönnimann 2013,
+75). The first two are available in almost unlimited quantities. Thus,
+the production depends mainly on nitrogen dioxide. But what are the main
+sources of the nitrogen dioxide? For the free troposphere it is mainly
+air traffic (Brönnimann 2013, 68). For the planetary boundary layer, it
+is motorized traffic (Brönnimann 2013, 95). Lastly, many chemical
+reactions are temperature dependent. This is also true for ozone. The
+higher the temperature, the more the balance of the reaction shifts
+towards ozone production and the concentration increases (Brönnimann
+2013, 95).
+
+In summary, the ozone concentration depends probably on temperature,
+solar radiation (mostly IR-radiation) and the concentration of nitrogen
+dioxide (which depends on traffic). If strong winds blow over a highway,
+the nitrogen particles are blown away and the concentration is lower
+than expected. With these considerations, a data set on air-quality can
+be studied with a focus on ozone.
+
+### Hypotheses
+
+In these small paper the following research question should be answered:
+
+*"Quantify the dependency of ozone concentration from temperature, solar
+radiation and wind"*
+
+### Original source of the file
+
+The data is example data frame in the R package "datasets". First, the
+data frame is a secondary source an we must know about the contain, the
+values, the units and, of course, the source itself. For that, R can be
+asked for help to gather all these information.
+
+```{r shows_the_data_frame_airquality}
+#read the data
+airquality <- datasets::airquality
+
+#Ask for data frame details (units, source and references)
+help("airquality")
+
+#Check weather there are missing values
+is.na(airquality)
+```
+
+The data frame shows different variables at different times. Start was
+05.01.1973 (a Tuesday) and ends at 09.09.1973 and each day has an entry
+(it could be an "float", "integer", "character" or a "NA"). The
+variables are Ozone, Solar.R., Wind, Temp, Month and Year. But not all
+variables has the same source. That is why we distinguish the variable
+according to the source before we describing them.
+
+Data for ozone were collected from the New York State Department of
+Conservation.
+
+-   Ozone [ppb] represent the average of the concentration between 1pm
+    and 3pm at Roosevelt Island, NYC. This means that we are dealing
+    with tropospheric ozone.
+
+Data for the meteorological data were collected from the US. National
+Weather Service. The data frame contains:
+
+-   Wind [mph] is calculated as the average wind speed at 7am and 10am
+    at La Guardia Airport, NYC
+
+-   Temperature [degrees Fahrenheit] is the maximum daily temperature at
+    la Guardia Airport, NYC
+
+-   Solar. R [Langley] average in the frequency band 4000-7700 Angstroms
+    (wavelength: 400-770 nano meter) from 8am to noon in Central Park
+    NYC.
+
+### Editing the file in SI-Units
+
+It is strongly recommended to use the SI unit system because it is
+simplifies the reproducibility. It follows the formulas to calculates
+the values from there units into the SI-units system
+
+-   For temperature the following formula was used:
+    $$\frac{x \left[°Fahrenheit \right]- 32}{1.8} +273.15 \Longleftrightarrow x\left[Kelvin \right]$$
+
+-   For wind speed the following formula was used :
+    $$1 \left[\frac{mile}{hour} \right] \Longleftrightarrow 0.44704 \left[\frac{meter}{second}\right]$$
+
+-   For solar radiation the following formula was used :
+    $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
+
+```{r editing_the_data_frame_in_SI_units}
+#mutate columns to SI units (if necessary) and save the data frame to a variable
+airquality_mutated <- airquality |>
+#change values from Fahrenheit to kelvin  
+  mutate(Temp = (Temp - 32) / 1.8 + 273.15) |> 
+#change values from mp/h to m/s  
+  mutate(Wind = Wind * 0.44704) |> 
+#change values from Langley to joule per square meter  
+  mutate(Solar.R = Solar.R * 41840) |>
+  mutate(month = month(Month, abbr = TRUE, ))
+
+#define a order for the rows if there a group by function call.
+airquality_mutated$Month <- factor(airquality_mutated$Month, 
+                                   levels =  c(5, 6, 7, 8, 9), 
+                                   labels = c("May", "Jun", "Jul", "Aug", "Sept"))
+```
+
+### Statistics
+
+#### Parameter for position and distribution
+
+Now that all units have been converted to SI units and the work with the
+variables is legitimate, the question about the position, scattering and
+distribution parameters arises. For the ozone concentration is the
+median the right position parameter because it is robust against
+outliers. This is important because a short time higher concentration of
+ozone is probably not a problem for the human well-being but for a long
+term it could be. If we use the mean, we loss the overall picture due to
+a big one time outlier.
+
+If the median has been used it should be used the IQR as a scattering
+parameter. The following code calculate these parameters (Minimum, 0.25,
+0.5 and 0.75 quantiles, IQR and maximum).
+
+It shows us that the monthly median (18,23,60,52,23 ppb) is lower or
+equal to the threshold value (60 ppm). Therefore, there the air-quality
+is acceptable. But there are measurements in every month which exceed
+the threshold value (maximum). That means that there are isolated days
+when the ozone concentration is problematic. If we compare the span with
+the IQR we notice that the IQR is clearly smaller than the span. With
+this Information and according to the small monthly ozone average
+follows that we do not have much outliers in our data. Because these
+parameters are difficult to interpret it follows a box-whisker plot to
+visualize the distribution of the data , inclusive the threshold value
+and the overall ozone median. In a box-whisker plot are some information
+hidden because its shows only the percentiles. Therefore, a jitters plot
+is added.
+
+```{r statistical_parameters}
+#monthly median for temperature, ozone, solar and wind
+airquality_mutated |>
+  group_by(Month) |>
+#calculate the median for the ozone concentraion  
+  summarise(median.temp = median(Temp, na.rm = TRUE),
+            median.wind = median(Wind, na.rm = TRUE),
+            median.ozone = median(Ozone, na.rm = TRUE),
+            Min.ozone = min(Ozone, na.rm = TRUE),
+            Q1.ozone = quantile(Ozone, 0.25, na.rm = TRUE),
+            Q2.ozone = quantile(Ozone, 0.5, na.rm = TRUE),
+            Q3.ozone = quantile(Ozone, 0.75, na.rm = TRUE),
+            Max.ozone = max(Ozone, na.rm = TRUE),
+            IQR.ozone = IQR(Ozone, na.rm = TRUE),
+            Span = max(Ozone, na.rm = TRUE) - min(Ozone, na.rm = TRUE),
+            Average.ozone = mean(Ozone, na.rm = TRUE))
+
+#calculate the overall median for the ozone concentration
+median(airquality_mutated$Ozone, na.rm = TRUE)
+```
+
+```{r scattering_ozone_per_month_boxplot}
+#use ggplot to visualise the distribution of ozone over time
+airquality_mutated |>
+ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
+#red colour and individual shape and size for outlier
+  geom_boxplot(fill = "skyblue", alpha = 0.5) +
+#add whiskers  
+  stat_boxplot(geom = "errorbar") +
+#make the values transparent
+  geom_jitter(width = 0.2, alpha = 0.1) +
+#create and add a fine dotdashed line for the treshold values for Switzerland as a reference
+  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +
+#add label for the dashed line  
+  annotate("text", x = 1.3 , y =  67 , 
+           label = "Threshold value [60 ppb]", color = "darkmagenta") +
+#create and add a dotted line for the median for the ozone concentration  
+  geom_abline(slope = 0, intercept = median(airquality_mutated$Ozone, na.rm = TRUE),
+              color = "red", 
+              size = 0.5, linetype = "dotted") +
+#add label for the dotted line  
+  annotate("text", x = 2 , y =  50 , 
+           label = "overall median", color = "red") +  
+#label the graphic and axes
+  labs(title = "Ozone concentration per month") +
+  labs(x = "Month",y = "Ozone concentration [ppb]") +
+#change the size of the labels  
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 15),
+        plot.title = element_text(size = 20)) +
+#chose no gridlines  
+  theme_classic()
+```
+
+With the box-whisker-plot we know more about the distribution. But we do
+not know much how often a value occurs. For this information we create a
+bar plot. But we are not only interested in the blank number. We want
+also information about the distribution. That is why we create a density
+plot. We add again the threshold and the overall median for a easier
+interpretation.
+
+The plot shows us that the data have a big span. But the core of the
+data (area with a high density) has an acceptable span. But the graph
+shows us also that there are many days when the ozone concentration is
+to high.
+
+```{r visualize_the_distribution_of_the_ozone}
+airquality_mutated |>
+  ggplot(aes(x = Ozone, na.rm = TRUE, y = ..density..)) +
+  geom_histogram(fill = "grey70", color = "black", alpha = 0.7) +
+  geom_density(color = "darkblue", size = 2) +
+  labs(title = "Histogramm and Density", x = expression(paste("Ozone [ppb]")),
+       y = expression(paste("Density"))) +
+#change the size of the labels  
+  theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 15),
+        plot.title = element_text(size = 20)) +
+  geom_vline(xintercept = 60, linetype = "dotdash",
+             color = "darkmagenta", size = 0.3) +
+  annotate("text", x = 57.5, y = 0.0193, label="Threshold value [60 ppb]", 
+           angle = 90, color = "darkmagenta") +
+  geom_vline(xintercept = median(airquality_mutated$Ozone, na.rm = TRUE)
+             , linetype = "dotdash",color = "red", size = 0.3) +
+  annotate("text", x = 29, y = 0.0212, label="Median [31.5 ppm]", 
+           angle = 90, color = "red") +
+#chose no gridlines  
+  theme_classic()
+```
+
+But we detect many missing values. For a stringent analysis we need to
+know which values are missing. Are there a systematic error in the
+instrument? Or simple forgot someone to write down the measurement? For
+us is only interesting weather this has a influence on our evaluation.
+For that we create a plot who shows us which values are missing. after
+that we can decide what is the best procedure to handle this.
+
+```{r}
+#plot monthly ozone concentration in a plot grid
+#may
+plot.1 <- airquality_mutated |>
+  group_by(Month) |>
+  dplyr::filter(Month == "May") |>
+  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
+  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
+  geom_point(shape = 18, color = "red") +
+#add horizontal dotdashed line for the threshold value  
+  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +
+#add label for the dashed line  
+  annotate("text", x = 10, y =  90 , 
+           label = "Threshold value [70 ppb]", color = "darkmagenta") +   
+  ylab("Ozone [ppb]") + xlab("May") +
+  ggtitle("Ozone Concentration [May 1973]") +
+  theme(plot.title = element_text(size = 10)) +
+  scale_y_continuous(limits = c(0, 120)) +
+  theme_classic()
+plot.1
+
+#june
+plot.2 <- airquality_mutated |>
+  group_by(Month) |>
+  dplyr::filter(Month == "Jun") |>
+  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
+  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
+  geom_point(shape = 18, color = "red") +
+  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +
+  ylab("Ozone [ppb]") + xlab("June") +
+  ggtitle("Ozone Concentration [June 1973]") +
+  scale_y_continuous(limits = c(0, 120)) +
+  theme_classic()
+
+#july
+plot.3 <- airquality_mutated |>
+  group_by(Month) |>
+  dplyr::filter(Month == "Jul") |>
+  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
+  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
+  geom_point(shape = 18, color = "red") +
+  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +
+  ylab("Ozone [ppb]") + xlab("July") +
+  ggtitle("Ozone Concentration [July 1973]") +
+  scale_y_continuous(limits = c(0, 120)) +
+  theme_classic()
+
+#august
+plot.4 <- airquality_mutated |>
+  group_by(Month) |>
+  dplyr::filter(Month == "Aug") |>
+  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
+  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
+  geom_point(shape = 18, color = "red") +
+  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +
+  ylab("Ozone [ppb]") + xlab("August") +
+  ggtitle("Ozone Concentration [August 1973]") +
+  scale_y_continuous(limits = c(0, 120)) +
+  theme_classic()
+
+#september
+plot.5 <- airquality_mutated |>
+  group_by(Month) |>
+  dplyr::filter(Month == "Sept") |>
+  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
+  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
+  geom_point(shape = 18, color = "red") +
+  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +
+  ylab("Ozone [ppb]") + xlab("September") +
+  ggtitle("Ozone Concentration [September 1973]") +
+  scale_y_continuous(limits = c(0, 120)) +
+  theme_classic()
+
+
+#plot a plot grid
+plot_grid(plot.1, plot.2, plot.3, plot.4, plot.5, NULL, 
+                   nrow = 3 , ncol = 2,
+          labels = c("A","B", "C", "D", "E"))
+
+```
+
+### Correlation
+
+First, we want to know whether the variables of the hypothesis are
+promisingly. For this purpose we create a correlation matrix. The
+graphic shows us a high correlation between ozone concentration vs.
+temperature and ozone concentration vs. wind. There is also a
+correlation between ozone concentration and solar radiation but not so
+strong. Nevertheless, the chosen variables are promisingly and we can
+work straight forward.
+
+```{r correlation_plot}
+#correlation of the variables in the data frame
+airquality_mutated |>
+  select( Ozone, Wind, Temp, Solar.R) |>
+#chose the right method  
+  cor(use = "pairwise") |>
+#plot lower triangle with the correlation coefficients
+  ggcorrplot(hc.order = TRUE,
+           type = "lower", lab = TRUE) +
+#label the graphic
+  labs(title = "Correlation overview") +  
+  theme(axis.text = element_text(size = 10)) +  
+#change the size of the title  
+  theme(plot.title = element_text(size = 20))
+```
+
+Simple linear regression models are constructed to answer the research
+question. This allows the relationship between the variables to be
+quantified. The first model is ozone vs. temperature. After that follows
+the models 2 (ozone vs. wind) and model 3 (ozone vs. solar radiation).
+
+### Regression models
+
+#### Simple linear regression
+
+A simple linear regression model: ozone vs. temperature:
+
+```{r linear_regression_model_ozone_temperature}
+#calculate a simple linear regression: ozone vs. temperature
+model.fit.ozone.temp <- lm(airquality_mutated$Ozone ~ airquality_mutated$Temp, airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.temp)
+```
+
+For a better interpretation the model can be visualized:
+
+```{r visualize_linear_regression_model_ozone_temperature}
+model.1 <- ggplot(data = airquality_mutated,
+                  aes(x = Temp, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  geom_abline(slope = 0, intercept = 70, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +  
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Temperature",
+    x = expression(paste("Temperature [Kelvin]")),
+       y = expression(paste("Ozone [ppb]"))) +
+ theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 15),
+        plot.title = element_text(size = 20)) +  
+  theme_classic()
+```
+
+A simple linear regression model: ozone vs. wind:
+
+```{r linear_regression_model_ozone_wind}
+#calculate a simple linear regression: ozone vs. wind
+model.fit.ozone.wind <- lm(airquality_mutated$Ozone ~ airquality_mutated$Wind, airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.wind)
+```
+
+For a better interpretation the model can be visualized:
+
+```{r visualize_linear_regression_model_ozone_wind}
+model.2 <- ggplot(data = airquality_mutated,
+                  aes(x = Wind, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  geom_abline(slope = 0, intercept = 70, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +  
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Wind",
+    x = expression(paste("Wind [m/s^2]")),
+       y = expression(paste("Ozone [ppb]"))) +
+ theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 15),
+        plot.title = element_text(size = 20)) +  
+  theme_classic()
+```
+
+A simple linear regression model: ozone vs. solar radiation:
+
+```{r linear_regression_model_ozone_solar_radiation}
+#calculate a simple linear regression: ozone vs. solar radiation
+model.fit.ozone.solar <- lm(airquality_mutated$Ozone ~ airquality_mutated$Solar.R, airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.solar)
+```
+
+For a better interpretation the model can be visualized:
+
+```{r visualize_regression_model_solar.r}
+model.3 <- ggplot(data = airquality_mutated,
+                  aes(x = Solar.R, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  geom_abline(slope = 0, intercept = 70, color = "darkmagenta", 
+              size = 0.3, linetype = "dotdash") +  
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Solar irradiation",
+    x = expression(paste("solar irradiation [J/m^2]")),
+       y = expression(paste("Ozone [ppb]"))) +
+ theme(axis.text = element_text(size = 10),
+        axis.title = element_text(size = 15),
+        plot.title = element_text(size = 20)) +  
+  theme_classic()
+```
+
+Overview simple linear regression models:
+
+```{r patch_all_models_together}
+#plot the graphs side by side or up / down
+plot_grid(model.1, model.2, model.3, NULL,
+                  ncol = 2, nrow = 2,
+          labels = c("A","B","C"))
+```
+
+### Results and Discussion
+
+-   We don't nothing about the missing values. are there no
+    measurements? instruments? Sensitivity?
+
+-   Not the same place
+
+-   much of fossil fuels
+
+-   different wind scheme
+
+### Bibliography
+
+Brönnimann Stefan (2013): Ozon in der Atmosphäre. Bern, Haupt Verlag.
+DOI: 10.480/GB2013.03
