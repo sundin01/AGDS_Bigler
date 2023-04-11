@@ -25,6 +25,8 @@ library(cowplot)
 library(datasets)
 library(conflicted)
 library(knitr)
+library(corrplot)
+library(ggcorrplot)
 ```
 
 Air quality depends on factors such as particulate matter (PM10 or PM2.5),
@@ -205,38 +207,37 @@ median(airquality_mutated$Ozone, na.rm = TRUE)
 ```
 
 ```{r scattering_ozone_per_month_boxplot}
-# Add counts by group to boxplot
-
-
-
-# use ggplot to visualise the distribution of ozone over time
+# use ggplot to visualise the distribution of ozone for each month
 airquality_mutated |>
 ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
-# red colour and individual shape and size for outlier
+# Boxplot with an individual setup in transparency, size and width
+# red colour, individual shape and size for outliers
   geom_boxplot(fill = "skyblue", alpha = 0.5, size = 0.5, width = 0.5,
                outlier.color = "red", outlier.shape = 17, outlier.size = 2) +
 # add whiskers  
   stat_boxplot(geom = "errorbar") +
-# make the values transparent
+# make the values transparent and force the values with width statemant in a colomn
   geom_jitter(width = 0, alpha = 0.1) +
-# create and add a fine dotdashed line for the treshold values for Switzerland as a reference
+# create and add a fine dotdashed line for the threshold values for Switzerland as a reference
   geom_hline(yintercept = 60, color = "darkmagenta", size = 0.3, linetype = "dotdash") +
 # create and add a dotted line for the median for the ozone concentration 
   geom_hline(yintercept =  median(airquality_mutated$Ozone, na.rm = TRUE), 
              color = "royalblue", size = 0.3, linetype = "dotdash") +
-# add label for the dashed line 
-  annotate("text", x =  0.5 , y = 160, hjust = 0, 
+# add label for the Threshold 
+  annotate("text", x =  0.5 , y = 170, hjust = 0, 
            label = "Threshold value [60 ppb]", color = "darkmagenta") +
-  # add label for the dotted line  
-  annotate("text", x = 0.5 , y =  145, hjust = 0, 
+# add label for the median
+  annotate("text", x = 0.5 , y =  160, hjust = 0, 
            label = "Overall median [31.5 ppm]", color = "royalblue") +
-  annotate("text", x = 0.5 , y =  130, hjust = 0, 
+# add label for the outliers
+  annotate("text", x = 0.5 , y =  150, hjust = 0, 
            label = "Outliers", color = "red") +
 # label the graphic and axes
   labs(title = "Ozone concentration per month") +
   labs(x = "Month", y = "Ozone concentration [ppb]") +
-#chose no gridlines  
+# chose a background for the graoph 
   theme_bw() +
+# add panel boarder  
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1))
 ```
 
@@ -251,28 +252,28 @@ The plot shows us that the data have a big span. But the core of the data
 (area with a high density) has an acceptable span. But the graph shows us
 also that there are many days when the ozone concentration is to high.
 
-```{r visualize_the_distribution_of_the_ozone}
-airquality_mutated |>
-  ggplot(aes(x = Ozone, na.rm = TRUE, y = ..density..)) +
-  geom_histogram(fill = "grey70", color = "black", alpha = 0.7) +
-  geom_density(color = "darkblue", size = 2) +
-  labs(title = "Histogramm and Density", x = expression(paste("Ozone [ppb]")),
-       y = expression(paste("Density"))) +
-#change the size of the labels  
-  theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 15),
-        plot.title = element_text(size = 20)) +
-  geom_vline(xintercept = 60, linetype = "dotdash",
-             color = "darkmagenta", size = 0.3) +
-  geom_vline(xintercept = median(airquality_mutated$Ozone, na.rm = TRUE)
-             , linetype = "dotdash",color = "royalblue", size = 0.3) +
-  annotate("text", x = 125, hjust = 0, y = 0.024, 
-           label="Threshold value [60 ppb]",color = "darkmagenta") +
-  annotate("text", x = 125,hjust = 0, y = 0.022, vjust = 0.02, 
-           label="Median [31.5 ppm]", color = "royalblue") +
-#chose no gridlines  
-  theme_bw() +
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1))
+```{r}
+airquality_mutated|>
+ggplot(aes(x = Ozone, group = Month, fill = Month)) +
+# add the   geom_density and create an individual setup
+    geom_density(adjust = 1.5, alpha = 0.4) +
+# add title and subtitle and label the axes  
+    ggtitle("Density of the ozone concentration", 
+            subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]")+
+    labs(x = "Ozon [ppb]", y = "Density") +
+# add a vline with an individual setup  
+    geom_vline(xintercept = 60, size = 0.3, linetype = "dotdash", color = "darkmagenta") +
+    geom_vline(xintercept = median(airquality_mutated$Ozone, na.rm = TRUE), 
+               size = 0.3, linetype = "dotdash", color = "royalblue") +
+    annotate("text", x = 115 , y =  0.0218, hjust = 0, 
+           label = "Overall median [31.5 ppb]", color = "royalblue") +
+    annotate("text", x = 115 , y =  0.0235, hjust = 0, 
+           label = "Threshold value [60 ppb]", color = "darkmagenta") +
+# chose a background and add a panel boarder  
+    theme_bw() +
+    theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+    theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 But we detect many missing values. For a stringent analysis we need to know
@@ -283,89 +284,15 @@ create a plot who shows us which values are missing. after that we can
 decide what is the best procedure to handle this.
 
 ```{r}
-#plot monthly ozone concentration in a plot grid
-#may
-plot.1 <- airquality_mutated |>
-  group_by(Month) |>
-  dplyr::filter(Month == "May") |>
-  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
-  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
-  geom_point(shape = 18, color = "red") +
-#add horizontal dotdashed line for the threshold value  
-  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +
-#add label for the dashed line  
-  annotate("text", x = 10, y =  90 , 
-           label = "Threshold value [70 ppb]", color = "darkmagenta") +   
-  ylab("Ozone [ppb]") + xlab("May") +
-  ggtitle("Ozone Concentration [May 1973]") +
-  theme(plot.title = element_text(size = 10)) +
-  scale_y_continuous(limits = c(0, 120)) +
-  theme_classic()
-plot.1
-
-#june
-plot.2 <- airquality_mutated |>
-  group_by(Month) |>
-  dplyr::filter(Month == "Jun") |>
-  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
-  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
-  geom_point(shape = 18, color = "red") +
-  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +
-  ylab("Ozone [ppb]") + xlab("June") +
-  ggtitle("Ozone Concentration [June 1973]") +
-  scale_y_continuous(limits = c(0, 120)) +
-  theme_classic()
-
-#july
-plot.3 <- airquality_mutated |>
-  group_by(Month) |>
-  dplyr::filter(Month == "Jul") |>
-  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
-  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
-  geom_point(shape = 18, color = "red") +
-  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +
-  ylab("Ozone [ppb]") + xlab("July") +
-  ggtitle("Ozone Concentration [July 1973]") +
-  scale_y_continuous(limits = c(0, 120)) +
-  theme_classic()
-
-#august
-plot.4 <- airquality_mutated |>
-  group_by(Month) |>
-  dplyr::filter(Month == "Aug") |>
-  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
-  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
-  geom_point(shape = 18, color = "red") +
-  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +
-  ylab("Ozone [ppb]") + xlab("August") +
-  ggtitle("Ozone Concentration [August 1973]") +
-  scale_y_continuous(limits = c(0, 120)) +
-  theme_classic()
-
-#september
-plot.5 <- airquality_mutated |>
-  group_by(Month) |>
-  dplyr::filter(Month == "Sept") |>
-  ggplot(na.rm = TRUE, aes(x = Day, y = Ozone)) +
-  geom_line(size = 0.1, alpha = 0.7, color = "orange") + 
-  geom_point(shape = 18, color = "red") +
-  geom_abline(slope = 0, intercept = 60, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +
-  ylab("Ozone [ppb]") + xlab("September") +
-  ggtitle("Ozone Concentration [September 1973]") +
-  scale_y_continuous(limits = c(0, 120)) +
-  theme_classic()
-
-
-#plot a plot grid
-plot_grid(plot.1, plot.2, plot.3, plot.4, plot.5, NULL, 
-                   nrow = 3 , ncol = 2,
-          labels = c("A","B", "C", "D", "E"))
-
+airquality_mutated |>
+  ggplot(aes(x = Day, y = Ozone, group = Month, color = Month)) +
+  geom_line() +
+  geom_point() +
+# chose a background and add a panel boarder  
+  theme_bw() +
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 ### Correlation
@@ -378,18 +305,18 @@ concentration and solar radiation but not so strong. Nevertheless, the
 chosen variables are promisingly and we can work straight forward.
 
 ```{r correlation_plot}
-#correlation of the variables in the data frame
+# correlation of the variables in the data frame
 airquality_mutated |>
   select( Ozone, Wind, Temp, Solar.R) |>
-#chose the right method  
+# chose the right method  
   cor(use = "pairwise") |>
-#plot lower triangle with the correlation coefficients
+# plot lower triangle with the correlation coefficients
   ggcorrplot(hc.order = TRUE,
            type = "lower", lab = TRUE) +
-#label the graphic
+# label the graphic
   labs(title = "Correlation overview") +  
   theme(axis.text = element_text(size = 10)) +  
-#change the size of the title  
+# change the size of the title  
   theme(plot.title = element_text(size = 20))
 ```
 
@@ -427,7 +354,10 @@ model.1 <- ggplot(data = airquality_mutated,
  theme(axis.text = element_text(size = 10),
         axis.title = element_text(size = 15),
         plot.title = element_text(size = 20)) +  
-  theme_classic()
+  theme_bw() +
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 A simple linear regression model: ozone vs. wind:
@@ -452,10 +382,10 @@ model.2 <- ggplot(data = airquality_mutated,
   labs(title = "Ozone vs. Wind",
     x = expression(paste("Wind [m/s^2]")),
        y = expression(paste("Ozone [ppb]"))) +
- theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 15),
-        plot.title = element_text(size = 20)) +  
-  theme_classic()
+  theme_bw() +
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 A simple linear regression model: ozone vs. solar radiation:
@@ -483,7 +413,10 @@ model.3 <- ggplot(data = airquality_mutated,
  theme(axis.text = element_text(size = 10),
         axis.title = element_text(size = 15),
         plot.title = element_text(size = 20)) +  
-  theme_classic()
+  theme_bw() +
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 Overview simple linear regression models:
