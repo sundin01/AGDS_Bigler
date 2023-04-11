@@ -16,7 +16,7 @@ If we run the chunk, we activate the packages. Important is the package
 call but do not make the same thing (a function in a certain package can
 have the same name as a function from another package).
 
-```{r activate_the_packages}
+```{r activate_the_packages_which_are_required}
 #activate packages
 library(tidyverse)
 library(ggplot2)
