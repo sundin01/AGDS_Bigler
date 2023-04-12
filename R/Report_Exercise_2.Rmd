@@ -154,7 +154,7 @@ airquality_mutated <- airquality |>
   mutate(Wind = Wind * 0.44704) |> 
 # change values from Langley to joule per square meter  
   mutate(Solar.R = Solar.R * 41840) |>
-  mutate(month = month(Month, abbr = TRUE, ))
+  mutate(Date = make_date(1973, Month, Day))
 
 # define a order for the rows
 airquality_mutated$Month <- factor(airquality_mutated$Month, 
@@ -194,7 +194,6 @@ percentiles. Therefore, a jitters plot is added.
 ```{r statistical_parameters}
 #monthly median for temperature, ozone, solar and wind
 airquality_mutated |>
-  group_by(Month) |>
 #calculate the median for the ozone concentraion  
   summarise(median.temp = median(Temp, na.rm = TRUE),
             median.wind = median(Wind, na.rm = TRUE),
@@ -245,7 +244,7 @@ ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
        caption = "AGDS Report Exercise 2 (Chapter 4)") +
 # chose a background for the graoph 
   theme_bw() +
-  theme(plot.title = element_text(size = 15, face = "bold"))
+  theme(plot.title = element_text(size = 15, face = "bold")) +
 # add panel boarder  
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
   theme(plot.margin = margin(0.3, 1, 0.3, 0.3, "cm"),
@@ -302,10 +301,17 @@ create a plot who shows us which values are missing. after that we can
 decide what is the best procedure to handle this.
 
 ```{r}
+# create a bar plot and mark the missing values with -1
 airquality_mutated |>
-  ggplot(aes(x = Day, y = Ozone, group = Month, color = Month)) +
-  geom_line() +
-  geom_point() +
+  ggplot(aes(x = Date, y = Ozone, group = Month, color = Month)) +
+# create a geom bar  
+  geom_bar(stat = "identity") +
+# make a geom with points  
+  geom_point(size = 1.5) +
+# make a geom with the missing values. change NA to -1  
+  geom_point(data = airquality_mutated |>
+  mutate_all( ~replace_na(.,-1)) |>
+  dplyr::filter(`Ozone` == -1) , size = 1.5, color = "red") +
   labs(x = "Ozon [ppb]", y = "Day of the month", 
   title = "Daily ozone concentration",
   subtitle = "At Roosevelt Island, NYC [daily average concentration between 1pm and 3pm]",
