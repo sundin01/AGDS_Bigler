@@ -212,15 +212,38 @@ median(airquality_mutated$Ozone, na.rm = TRUE)
 ```
 
 ```{r scattering_ozone_per_month_boxplot}
+# use conflicted package to prefer a package
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(ggplot2::annotate)
 # use ggplot to visualise the distribution of ozone for each month
-airquality_mutated |>
-ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
+ggplot(data = airquality_mutated, aes(x = factor(Month), y = Ozone)) +
 # Boxplot with an individual setup in transparency, size and width
 # red colour, individual shape and size for outliers
-  geom_boxplot(fill = "skyblue", alpha = 0.5, size = 0.5, width = 0.5,
+  geom_boxplot(fill = "skyblue", alpha = 0.5, lwd = 0.3, width = 0.5,
                outlier.color = "red", outlier.shape = 17, outlier.size = 2) +
+  scale_y_continuous(limits = c(0, 200)) +
+  annotate("text",
+           x = 1:length(table(airquality_mutated$Month)),
+           y = 180,
+           label = c(paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Month == "May") |>
+         select(Ozone))) , paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Month == "Jun") |>
+         select(Ozone))), paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Month == "Jul") |>
+         select(Ozone))), paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Month == "Aug") |>
+         select(Ozone))), paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Month == "Sept") |>
+         select(Ozone)))), col = "black", vjust = -1) +
 # add whiskers  
   stat_boxplot(geom = "errorbar") +
+  stat_summary(fun.y = mean, geom = "point", shape = 23, size = 4, color = "orange") +
 # make the values transparent and force the values with width statemant in a colomn
   geom_jitter(width = 0, alpha = 0.1) +
 # create and add a fine dotdashed line for the threshold values for Switzerland as a reference
@@ -229,14 +252,16 @@ ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
   geom_hline(yintercept =  median(airquality_mutated$Ozone, na.rm = TRUE), 
              color = "royalblue", size = 0.3, linetype = "dotdash") +
 # add label for the Threshold 
-  ggplot2::annotate("text", x =  0.5 , y = 170, hjust = 0, 
+  annotate("text", x =  0.5 , y = 170, hjust = 0, 
            label = "Threshold value [60 ppb]", color = "darkmagenta") +
 # add label for the median
-  ggplot2::annotate("text", x = 0.5 , y =  160, hjust = 0, 
+  annotate("text", x = 0.5 , y =  155, hjust = 0, 
            label = "Overall median [31.5 ppm]", color = "royalblue") +
 # add label for the outliers
-  ggplot2::annotate("text", x = 0.5 , y =  150, hjust = 0, 
+  annotate("text", x = 0.5 , y =  140, hjust = 0, 
            label = "Outliers", color = "red") +
+  annotate("text", x = 0.5 , y =  125, hjust = 0, 
+           label = "Mean", color = "orange") +
 # label the graphic and axes
   labs(title = "Ozone concentration per month",
        subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]",
@@ -249,7 +274,7 @@ ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
   theme(plot.margin = margin(0.3, 1, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black")) 
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
 ```
 
 With the box-whisker-plot we know more about the distribution. But we do
@@ -278,9 +303,9 @@ ggplot(aes(x = Ozone, group = Month, fill = Month)) +
                linetype = "dotdash", color = "darkmagenta") +
     geom_vline(xintercept = median(airquality_mutated$Ozone, na.rm = TRUE), 
                size = 0.3, linetype = "dotdash", color = "royalblue") +
-    ggplot2::annotate("text", x = 115 , y =  0.0218, hjust = 0, 
+    ggplot2::annotate("text", x = 110 , y =  0.0218, hjust = 0, 
            label = "Overall median [31.5 ppb]", color = "royalblue") +
-    ggplot2::annotate("text", x = 115 , y =  0.0235, hjust = 0, 
+    ggplot2::annotate("text", x = 110 , y =  0.0235, hjust = 0, 
            label = "Threshold value [60 ppb]", color = "darkmagenta") +
 # chose a background and add a panel boarder  
     theme_bw() +
@@ -290,7 +315,7 @@ ggplot(aes(x = Ozone, group = Month, fill = Month)) +
                 size = 0.5, linetype = "solid", colour = "black")) +
     theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
     panel.background = element_rect(fill = "white"),
-    plot.background = element_rect(fill = "grey90",colour = "black"))   
+    plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
 ```
 
 But we detect many missing values. For a stringent analysis we need to know
@@ -324,7 +349,7 @@ airquality_mutated |>
                 size = 0.5, linetype = "solid", colour = "black")) +
   theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black"))
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
 ```
 
 ### Correlation
@@ -351,7 +376,7 @@ airquality_mutated |>
   theme(plot.title = element_text(size = 15, face = "bold")) +
   theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black"))   
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
 ```
 
 Simple linear regression models are constructed to answer the research
@@ -409,7 +434,7 @@ P1 <- airquality_mutated |>
        size = 0.5, linetype = "solid", colour = "black")) +
   theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black"))   
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
 ```
 
 ```{r visualize_linear_regression_model_ozone_temperature}
@@ -434,7 +459,7 @@ P2 <- airquality_mutated |>
           size = 0.5, linetype = "solid", colour = "black")) +
   theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black"))   
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
 ```
 
 ```{r visualize_linear_regression_model_ozone_wind}
@@ -459,7 +484,7 @@ P3 <- airquality_mutated |>
         size = 0.5, linetype = "solid", colour = "black")) +
   theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black")) 
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
 ```
 
 ```{r visualize_regression_model_solar.r}
@@ -485,7 +510,7 @@ P4 <- airquality_mutated |>
         size = 0.5, linetype = "solid", colour = "black")) +
   theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
   panel.background = element_rect(fill = "white"),
-  plot.background = element_rect(fill = "grey90",colour = "black")) 
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
 ```
 
 Overview simple linear regression models:
