@@ -29,6 +29,10 @@ library(corrplot)
 library(ggcorrplot)
 library(ggpubr)
 library(ggpmisc)
+library(gridExtra)
+library(gridtext)
+library(grid)
+library(lattice)
 ```
 
 Air quality depends on factors such as particulate matter (PM10 or PM2.5),
@@ -226,21 +230,27 @@ ggplot(aes(x = factor(Month), y = Ozone, na.rm = TRUE)) +
   geom_hline(yintercept =  median(airquality_mutated$Ozone, na.rm = TRUE), 
              color = "royalblue", size = 0.3, linetype = "dotdash") +
 # add label for the Threshold 
-  annotate("text", x =  0.5 , y = 170, hjust = 0, 
+  ggplot2::annotate("text", x =  0.5 , y = 170, hjust = 0, 
            label = "Threshold value [60 ppb]", color = "darkmagenta") +
 # add label for the median
-  annotate("text", x = 0.5 , y =  160, hjust = 0, 
+  ggplot2::annotate("text", x = 0.5 , y =  160, hjust = 0, 
            label = "Overall median [31.5 ppm]", color = "royalblue") +
 # add label for the outliers
-  annotate("text", x = 0.5 , y =  150, hjust = 0, 
+  ggplot2::annotate("text", x = 0.5 , y =  150, hjust = 0, 
            label = "Outliers", color = "red") +
 # label the graphic and axes
-  labs(title = "Ozone concentration per month") +
-  labs(x = "Month", y = "Ozone concentration [ppb]") +
+  labs(title = "Ozone concentration per month",
+       subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]",
+       x = "Month", y = "Ozone concentration [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
 # chose a background for the graoph 
   theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold"))
 # add panel boarder  
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1))
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme(plot.margin = margin(0.3, 1, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black")) 
 ```
 
 With the box-whisker-plot we know more about the distribution. But we do
@@ -260,22 +270,28 @@ ggplot(aes(x = Ozone, group = Month, fill = Month)) +
 # add the   geom_density and create an individual setup
     geom_density(adjust = 1.5, alpha = 0.4) +
 # add title and subtitle and label the axes  
-    ggtitle("Density of the ozone concentration", 
-            subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]")+
-    labs(x = "Ozon [ppb]", y = "Density") +
+    labs(x = "Ozon [ppb]", y = "Density", 
+    title = "Density of the ozone concentration",
+    subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]",
+    caption = "AGDS Report Exercise 2 (Chapter 4)") +
 # add a vline with an individual setup  
-    geom_vline(xintercept = 60, size = 0.3, linetype = "dotdash", color = "darkmagenta") +
+    geom_vline(xintercept = 60, size = 0.3, 
+               linetype = "dotdash", color = "darkmagenta") +
     geom_vline(xintercept = median(airquality_mutated$Ozone, na.rm = TRUE), 
                size = 0.3, linetype = "dotdash", color = "royalblue") +
-    annotate("text", x = 115 , y =  0.0218, hjust = 0, 
+    ggplot2::annotate("text", x = 115 , y =  0.0218, hjust = 0, 
            label = "Overall median [31.5 ppb]", color = "royalblue") +
-    annotate("text", x = 115 , y =  0.0235, hjust = 0, 
+    ggplot2::annotate("text", x = 115 , y =  0.0235, hjust = 0, 
            label = "Threshold value [60 ppb]", color = "darkmagenta") +
 # chose a background and add a panel boarder  
     theme_bw() +
+    theme(plot.title = element_text(size = 15, face = "bold")) +
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     theme( legend.background = element_rect( fill = "lightblue", 
-                size = 0.5, linetype = "solid", colour = "black"))
+                size = 0.5, linetype = "solid", colour = "black")) +
+    theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "grey90",colour = "black"))   
 ```
 
 But we detect many missing values. For a stringent analysis we need to know
@@ -290,11 +306,19 @@ airquality_mutated |>
   ggplot(aes(x = Day, y = Ozone, group = Month, color = Month)) +
   geom_line() +
   geom_point() +
+  labs(x = "Ozon [ppb]", y = "Day of the month", 
+  title = "Daily ozone concentration",
+  subtitle = "At Roosevelt Island, NYC [daily average concentration between 1pm and 3pm]",
+  caption = "AGDS Report Exercise 2 (Chapter 4)") +
 # chose a background and add a panel boarder  
   theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-                size = 0.5, linetype = "solid", colour = "black"))
+                size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black"))
 ```
 
 ### Correlation
@@ -316,10 +340,12 @@ airquality_mutated |>
   ggcorrplot(hc.order = TRUE,
            type = "lower", lab = TRUE) +
 # label the graphic
-  labs(title = "Correlation overview") +  
-  theme(axis.text = element_text(size = 10)) +  
+  labs(title = "Correlation overview") +
 # change the size of the title  
-  theme(plot.title = element_text(size = 20))
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black"))   
 ```
 
 Simple linear regression models are constructed to answer the research
@@ -331,39 +357,54 @@ the models 2 (ozone vs. wind) and model 3 (ozone vs. solar radiation).
 
 #### Simple linear regression
 
-A simple linear regression model: ozone vs. temperature:
+A simple linear regression model:
 
 ```{r linear_regression_model_ozone_temperature}
 #calculate a simple linear regression: ozone vs. temperature
-model.fit.ozone.temp <- lm(airquality_mutated$Ozone ~ airquality_mutated$Temp, airquality_mutated = airquality_mutated)
+model.fit.ozone.temp <- 
+  lm(airquality_mutated$Ozone ~ airquality_mutated$Temp,
+  airquality_mutated = airquality_mutated)
 summary(model.fit.ozone.temp)
+
+#calculate a simple linear regression: ozone vs. wind
+model.fit.ozone.wind <- 
+  lm(airquality_mutated$Ozone ~ airquality_mutated$Wind, 
+  airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.wind)
+
+#calculate a simple linear regression: ozone vs. solar radiation
+model.fit.ozone.solar <- 
+  lm(airquality_mutated$Ozone ~ airquality_mutated$Solar.R, 
+  airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.solar)
 ```
 
 For a better interpretation the model can be visualized:
 
-```{r}
+```{r linear_regression_model_ozone_time}
 P1 <- airquality_mutated |>
   ggplot(aes(x = Day, y = Ozone, color = Month)) +
   geom_point(alpha = 0.5) +
   scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
   geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
-  stat_poly_eq(formula = y~x, 
-      label.x = "left", eq.with.lhs = "",
-      aes(label = paste("bold(\"", 
-      c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
-      " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
-      label.x.npc = "left", parse = TRUE) +
-  geom_hline(yintercept = 60, linetype = "dotdash", size = 0.3, color = "darkmagenta") +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+             size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
-  labs(title = "Ozone vs. Time", x = "Time [Day]", y = "Ozone [ppb]") +
+  labs(title = "Ozone vs. Time",
+       x = "Time [Day]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
   theme_bw() +
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+  theme(panel.border = element_rect(colour = "black", 
+       fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-                size = 0.5, linetype = "solid", colour = "black"))
+       size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black"))   
 ```
-
-
 
 ```{r visualize_linear_regression_model_ozone_temperature}
 P2 <- airquality_mutated |>
@@ -372,32 +413,23 @@ P2 <- airquality_mutated |>
   scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
   geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
-  stat_poly_eq(formula = y~x, label.x = "left", eq.with.lhs = "",
-          aes(label = paste("bold(\"", 
-          c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
-          " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
-          label.x.npc = "left", parse = TRUE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
   geom_hline(yintercept = 60, linetype = "dotdash", 
           size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
   labs(title = "Ozone vs. Temperature", 
-          x = "Temperature [Kelvin]", y = "Ozone [ppb]") +
+          x = "Temperature [Kelvin]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
   theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +
   theme(panel.border = element_rect(colour = "black", 
           fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-          size = 0.5, linetype = "solid", colour = "black"))
+          size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black"))   
 ```
-
-A simple linear regression model: ozone vs. wind:
-
-```{r linear_regression_model_ozone_wind}
-#calculate a simple linear regression: ozone vs. wind
-model.fit.ozone.wind <- lm(airquality_mutated$Ozone ~ airquality_mutated$Wind, airquality_mutated = airquality_mutated)
-summary(model.fit.ozone.wind)
-```
-
-For a better interpretation the model can be visualized:
 
 ```{r visualize_linear_regression_model_ozone_wind}
 P3 <- airquality_mutated |>
@@ -406,32 +438,23 @@ P3 <- airquality_mutated |>
   scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
   geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
-  stat_poly_eq(formula = y~x, label.x = "left", 
-        eq.with.lhs = "",
-        aes(label = paste("bold(\"",
-        c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
-        " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
-        label.x.npc = "left", parse = TRUE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
   geom_hline(yintercept = 60, linetype = "dotdash", 
         size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
-  labs(title = "Ozone vs. Wind", x = "Wind [m/s]", y = "Ozone [ppb]") +
+  labs(title = "Ozone vs. Wind",
+       x = "Wind [m/s]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
   theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +  
   theme(panel.border = element_rect(colour = "black", 
         fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-        size = 0.5, linetype = "solid", colour = "black"))
+        size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black")) 
 ```
-
-A simple linear regression model: ozone vs. solar radiation:
-
-```{r linear_regression_model_ozone_solar_radiation}
-#calculate a simple linear regression: ozone vs. solar radiation
-model.fit.ozone.solar <- lm(airquality_mutated$Ozone ~ airquality_mutated$Solar.R, airquality_mutated = airquality_mutated)
-summary(model.fit.ozone.solar)
-```
-
-For a better interpretation the model can be visualized:
 
 ```{r visualize_regression_model_solar.r}
 P4 <- airquality_mutated |>
@@ -440,30 +463,30 @@ P4 <- airquality_mutated |>
   scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
   geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
-  stat_poly_eq(formula = y~x, label.x = "left", 
-        eq.with.lhs = "",
-        aes(label = paste("bold(\"",
-        c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
-        " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
-        label.x.npc = "left", parse = TRUE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
   geom_hline(yintercept = 60, linetype = "dotdash", 
         size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
-  labs(title = "Ozone vs. solar irradiation", x = "solar irradiation [J/m^2]", y = "Ozone [ppb]") +
+  labs(title = "Ozone vs. solar irradiation", 
+       subtitle = "Linear Regression Model",
+       x = "solar irradiation [J/m^2]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
   theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +  
   theme(panel.border = element_rect(colour = "black", 
         fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-        size = 0.5, linetype = "solid", colour = "black"))
+        size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black")) 
 ```
 
 Overview simple linear regression models:
 
 ```{r patch_all_models_together}
-#plot the graphs side by side or up / down
-plot_grid(P1, P2, P3, P4,
-          ncol = 2, nrow = 2,
-          labels = c("A","B","C", "D"))
+# plot the graphs in a grid
+plot_grid(P2, P3, P4, NULL, labels = c("A","B","C"))
 ```
 
 ### Results and Discussion
