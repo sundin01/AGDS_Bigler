@@ -27,6 +27,8 @@ library(conflicted)
 library(knitr)
 library(corrplot)
 library(ggcorrplot)
+library(ggpubr)
+library(ggpmisc)
 ```
 
 Air quality depends on factors such as particulate matter (PM10 or PM2.5),
@@ -339,25 +341,52 @@ summary(model.fit.ozone.temp)
 
 For a better interpretation the model can be visualized:
 
-```{r visualize_linear_regression_model_ozone_temperature}
-model.1 <- ggplot(data = airquality_mutated,
-                  aes(x = Temp, y = Ozone, color = Month)) +
+```{r}
+P1 <- airquality_mutated |>
+  ggplot(aes(x = Day, y = Ozone, color = Month)) +
   geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
-  geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  geom_abline(slope = 0, intercept = 70, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(formula = y~x, 
+      label.x = "left", eq.with.lhs = "",
+      aes(label = paste("bold(\"", 
+      c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
+      " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
+      label.x.npc = "left", parse = TRUE) +
+  geom_hline(yintercept = 60, linetype = "dotdash", size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
-  labs(title = "Ozone vs. Temperature",
-    x = expression(paste("Temperature [Kelvin]")),
-       y = expression(paste("Ozone [ppb]"))) +
- theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 15),
-        plot.title = element_text(size = 20)) +  
+  labs(title = "Ozone vs. Time", x = "Time [Day]", y = "Ozone [ppb]") +
   theme_bw() +
   theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
                 size = 0.5, linetype = "solid", colour = "black"))
+```
+
+
+
+```{r visualize_linear_regression_model_ozone_temperature}
+P2 <- airquality_mutated |>
+  ggplot(aes(x = Temp, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(formula = y~x, label.x = "left", eq.with.lhs = "",
+          aes(label = paste("bold(\"", 
+          c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
+          " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
+          label.x.npc = "left", parse = TRUE) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+          size = 0.3, color = "darkmagenta") +
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Temperature", 
+          x = "Temperature [Kelvin]", y = "Ozone [ppb]") +
+  theme_bw() +
+  theme(panel.border = element_rect(colour = "black", 
+          fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+          size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 A simple linear regression model: ozone vs. wind:
@@ -371,21 +400,27 @@ summary(model.fit.ozone.wind)
 For a better interpretation the model can be visualized:
 
 ```{r visualize_linear_regression_model_ozone_wind}
-model.2 <- ggplot(data = airquality_mutated,
-                  aes(x = Wind, y = Ozone, color = Month)) +
+P3 <- airquality_mutated |>
+  ggplot(aes(x = Wind, y = Ozone, color = Month)) +
   geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
-  geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  geom_abline(slope = 0, intercept = 70, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(formula = y~x, label.x = "left", 
+        eq.with.lhs = "",
+        aes(label = paste("bold(\"",
+        c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
+        " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
+        label.x.npc = "left", parse = TRUE) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+        size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
-  labs(title = "Ozone vs. Wind",
-    x = expression(paste("Wind [m/s^2]")),
-       y = expression(paste("Ozone [ppb]"))) +
+  labs(title = "Ozone vs. Wind", x = "Wind [m/s]", y = "Ozone [ppb]") +
   theme_bw() +
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme(panel.border = element_rect(colour = "black", 
+        fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-                size = 0.5, linetype = "solid", colour = "black"))
+        size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 A simple linear regression model: ozone vs. solar radiation:
@@ -399,33 +434,36 @@ summary(model.fit.ozone.solar)
 For a better interpretation the model can be visualized:
 
 ```{r visualize_regression_model_solar.r}
-model.3 <- ggplot(data = airquality_mutated,
-                  aes(x = Solar.R, y = Ozone, color = Month)) +
+P4 <- airquality_mutated |>
+  ggplot(aes(x = Solar.R, y = Ozone, color = Month)) +
   geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
 #use smooth for a linear regression, se for standard error  
-  geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  geom_abline(slope = 0, intercept = 70, color = "darkmagenta", 
-              size = 0.3, linetype = "dotdash") +  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(formula = y~x, label.x = "left", 
+        eq.with.lhs = "",
+        aes(label = paste("bold(\"",
+        c("May", "Jun", "Jul", "Aug", "Sep")[stat(group)], 
+        " :  \")*", "italic(hat(y))~`=`~", stat(eq.label), sep = "")), 
+        label.x.npc = "left", parse = TRUE) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+        size = 0.3, color = "darkmagenta") +
 #lab the axes and giv the graphic a title  
-  labs(title = "Ozone vs. Solar irradiation",
-    x = expression(paste("solar irradiation [J/m^2]")),
-       y = expression(paste("Ozone [ppb]"))) +
- theme(axis.text = element_text(size = 10),
-        axis.title = element_text(size = 15),
-        plot.title = element_text(size = 20)) +  
+  labs(title = "Ozone vs. solar irradiation", x = "solar irradiation [J/m^2]", y = "Ozone [ppb]") +
   theme_bw() +
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme(panel.border = element_rect(colour = "black", 
+        fill = NA, linewidth = 1)) +
   theme( legend.background = element_rect( fill = "lightblue", 
-                size = 0.5, linetype = "solid", colour = "black"))
+        size = 0.5, linetype = "solid", colour = "black"))
 ```
 
 Overview simple linear regression models:
 
 ```{r patch_all_models_together}
 #plot the graphs side by side or up / down
-plot_grid(model.1, model.2, model.3, NULL,
-                  ncol = 2, nrow = 2,
-          labels = c("A","B","C"))
+plot_grid(P1, P2, P3, P4,
+          ncol = 2, nrow = 2,
+          labels = c("A","B","C", "D"))
 ```
 
 ### Results and Discussion
