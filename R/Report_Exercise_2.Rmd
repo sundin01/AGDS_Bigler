@@ -312,7 +312,7 @@ airquality_mutated |>
   geom_point(data = airquality_mutated |>
   mutate_all( ~replace_na(.,-1)) |>
   dplyr::filter(`Ozone` == -1) , size = 1.5, color = "red") +
-  labs(x = "Ozon [ppb]", y = "Day of the month", 
+  labs(x = "Month", y = "Ozon [ppb]", 
   title = "Daily ozone concentration",
   subtitle = "At Roosevelt Island, NYC [daily average concentration between 1pm and 3pm]",
   caption = "AGDS Report Exercise 2 (Chapter 4)") +
