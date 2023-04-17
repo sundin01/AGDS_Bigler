@@ -8,46 +8,24 @@ editor_options:
     wrap: 75
 ---
 
-## Report Exercises 2
+# Report Exercise to Chapter 4
 
-The following code chunk contains all packages we need for this exercise.
-Important is the package "conflicted". It shows us if the same function
-name is used in another package for another function. If there are such a
-conflict, we can (1) name the package name before the function call or (2)
-we can set a priority. In this exercise we will set a preference in the
-first line in the code chunk.
+Author: Patrick Bigler
 
-```{r activate_the_packages_which_are_required}
-library(tidyverse)
-library(ggplot2)
-library(cowplot)
-library(datasets)
-library(conflicted)
-library(knitr)
-library(corrplot)
-library(ggcorrplot)
-library(ggpubr)
-library(ggpmisc)
-library(gridExtra)
-library(gridtext)
-library(grid)
-library(lattice)
-```
+Martikelnummer: 20-100-178
 
-### Introduction
+## Introduction and Hypothesis
 
 Air quality depends on factors such as particulate matter (PM10 or PM2.5),
 nitrogen dioxide $(NO_2)$ or ozone $(O_3)$. In this exercise, only the
 tropospheric ozone is considered for air quality. Ozone is not a health
 hazard per se but a high concentration over a longer period of time can
-affect the health. (Brönnimann 2013, 23). The threshold value for
-Switzerland is $120\: \frac{\mu g}{m^3}$ over eight hours (Brönnimann 2013,
-23). However, this unit depends on the air pressure, which decreases with
-altitude. The volume mixing ratio with the unit parts per million is more
-suitable which is about 60 ppb which we use in this exercise. (Brönnimann
-2013, 26).
-
-### Hypothesis
+affect the health. (Brönnimann 2013, 23). But what does that mean? For
+Switzerland, the threshold value is $120\: \frac{\mu g}{m^3}$ over eight
+hours (Brönnimann 2013, 23). However, this unit depends on the air
+pressure, which decreases with altitude. The volume mixing ratio with the
+unit parts per million is more suitable which is about 60 ppb which we use
+in this exercise. (Brönnimann 2013, 26).
 
 Ozone is a molecule consisting of 3 oxygen atoms and has various physical
 (absorption of UV and IR radiation) and chemical properties (high
@@ -79,7 +57,34 @@ This exercise is supposed to answer the following research question:
 *"Quantify the dependency of ozone concentration from temperature, solar
 radiation and wind"*
 
-### Original source of the file
+## Packages
+
+The following code chunk contains all packages we need for this exercise.
+Important is the package "conflicted". It shows us if the same function
+name is used in another package for another function. If there are such a
+conflict, we can (1) call the package name before the function call or (2)
+we can set a priority. If there any conflict in this exercise, we will set
+a preference in the first line of the code chunk.
+
+```{r activate_the_packages_which_are_required}
+library(tidyverse)
+library(ggplot2)
+library(ggpp)
+library(cowplot)
+library(datasets)
+library(conflicted)
+library(knitr)
+library(corrplot)
+library(ggcorrplot)
+library(ggpubr)
+library(ggpmisc)
+library(gridExtra)
+library(gridtext)
+library(grid)
+library(lattice)
+```
+
+## Original source of the file
 
 The data is example data frame in the R package "datasets". First, the data
 frame is a secondary source an we must know about the contain, the values,
@@ -87,7 +92,7 @@ the units and, of course, the primary sources. For that we can use R to
 gather all these information.
 
 ```{r shows_the_data_frame_airquality}
-# read the data
+# Read the data
 airquality <- datasets::airquality
 
 # Ask for details (units, source and references)
@@ -123,7 +128,7 @@ Weather Service.
 -   Solar. R [Langley] average in the frequency band 4000-7700 Angstroms
     (wavelength: 400-770 nano meter) from 8am to noon in Central Park NYC.
 
-### Editing the file in SI-Units
+## Editing the file in SI-Units
 
 It is strongly recommended to use the SI unit system because it is
 simplifies the reproducibility and the interpretation and discussion of the
@@ -140,25 +145,23 @@ into the SI-units system
     $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
 
 ```{r editing_the_data_frame_in_SI_units}
-# mutate columns to SI units (if necessary) and save the data frame to a variable
-airquality_mutated <- airquality |>
-# change values from Fahrenheit to kelvin  
-  mutate(Temp = (Temp - 32) / 1.8 + 273.15) |> 
-# change values from mp/h to m/s  
-  mutate(Wind = Wind * 0.44704) |> 
-# change values from Langley to joule per square meter  
-  mutate(Solar.R = Solar.R * 41840) |>
-  mutate(Date = make_date(1973, Month, Day))
 
-# define a order for the rows
-airquality_mutated$Month <- factor(airquality_mutated$Month, 
+airquality_mutated <- airquality |>
+# Change the units and make the data tidy 
+  mutate(Group = Month,
+         Temp = (Temp - 32) / 1.8 + 273.15, 
+         Wind = Wind * 0.44704,
+         Solar.R = Solar.R * 41840,
+         Date = make_date(1973, Group, Day)) |>
+  select("Date", "Group", "Ozone", "Temp", "Wind", "Solar.R")
+
+# Define a order for the rows. We need it for the x-axis of the graphs
+airquality_mutated$Group <- factor(airquality_mutated$Group, 
                                    levels =  c(5, 6, 7, 8, 9), 
                                    labels = c("May", "Jun", "Jul", "Aug", "Sept"))
 ```
 
-### Statistics
-
-#### Parameter for position and distribution
+## Statistics
 
 Now that all units have been converted to SI units and the work with the
 variables is legitimate, the question about the position, scattering and
@@ -180,33 +183,6 @@ concentration is problematic. If we compare the span (167 ppb) with the IQR
 means that we indeed have outliers but the the data core is small.
 Therefore, the data quality is acceptable.
 
-We can see this also in the boxplot. But in a box-whisker plot are some
-information hidden because its shows only the percentiles. Therefore, a
-jitters plot is added. The plot shows us that there are outliers, but the
-boxes for May, June and September are small which means the data scattering
-is small. The situation for July and August is different. The large box
-indicates a large IQR for these months and the data scattering is
-relatively high. Additional, the plot shows also the mean value. It is
-higher than the median for each box. Therefore, the skewness is for all
-months positive.
-
-The density plot shows us that the data have a big span. But the core of
-the data (area with a high density) has an acceptable span (which is
-basically the IQR). The graphs shows us also that the density for the
-months May, June and September is bi-modal. That means, that there are
-outliers (which we already see in the boxplot). July and August are
-mono-modal but have a large span. This we could also already see in the
-boxplot (large boxes).
-
-We detect many missing values. For a stringent analysis we need to know
-which values are missing. Are there a systematic error in the instrument?
-Or simple forgot someone to write down the measurement? For that we use a
-bar-plot which replace all NA in -1. Now we can easily see which values are
-missing. We are missing a lot of values for June. To create new values
-through linear interpolation is not an option because there is (1) to many
-NA and (2) th e gap between to values is to big. We would only falsify our
-analysis.
-
 ```{r statistical_parameters}
 #monthly median for temperature, ozone, solar and wind
 airquality_mutated |>
@@ -224,13 +200,23 @@ airquality_mutated |>
             Average.ozone = mean(Ozone, na.rm = TRUE))
 ```
 
+We can see this also in the boxplot. But in a box-whisker plot are some
+information hidden because its shows only the percentiles. Therefore, a
+jitters plot is added. The plot shows us that there are outliers, but the
+boxes for May, June and September are small which means the data scattering
+is small. The situation for July and August is different. The large box
+indicates a large IQR for these months and the data scattering is
+relatively high. Additional, the plot shows also the mean value. It is
+higher than the median for each box. Therefore, the skewness is for all
+months positive.
+
 ```{r boxplot_ozone_per_month}
 # use conflicted package to prefer a package
 conflicts_prefer(dplyr::filter)
 conflicts_prefer(ggplot2::annotate)
 
 # use ggplot to visualise the distribution of ozone for each month
-ggplot(data = airquality_mutated, aes(x = factor(Month), y = Ozone)) +
+ggplot(data = airquality_mutated, aes(x = factor(Group), y = Ozone)) +
 # Boxplot with an individual setup in transparency, size and width
   geom_boxplot(fill = "skyblue", alpha = 0.5, lwd = 0.3, width = 0.5,
 # red colour, individual shape and size for outliers               
@@ -239,23 +225,23 @@ ggplot(data = airquality_mutated, aes(x = factor(Month), y = Ozone)) +
   scale_y_continuous(limits = c(0, 200)) +
 # count and write how many values are in the boxplot (without NA!)  
   annotate("text",
-           x = 1:length(table(airquality_mutated$Month)),
+           x = 1:length(table(airquality_mutated$Group)),
            y = 180,
            label = c(paste("n =", nrow(airquality_mutated |>
          drop_na(Ozone) |>
-         filter(Month == "May") |>
+         filter(Group == "May") |>
          select(Ozone))) , paste("n =", nrow(airquality_mutated |>
          drop_na(Ozone) |>
-         filter(Month == "Jun") |>
+         filter(Group == "Jun") |>
          select(Ozone))), paste("n =", nrow(airquality_mutated |>
          drop_na(Ozone) |>
-         filter(Month == "Jul") |>
+         filter(Group == "Jul") |>
          select(Ozone))), paste("n =", nrow(airquality_mutated |>
          drop_na(Ozone) |>
-         filter(Month == "Aug") |>
+         filter(Group == "Aug") |>
          select(Ozone))), paste("n =", nrow(airquality_mutated |>
          drop_na(Ozone) |>
-         filter(Month == "Sept") |>
+         filter(Group == "Sept") |>
          select(Ozone)))), col = "black", vjust = -1) +
 # add an errorbar and make a individual setup 
   stat_boxplot(geom = "errorbar", size = 0.3, width = 0.3) +
@@ -297,9 +283,17 @@ ggplot(data = airquality_mutated, aes(x = factor(Month), y = Ozone)) +
   plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
 ```
 
+The density plot shows us that the data have a big span. But the core of
+the data (area with a high density) has an acceptable span (which is
+basically the IQR). The graphs shows us also that the density for the
+months May, June and September is bi-modal. That means, that there are
+outliers (which we already see in the boxplot). July and August are
+mono-modal but have a large span. This we could also already see in the
+boxplot (large boxes).
+
 ```{r density_ozone_per_month}
 airquality_mutated|>
-ggplot(aes(x = Ozone, group = Month, fill = Month)) +
+ggplot(aes(x = Ozone, group = Group, fill = Group)) +
 # add the geom_density and create an individual setup
     geom_density(adjust = 1.5, alpha = 0.4) +
 # add title and subtitle and label the axes  
@@ -330,10 +324,19 @@ ggplot(aes(x = Ozone, group = Month, fill = Month)) +
     plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
 ```
 
+We detect many missing values. For a stringent analysis we need to know
+which values are missing. Are there a systematic error in the instrument?
+Or simple forgot someone to write down the measurement? For that we use a
+bar-plot which replace all NA in -1. Now we can easily see which values are
+missing. We are missing a lot of values for June. To create new values
+through linear interpolation is not an option because there is (1) to many
+NA and (2) the gap between to values is to big. We would only falsify our
+analysis.
+
 ```{r bar_plot_missing_ozone_per_month}
 # create a bar plot and mark the missing values with -1
 airquality_mutated |>
-  ggplot(aes(x = Date, y = Ozone, group = Month, color = Month)) +
+  ggplot(aes(x = Date, y = Ozone, group = Group, color = Group)) +
 # create a geom bar  
   geom_bar(stat = "identity") +
 # make a geom with points  
@@ -360,12 +363,12 @@ airquality_mutated |>
   plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
 ```
 
-### Correlation
+## Correlation
 
 Now we have a impression of our data. Now we want to know whether the
 variables of the hypothesis are promisingly. For this purpose we create a
 correlation matrix. If we do not know if the ozone distribution is linear
-or monotonic, we use the "Pearosn" and the "Spearman" method. The graphic
+or monotonic, we use the "Pearson" and the "Spearman" method. The graphic
 shows us a high positiv correlation between ozone concentration vs.
 temperature (R = 0.7, $\rho=0.77$) and a high negative ozone concentration
 vs. wind (R = -0.6 and $\rho=-0.59$). There is also a positive correlation
@@ -425,11 +428,9 @@ C2 <- airquality_mutated |>
 plot_grid(C1, C2, labels = c("A","B"))
 ```
 
-### Regression models
+## Regression models
 
-#### Simple linear regression
-
-A simple linear regression model:
+Simple linear regression
 
 ```{r linear_regression_model_ozone_temperature}
 #calculate a simple linear regression: ozone vs. temperature
@@ -554,25 +555,9 @@ P4 <- airquality_mutated |>
   plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
 ```
 
-Overview simple linear regression models:
+## Results and Discussion
 
-```{r patch_all_models_together}
-# plot the graphs in a grid
-plot_grid(P2, P3, P4, NULL, labels = c("A","B","C"))
-```
-
-### Results and Discussion
-
--   We don't nothing about the missing values. are there no measurements?
-    instruments? Sensitivity?
-
--   Not the same place
-
--   much of fossil fuels
-
--   different wind scheme
-
-### Bibliography
+## Bibliography
 
 Brönnimann Stefan (2013): Ozon in der Atmosphäre. Bern, Haupt Verlag. DOI:
 10.480/GB2013.03
