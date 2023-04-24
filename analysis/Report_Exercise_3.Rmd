@@ -51,27 +51,26 @@ mod_cat <- lm(uptake~log(conc), data = df)
 step(object = lm(uptake ~ 1, data = df),
      scope = uptake ~ conc * log(conc) * Type * Treatment,
      direction = "forward")
-
-
-modeli <- lm(database$GPP_NT_VUT_REF~database$GPP_NT_VUT_REF, method = "lm")
-
-extractAIC(modeli)
 ```
 
 
+The return of the function gives us a overview about the simple linear regression
+models. 
 
-
-
-```{r}
-
-```
-
-
-
-```{r}
+```{r Read_the_file}
 # Read the file
 database <- read_csv("../data/halfhourly_data.csv")
+```
 
+
+```{r Visualization_of_the_data}
+# 
+
+
+```
+
+
+```{r Function_for_an_overview}
 # Function to determine the best fit for a single regression model
 model.fitter <- function(dataframe, target.column.nr){
   # Give all column-names to a vector
@@ -107,8 +106,6 @@ model.fitter <- function(dataframe, target.column.nr){
 
 best.single.fit <- model.fitter(database, 16)
 ```
-
-
 
 
 
