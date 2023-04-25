@@ -95,19 +95,44 @@ model.fitter <- function(dataframe, target.column.nr){
     }
   }
   # We create a tibble for a proper overview
-  my.tibble <- tibble("Target" = rep(col.names[target.column.nr], 
+  my.tibble <- print(tibble("Target" = rep(col.names[target.column.nr], 
                                      times = ncol(dataframe)),
                       "Predictor" = col.names,
                       "RR"  = my.vec,
                       "AIC" = aic.vec,
-                      "Fit" = ifelse(RR >= max(RR, na.rm = TRUE), "Best Fit", "NO"))
-  return(my.tibble)
+                      "Fit" = ifelse(RR >= max(RR, na.rm = TRUE), "BEST FIT", "NO")))
+  return(print(my.tibble))
 }
 
-best.single.fit <- model.fitter(database, 16)
+model.fitter(database, 16)
+I have 
 ```
 
 
+
+```{r}
+
+first.try <- function(dataframe,target){
+  df.target <- database|>
+  select(col.names[16])
+  df.predictor <- database|>
+  select(- col.names[16]) 
+  col.names <- c(colnames(df.predictor))
+  RR.now <- 0
+  for (i in c(1 : ncol(df.predictor))) {
+    lm.model <- lm(unlist(df.target[1]) ~ unlist(df.predictor[i]))
+    RR.new <- summary(lm.model)$r.squared
+  if(RR.new > RR.now){
+    RR.now <- RR.new
+    variable.name <- col.names[i]}
+  else{}
+  }
+  col.names <- col.names[!col.names == variable.name]
+  return(print(col.names))
+}
+
+test <- first.try(database, 16)
+```
 
 
 
