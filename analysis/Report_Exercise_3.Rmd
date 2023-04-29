@@ -59,7 +59,7 @@ models.
 
 ```{r Read_the_file}
 # Read the file
-database <- read_csv("../data/halfhourly_data.csv")
+database <- data.frame(read_csv("../data/halfhourly_data.csv"))
 ```
 
 
@@ -105,18 +105,16 @@ model.fitter <- function(dataframe, target.column.nr){
 }
 
 model.fitter(database, 16)
-I have 
 ```
 
 
 
 ```{r}
-
 first.try <- function(dataframe,target){
   df.target <- database|>
   select(col.names[16])
   df.predictor <- database|>
-  select(- col.names[16]) 
+  select(-col.names[16]) 
   col.names <- c(colnames(df.predictor))
   RR.now <- 0
   for (i in c(1 : ncol(df.predictor))) {
@@ -134,6 +132,77 @@ first.try <- function(dataframe,target){
 test <- first.try(database, 16)
 ```
 
+
+```{r}
+# function to find the best model fit (step forward algorithm)
+
+# The function needs a data.frame and the column number of the target.
+multivariante.model <- function(dataframe, target){
+  # Read all columns but the target and save their names in a vector
+  col.names <- dataframe|>
+  select(-target) |>
+  colnames()
+  # Start with a empty vector. Here we will write down the predictors of the best fit for each round
+  predictors <- NULL
+  # Start with a empty vector for the column names. Here we will write down the fittest predictor for each round
+  column.name <- NULL
+  # Start with a big number. While loop should run till the AIC become bigger again
+  AIC.old <- 9999999
+  AIC.new <- 9999998
+  while (AIC.new < AIC.old) {
+    # Change the watcher for the while loop. We change the watcher for each round
+    AIC.old <- AIC.new
+    # Set the RR value to zero. We want a new start for each round in the for loop
+    RR.now <- 0
+    # col.names will be shorter for each round because we delete always the best fit from the vector
+    for (i in col.names) {
+      # For each round, we create a new formula for the linear regression model.   
+      changeable.formula <- as.formula(paste("GPP_NT_VUT_REF~", paste(c(predictors, i), collapse = "+")))
+      print(changeable.formula)
+      # Calculate the linear regression model
+      lm.model <- lm(changeable.formula, data = database)
+      # Read R^2 
+      RR.new <- summary(lm.model)$r.squared
+      # Search the highest R square and save the column name. We have to delete the column for the next round
+      if(RR.new > RR.now){
+        # Change the guard to enter the if condition
+        RR.now <- RR.new
+        # Extract the AIC. If the AIC bigger in the next round, we will overwrite it.
+        AIC.new <- extractAIC(lm.model)[2]
+        # We read the column name. If the AIC bigger for another predictor, we will overwrite it
+        column.name <- as.character(i)
+        } # end if condition
+      # else does nothing
+      else{NULL
+        } # end else condition
+      }# end for loop
+    # Delete the name of the best fit of this round from the vector 
+    col.names <- col.names[!col.names == column.name]
+    # prepare the predictors for the next round
+    predictors <- c(predictors, column.name)
+    print(AIC.new)
+    }# end while loop
+# if we finished the while loop, we print our model  
+print(paste("Best model fit has AIC =", AIC.old))
+predictors <- predictors[-length(predictors)]
+print(predictors)
+return()
+}
+
+# function call
+multivariante.model(database, 16)
+```
+
+
+tests
+```{r}
+test.model <- lm(GPP_NT_VUT_REF~ PPFD_IN + LW_IN_F + siteid + VPD_F + TA_F_MDS + SW_IN_F +
+              WS_F + CO2_F_MDS + P_F + PA_F + TIMESTAMP + LW_IN_F_MDS + VPD_F_MDS + USTAR +
+              SW_IN_F_MDS, data = database)
+
+summary(test.model)
+extractAIC(test.model)[2]
+```
 
 
 
