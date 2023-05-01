@@ -1,0 +1,75 @@
+---
+title: "Report_Exercise_4"
+author: "Patrick Bigler"
+date: "2023-05-01"
+output: html_document
+---
+
+```{r Packages}
+source("../R/packages.R")
+```
+
+
+```{r Read_the_file}
+# Read the file
+daily_fluxes <- data.frame(read_csv("../data/DAV_Fluxnet_2015.csv"))
+```
+
+
+```{r Dataquality}
+# Load the function
+source("../R/Exercise_4/function.use.good.quality.only.R")
+
+# Function call
+use.good.quality.only(daily_fluxes)
+```
+
+
+```{r splitting_data_in_train_and_test}
+set.seed(1982)  # for reproducibility
+  split <- rsample::initial_split(daily_fluxes, prop = 0.7, strata = "VPD_F")
+  daily_fluxes_train <- rsample::training(split)
+  daily_fluxes_test <- rsample::testing(split)
+
+  # Model and pre-processing formulation, use all variables but LW_IN_F
+  pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
+                        data = daily_fluxes_train |> drop_na()) |>
+    recipes::step_BoxCox(all_predictors()) |>
+    recipes::step_center(all_numeric(), -all_outcomes()) |>
+    recipes::step_scale(all_numeric(), -all_outcomes())
+
+  # Fit linear regression model
+  mod_lm <- caret::train(
+    pp,
+    data = daily_fluxes_train |> drop_na(),
+    method = "lm",
+    trControl = caret::trainControl(method = "none"),
+    metric = "RMSE")
+
+  # Fit KNN model
+  mod_knn <- caret::train(
+    pp,
+    data = daily_fluxes_train |> drop_na(),
+    method = "knn",
+    trControl = caret::trainControl(method = "none"),
+    tuneGrid = data.frame(k = 8),
+    metric = "RMSE")
+```
+
+
+```{r model_evaluation}
+# Load the function
+source("../R/Exercise_4/function.evaluation.model.R")
+
+# Function call for linear regression model
+eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+
+# Function call for KNN
+eval_model(mod = mod_knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+```
+
+
+Discussion
+
+
+

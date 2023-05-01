@@ -1,0 +1,549 @@
+---
+title: "Report_Exercise_2"
+author: "Patrick Bigler"
+date: "2023-04-10"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 75
+---
+
+# Report Exercise to Chapter 4
+
+Author: Patrick Bigler
+
+Martikelnummer: 20-100-178
+
+## Introduction and Hypothesis
+
+Air quality depends on factors such as particulate matter (PM10 or PM2.5),
+nitrogen dioxide $(NO_2)$ or ozone $(O_3)$. In this exercise, only the
+tropospheric ozone is considered for air quality. Ozone is not a health
+hazard per se but a high concentration over a longer period of time can
+affect the health. (Brönnimann 2013, 23). But what does that mean? For
+Switzerland, the threshold value is $120\: \frac{\mu g}{m^3}$ over eight
+hours (Brönnimann 2013, 23). However, this unit depends on the air
+pressure, which decreases with altitude. The volume mixing ratio with the
+unit parts per million is more suitable which is about 60 ppb which we use
+in this exercise. (Brönnimann 2013, 26).
+
+Ozone is a molecule consisting of 3 oxygen atoms and has various physical
+(absorption of UV and IR radiation) and chemical properties (high
+reactivity). Ozone emerges due to a 2 phase chemical reaction (Brönnimann
+2013, 75):
+
+1.  $NO_2 + h\nu \left(\lambda < 420 nm \right) \rightleftharpoons NO + O$
+
+2.  $NO + O_3 \rightleftharpoons NO_2 + O_2$
+
+From the reaction equations it follows that UV radiation, oxygen and
+nitrogen dioxide are needed for the formation of ozone . The first two are
+available in almost unlimited quantities. Thus, the production depends
+mainly on nitrogen dioxide. For the planetary boundary layer (and therefore
+for the surface as well), it is motorized traffic the main source.
+(Brönnimann 2013, 95). Lastly, many chemical reactions are temperature
+dependent. This is also true for ozone. The higher the temperature, the
+more the balance of the reaction shifts towards ozone production and the
+concentration increases (Brönnimann 2013, 95).
+
+In summary, the ozone concentration depends probably on temperature (shift
+of the balance), solar radiation (mostly IR-radiation) and the
+concentration of nitrogen dioxide (which depends on traffic and wind). With
+these considerations, a data set on air-quality can be studied with a focus
+on ozone.
+
+This exercise is supposed to answer the following research question:
+
+*"Quantify the dependency of ozone concentration from temperature, solar
+radiation and wind"*
+
+## Packages
+
+The following code chunk contains all packages we need for this exercise.
+Important is the package "conflicted". It shows us if the same function
+name is used in another package for another function. If there are such a
+conflict, we can (1) call the package name before the function call or (2)
+we can set a priority. If there any conflict in this exercise, we will set
+a preference in the first line of the code chunk.
+
+```{r activate_the_packages_which_are_required}
+source("../R/packages.R")
+```
+
+## Original source of the file
+
+The data is example data frame in the R package "datasets". First, the data
+frame is a secondary source an we must know about the contain, the values,
+the units and, of course, the primary sources. For that we can use R to
+gather all these information.
+
+```{r shows_the_data_frame_airquality}
+# Read the data
+airquality <- datasets::airquality
+
+# Ask for details (units, source and references)
+help("airquality")
+
+# Check weather there are missing values
+is.na(airquality)
+
+# check data type of every variable in data frame
+str(airquality)
+```
+
+The data frame shows different variables at different times. Start was
+05.01.1973 (a Tuesday) and ends at 09.30.1973 and each day has an entry (it
+could be "NA" as well). We distinguish the variable according to the source
+and describing them.
+
+Data for ozone were collected from the New York State Department of
+Conservation.
+
+-   Ozone [ppb] represent the average of the concentration between 1pm -
+    3pm at Roosevelt Island, NYC.
+
+Data for the meteorological data were collected from the US. National
+Weather Service.
+
+-   Wind [mph] is calculated as the average wind speed at 7am and 10am at
+    La Guardia Airport, NYC
+
+-   Temperature [degrees Fahrenheit] is the maximum daily temperature at la
+    Guardia Airport, NYC
+
+-   Solar. R [Langley] average in the frequency band 4000-7700 Angstroms
+    (wavelength: 400-770 nano meter) from 8am to noon in Central Park NYC.
+
+## Editing the file in SI-Units
+
+It is strongly recommended to use the SI unit system because it is
+simplifies the reproducibility and the interpretation and discussion of the
+data. It follows the formulas to calculates the values from there units
+into the SI-units system
+
+-   For temperature the following formula was used:
+    $$\frac{x \left[°Fahrenheit \right]- 32}{1.8} +273.15 \Longleftrightarrow x\left[Kelvin \right]$$
+
+-   For wind speed the following formula was used :
+    $$1 \left[\frac{mile}{hour} \right] \Longleftrightarrow 0.44704 \left[\frac{meter}{second}\right]$$
+
+-   For solar radiation the following formula was used :
+    $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
+
+```{r editing_the_data_frame_in_SI_units}
+
+airquality_mutated <- airquality |>
+# Change the units and make the data tidy 
+  mutate(Group = Month,
+         Temp = (Temp - 32) / 1.8 + 273.15, 
+         Wind = Wind * 0.44704,
+         Solar.R = Solar.R * 41840,
+         Date = make_date(1973, Group, Day)) |>
+  select("Date", "Group", "Ozone", "Temp", "Wind", "Solar.R")
+
+# Define a order for the rows. We need it for the x-axis of the graphs
+airquality_mutated$Group <- factor(airquality_mutated$Group, 
+                                   levels =  c(5, 6, 7, 8, 9), 
+                                   labels = c("May", "Jun", "Jul", "Aug", "Sept"))
+```
+
+## Statistics
+
+Now that all units have been converted to SI units and the work with the
+variables is legitimate, the question about the position, scattering and
+distribution parameters arises. For the ozone concentration is the median
+the right position parameter because it is robust against outliers. This is
+important because a short time higher concentration of ozone is probably
+not a problem for the human well-being but for a long term it could be. If
+we use the mean, we loss the overall picture due to a big one time outlier.
+If the median has been used it should be used the IQR as a scattering
+parameter.
+
+It shows us that the monthly median (may = 18 ppb, Jun = 23 ppb, Jul = 60
+ppb, Aug = 52 ppb, Sept = 23 ppb) is lower or equal to the threshold value
+(60 ppm). Therefore, there the air-quality is acceptable. But there are
+measurements in every month which exceed the threshold value (.75 quantile,
+maximum ). That means that there are isolated days when the ozone
+concentration is problematic. If we compare the span (167 ppb) with the IQR
+(45.25 ppb) we notice that the IQR is clearly smaller than the span . That
+means that we indeed have outliers but the the data core is small.
+Therefore, the data quality is acceptable.
+
+```{r statistical_parameters}
+#monthly median for temperature, ozone, solar and wind
+airquality_mutated |>
+#calculate the median for the ozone concentraion  
+  summarise(median.temp = median(Temp, na.rm = TRUE),
+            median.wind = median(Wind, na.rm = TRUE),
+            median.ozone = median(Ozone, na.rm = TRUE),
+            Min.ozone = min(Ozone, na.rm = TRUE),
+            Q1.ozone = quantile(Ozone, 0.25, na.rm = TRUE),
+            Q2.ozone = quantile(Ozone, 0.5, na.rm = TRUE),
+            Q3.ozone = quantile(Ozone, 0.75, na.rm = TRUE),
+            Max.ozone = max(Ozone, na.rm = TRUE),
+            IQR.ozone = IQR(Ozone, na.rm = TRUE),
+            Span = max(Ozone, na.rm = TRUE) - min(Ozone, na.rm = TRUE),
+            Average.ozone = mean(Ozone, na.rm = TRUE))
+```
+
+We can see this also in the boxplot. But in a box-whisker plot are some
+information hidden because its shows only the percentiles. Therefore, a
+jitters plot is added. The plot shows us that there are outliers, but the
+boxes for May, June and September are small which means the data scattering
+is small. The situation for July and August is different. The large box
+indicates a large IQR for these months and the data scattering is
+relatively high. Additional, the plot shows also the mean value. It is
+higher than the median for each box. Therefore, the skewness is for all
+months positive.
+
+```{r boxplot_ozone_per_month}
+# use conflicted package to prefer a package
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(ggplot2::annotate)
+
+# use ggplot to visualise the distribution of ozone for each month
+ggplot(data = airquality_mutated, aes(x = factor(Group), y = Ozone)) +
+# Boxplot with an individual setup in transparency, size and width
+  geom_boxplot(fill = "skyblue", alpha = 0.5, lwd = 0.3, width = 0.5,
+# red colour, individual shape and size for outliers               
+               outlier.color = "red", outlier.shape = 17, outlier.size = 2) +
+# Set new limits for the y-axis (we want it a little bit higher than max. value)
+  scale_y_continuous(limits = c(0, 200)) +
+# count and write how many values are in the boxplot (without NA!)  
+  annotate("text",
+           x = 1:length(table(airquality_mutated$Group)),
+           y = 180,
+           label = c(paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Group == "May") |>
+         select(Ozone))) , paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Group == "Jun") |>
+         select(Ozone))), paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Group == "Jul") |>
+         select(Ozone))), paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Group == "Aug") |>
+         select(Ozone))), paste("n =", nrow(airquality_mutated |>
+         drop_na(Ozone) |>
+         filter(Group == "Sept") |>
+         select(Ozone)))), col = "black", vjust = -1) +
+# add an errorbar and make a individual setup 
+  stat_boxplot(geom = "errorbar", size = 0.3, width = 0.3) +
+# add mean and make a individual setup  
+  stat_summary(fun.y = mean, geom = "point", shape = 23, size = 4, color = "orange") +
+# make the values almost transparent and force the values with width statemant in a colomn
+  geom_jitter(width = 0, alpha = 0.1) +
+# create and add a fine dotdashed line for the threshold values for Switzerland as a reference
+  geom_hline(yintercept = 60, color = "darkmagenta", size = 0.3, linetype = "dotdash") +
+# create and add a dotted line for the median for the ozone concentration 
+  geom_hline(yintercept =  median(airquality_mutated$Ozone, na.rm = TRUE), 
+             color = "royalblue", size = 0.3, linetype = "dotdash") +
+# add label for the Threshold, hjust for a left side alignment
+  annotate("text", x =  0.5 , y = 170, hjust = 0, 
+           label = "Threshold value [60 ppb]", color = "darkmagenta") +
+# add label for the median, hjust for a left side alignment
+  annotate("text", x = 0.5 , y =  155, hjust = 0, 
+           label = "Overall median [31.5 ppm]", color = "royalblue") +
+# add label for the outliers, hjust for a left side alignment
+  annotate("text", x = 0.5 , y =  140, hjust = 0, 
+           label = "Outliers", color = "red") +
+# add label for the mean, hjust for a left side alignment
+  annotate("text", x = 0.5 , y =  125, hjust = 0, 
+           label = "Mean", color = "orange") +
+# label the graphic and axes
+  labs(title = "Ozone concentration per month",
+       subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]",
+       x = "Time [1973]", y = "Ozone concentration [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
+# chose a background for the graph 
+  theme_bw() +
+# write the title bold  
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+# add panel boarder for the graph 
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+# add a individual panel boarder around the graph  
+  theme(plot.margin = margin(0.3, 1, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
+```
+
+The density plot shows us that the data have a big span. But the core of
+the data (area with a high density) has an acceptable span (which is
+basically the IQR). The graphs shows us also that the density for the
+months May, June and September is bi-modal. That means, that there are
+outliers (which we already see in the boxplot). July and August are
+mono-modal but have a large span. This we could also already see in the
+boxplot (large boxes).
+
+```{r density_ozone_per_month}
+airquality_mutated|>
+ggplot(aes(x = Ozone, group = Group, fill = Group)) +
+# add the geom_density and create an individual setup
+    geom_density(adjust = 1.5, alpha = 0.4) +
+# add title and subtitle and label the axes  
+    labs(x = "Ozon [ppb]", y = "Density", 
+    title = "Density of the ozone concentration",
+    subtitle = "At Roosevelt Island, NYC [Average concentration between 1pm and 3pm]",
+    caption = "AGDS Report Exercise 2 (Chapter 4)") +
+# add a vline with an individual setup  
+    geom_vline(xintercept = 60, size = 0.3, 
+               linetype = "dotdash", color = "darkmagenta") +
+    geom_vline(xintercept = median(airquality_mutated$Ozone, na.rm = TRUE), 
+               size = 0.3, linetype = "dotdash", color = "royalblue") +
+    ggplot2::annotate("text", x = 110 , y =  0.0218, hjust = 0, 
+           label = "Overall median [31.5 ppb]", color = "royalblue") +
+    ggplot2::annotate("text", x = 110 , y =  0.0235, hjust = 0, 
+           label = "Threshold value [60 ppb]", color = "darkmagenta") +
+# chose a background and add a panel boarder  
+    theme_bw() +
+# plot the title bold 
+    theme(plot.title = element_text(size = 15, face = "bold")) +
+# add a panel boarder  
+    theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+    theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black")) +
+# add a panel boader around the whole graph  
+    theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
+```
+
+We detect many missing values. For a stringent analysis we need to know
+which values are missing. Are there a systematic error in the instrument?
+Or simple forgot someone to write down the measurement? For that we use a
+bar-plot which replace all NA in -1. Now we can easily see which values are
+missing. We are missing a lot of values for June. To create new values
+through linear interpolation is not an option because there is (1) to many
+NA and (2) the gap between to values is to big. We would only falsify our
+analysis.
+
+```{r bar_plot_missing_ozone_per_month}
+# create a bar plot and mark the missing values with -1
+airquality_mutated |>
+  ggplot(aes(x = Date, y = Ozone, group = Group, color = Group)) +
+# create a geom bar  
+  geom_bar(stat = "identity") +
+# make a geom with points  
+  geom_point(size = 1.5) +
+# make a geom with the missing values. change NA to -1  
+  geom_point(data = airquality_mutated |>
+  mutate_all( ~replace_na(.,-1)) |>
+  dplyr::filter(`Ozone` == -1) , size = 1.5, color = "red") +
+  labs(x = "Time [1973]", y = "Ozon [ppb]", 
+  title = "Daily ozone concentration",
+  subtitle = "At Roosevelt Island, NYC [daily average concentration between 1pm and 3pm]",
+  caption = "AGDS Report Exercise 2 (Chapter 4)") +
+# chose a background and add a panel boarder  
+  theme_bw() +
+# plot title bold  
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+# add an individual panel boarder  
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black")) +
+# add an individual panel boarder around the whole graph  
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
+```
+
+## Correlation
+
+Now we have a impression of our data. Now we want to know whether the
+variables of the hypothesis are promisingly. For this purpose we create a
+correlation matrix. If we do not know if the ozone distribution is linear
+or monotonic, we use the "Pearson" and the "Spearman" method. The graphic
+shows us a high positiv correlation between ozone concentration vs.
+temperature (R = 0.7, $\rho=0.77$) and a high negative ozone concentration
+vs. wind (R = -0.6 and $\rho=-0.59$). There is also a positive correlation
+between ozone concentration and solar radiation (R = 0.35 and $\rho=0.35$)
+but not so strong. The difference between the methods are not negligible.
+In this exercise, we would use the "Spearman" method because it describes
+the correlation a little bit better. Nevertheless, the chosen variables are
+promisingly.
+
+```{r correlation_plot}
+# correlation: Method "pearson"
+C1 <- airquality_mutated |>
+  select( Ozone, Wind, Temp, Solar.R) |>
+# chose the right method  
+  cor(use = "pairwise", method = "pearson") |>
+# plot lower triangle with the correlation coefficients
+  ggcorrplot(hc.order = TRUE,
+           type = "lower", lab = TRUE) +
+# label the graphic
+  labs(title = "Correlation overview", 
+       subtitle = "Method: Pearson",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
+# plot the title bold
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+# add an individual panel boarder  
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black")) +
+# add an individual panel boarder around the whole graph
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))  
+
+# correlation: Method "spearman"
+C2 <- airquality_mutated |>
+  select( Ozone, Wind, Temp, Solar.R) |>
+# chose the right method  
+  cor(use = "pairwise", method = "spearman") |>
+# plot lower triangle with the correlation coefficients
+  ggcorrplot(hc.order = TRUE,
+           type = "lower", lab = TRUE) +
+# label the graphic
+  labs(title = "Correlation overview",
+       subtitle = "Method: Spearman",
+         caption = "AGDS Report Exercise 2 (Chapter 4)") +
+# plot the title bold
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+# add an individual panel boarder  
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+                size = 0.5, linetype = "solid", colour = "black")) +
+# add an individual panel boarder around the whole graph
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
+
+plot_grid(C1, C2, labels = c("A","B"))
+```
+
+## Regression models
+
+Simple linear regression
+
+```{r linear_regression_model_ozone_temperature}
+#calculate a simple linear regression: ozone vs. temperature
+model.fit.ozone.temp <- 
+  lm(airquality_mutated$Ozone ~ airquality_mutated$Temp,
+  airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.temp)
+
+#calculate a simple linear regression: ozone vs. wind
+model.fit.ozone.wind <- 
+  lm(airquality_mutated$Ozone ~ airquality_mutated$Wind, 
+  airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.wind)
+
+#calculate a simple linear regression: ozone vs. solar radiation
+model.fit.ozone.solar <- 
+  lm(airquality_mutated$Ozone ~ airquality_mutated$Solar.R, 
+  airquality_mutated = airquality_mutated)
+summary(model.fit.ozone.solar)
+```
+
+For a better interpretation the model can be visualized:
+
+```{r linear_regression_model_ozone_time}
+P1 <- airquality_mutated |>
+  ggplot(aes(x = Day, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+             size = 0.3, color = "darkmagenta") +
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Time",
+       x = "Time [Day]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+  theme(panel.border = element_rect(colour = "black", 
+       fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+       size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
+```
+
+```{r visualize_linear_regression_model_ozone_temperature}
+P2 <- airquality_mutated |>
+  ggplot(aes(x = Temp, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+          size = 0.3, color = "darkmagenta") +
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Temperature", 
+          x = "Temperature [Kelvin]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +
+  theme(panel.border = element_rect(colour = "black", 
+          fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+          size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))   
+```
+
+```{r visualize_linear_regression_model_ozone_wind}
+P3 <- airquality_mutated |>
+  ggplot(aes(x = Wind, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+        size = 0.3, color = "darkmagenta") +
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. Wind",
+       x = "Wind [m/s]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +  
+  theme(panel.border = element_rect(colour = "black", 
+        fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+        size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
+```
+
+```{r visualize_regression_model_solar.r}
+P4 <- airquality_mutated |>
+  ggplot(aes(x = Solar.R, y = Ozone, color = Month)) +
+  geom_point(alpha = 0.5) +
+  scale_y_continuous(limits = c(0, 250)) +
+#use smooth for a linear regression, se for standard error  
+  geom_smooth(formula = y ~ x, method = "lm", se = FALSE) +
+  stat_poly_eq(use_label(c("eq", "R2"))) +
+  geom_hline(yintercept = 60, linetype = "dotdash", 
+        size = 0.3, color = "darkmagenta") +
+#lab the axes and giv the graphic a title  
+  labs(title = "Ozone vs. solar irradiation", 
+       subtitle = "Linear Regression Model",
+       x = "solar irradiation [J/m^2]", y = "Ozone [ppb]",
+       caption = "AGDS Report Exercise 2 (Chapter 4)") +
+  theme_bw() +
+  theme(plot.title = element_text(size = 15, face = "bold")) +  
+  theme(panel.border = element_rect(colour = "black", 
+        fill = NA, linewidth = 1)) +
+  theme( legend.background = element_rect( fill = "lightblue", 
+        size = 0.5, linetype = "solid", colour = "black")) +
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+  panel.background = element_rect(fill = "white"),
+  plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1)) 
+```
+
+## Results and Discussion
+
+## Bibliography
+
+Brönnimann Stefan (2013): Ozon in der Atmosphäre. Bern, Haupt Verlag. DOI:
+10.480/GB2013.03

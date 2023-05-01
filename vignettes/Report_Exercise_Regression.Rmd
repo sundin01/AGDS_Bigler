@@ -1,0 +1,237 @@
+---
+title: "Exercise_3"
+author: "Patrick Bigler"
+date: "2023-04-24"
+output: html_document
+---
+
+
+# Report Exercise to Chapter 4
+
+Author: Patrick Bigler
+
+Martikelnummer: 20-100-178
+
+## Introduction
+This exercise demonstrates an algorithm to select the best possible 
+linear regression model. In R, there are functions for this that allow a fast 
+and efficient solution. Here, however, the whole algorithm is to be implemented 
+as an exercise. Roughly speaking, the algorithm should do the following:
+
+
+1. Set the number of predictors to be considered to p equal 1.
+
+2. Fit all regression models with p predictors and compute their R^2.
+
+3. Select the model with p predictors that achieves the highest R^2 
+(best fitting model) and compute its AIC.
+
+4. Increment to p + 1. Fit all regression models with p + 1 predictors 
+and compute their R^2. Select the best fitting model and compute its AIC.
+
+5. If the AIC of the model with p + 1 predictors is poorer than the AIC 
+of the model with p predictors, retain the model with p predictors and quit. 
+
+6. You have found the (presumably) optimal model. Otherwise, continue with with step 4.
+
+For the first task we apply only the first 3 steps. If we do that we may be able 
+to chose the best bivariate model. For the second task we iterate the steps 4 and 5.
+If we do that we might also be able to chose the best multivariate model. Please
+note that the functions are outsourced to a separated R-script. 
+
+After we implemented the algorithm you will see, that there are a lot to discuss.
+Although the algorithm is clear, the interpretation and the application may not.
+
+
+## Packages
+
+```{r Packages}
+source("../R/packages.R")
+```
+
+To make a good decision about the predictors we need as much information as possible.
+For that we read our file as a data frame. After that, we want a overview about
+the data ( what variables contains teh data set? What are the main statistical parameters?)
+
+```{r Read_the_file}
+# Read the file
+database <- data.frame(read_csv("../data/halfhourly_data.csv"))
+
+# Take a overview and main statistic parameters
+summary(database)
+```
+
+Now we know the magnitude and we gain some information about the distribution. 
+But it is very difficult to decide if a linear regression is an appropriate approach. 
+To solve this problem, we calculate a overview about all simple linear regression models
+and plot it. Now we can see that for most of the variables a linear regression is 
+a good idea.
+
+```{r Overview_about_the_data}
+# Overview about the data, the regression
+
+database|>
+  pivot_longer(cols = c(database|>
+  select(-c("siteid", "TIMESTAMP", "GPP_NT_VUT_REF")) |>
+  colnames()),
+               names_to = "Variable", 
+               values_to = "Value")|>
+  group_by(`Variable`)|>
+  ggplot(aes(x = `Value`, y = `GPP_NT_VUT_REF`, na.rm = TRUE)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(formula = y~x, method = "lm", color = "red", se = FALSE) +
+  facet_wrap(~Variable )
+```
+
+But which is probably the best one? With which variable should we start? For that
+a correlation plot is a good thing. It gives us a good overview about the 
+correlation. In the plot before, we have also seen that the relation of the variables
+is mostly linear. So we use the "pearson" method to calculate the correlation.
+ 
+```{r Visualization_of_the_data}
+# create a correlation matrix. Use "use" to ignore NAs
+cor.mat <- cor(database[, 3:17], use = "complete.obs", method = "pearson")
+
+# plot a correlation plot. Now we have a good overview
+ggcorrplot(cor.mat, hc.order = TRUE, type  = "lower",
+   lab = FALSE)
+```
+
+Now we have gain many information about the variables. But it could be very difficult
+to decide which variable are the best for a goof lm fit. For that we use a function
+which will make this decision for us. If we want only one predictor to decribe 
+the target we use a bivariate linear regression model. 
+
+## Bivariate linear regression
+
+```{r Calculate_best_Bivariante_Model}
+# Access the outsourced function for the bivariate model
+source("../R/Exercise_3/function.bivariate.model.R")
+
+# Function call
+model.fitter(database, 16)
+```
+
+### Visualization of the bivariate model
+ 
+There are meaningful scatter-plot for bivariate lm -models. It gives us a good
+first impression. But we want to know more about the coefficients, the intercept, 
+the distribution and outliers. For that we use summary() and we plot the model.
+
+```{r Visualization_of_the_bivariate_regression_model}
+# Calculate the probebly best multivariate model
+best.bi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN, data = database)
+
+# Plot the bivariate model
+database|>
+ggplot(aes(x = database$PPFD_IN, y = database$GPP_NT_VUT_REF)) +
+  geom_point(alpha = 0.5) +
+  # create the model
+  geom_smooth(formula = y~x, method = "lm", se = TRUE) +
+  labs(title = "Bivariate lineare Regression Model", 
+       y = "GPP_NT_VUT_REF", x = "PPFD_IN") +
+  # Add some important parameters
+  stat_poly_eq(use_label(c("eq", "R2", "AIC"))) +
+  theme_bw()
+
+# Overview about all important model parameter
+
+# Model Call. We are also interested for the p-values
+summary(best.bi.lm)
+
+# Plot the model 
+plot(best.bi.lm)
+```
+
+## Multivariate linear regression
+
+```{r Calculate_best_multivariate_model}
+# Access the outsourced function of the multivariate model
+source("../R/Exercise_3/function.multivariate.model.R")
+
+# Function call with all column but target (column number 16)
+multivariate.model(database, c(16))
+
+# Function call without the column numbers 1, 2 and 16
+multivariate.model(database, c(1,2,16))
+```
+
+### Visualization of the multivariate model
+
+There are no meaningful scatter-plot for multidimensional models. But we want to know
+more about the coefficients, the intercept, the distribution and outliers. 
+```{r Visualization_of_the_multivariate_regression_model}
+# Calculate the probebly best multivariate model
+best.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS + 
+                      SW_IN_F + P_F + WS_F + CO2_F_MDS + PA_F, data = database)
+
+# Overview about all important model parameter
+
+# Model Call
+summary(best.multi.lm)
+
+# Plot the model 
+plot(best.multi.lm)
+```
+
+## Discussion
+
+It seems that the step forward algorithm is successfully implemented. However, 
+it is important to choose the predictors very carefully because the final model 
+could varies. The target, of course, must be removed before we can use the algorithm
+because if we use the target as a predictor, R^2 will be always 1. Additional,
+the predictor would be a linear combination of the target and therefore disrupt 
+the results. 
+
+All other column must be chosen very carefully as well. For that, we have to understand
+for what the column stands. After that we must decide whether the variable is a meaningful
+predictor. For example, could be time very important. Maybe the experiment-setting were
+outdoor and the climate factors were important. It could also be possible, that our experiment
+setting were indoor and there were always labor-conditions. That means, that the date and time
+is irrelevant. It is not always clear what is a "good choice". 
+
+For task 1 I could have wrote a very similar function as for task two. But I 
+wrote a function which is a little bit complicated as necessary. I did
+this to demonstrate how the algorithm works. The algorithm calculate a linear regression
+model for each predictor. For the model with the highest R^2 w. You can see on the table
+that the the model with the highest model is not necessary the model with the lowest AIC.
+
+For task two I wrote also a function. It is a step forward algorithm. First, the function 
+calculate a bivariate linear regression model and chose the one which has the highest
+R^2. After that, a multivariate regression model is calculated and again
+the one with the highest R^2 is chosen. For each round, we compare the AIC. If the AIC
+higher than the model before, we stop the calculation and we have found our probebly 
+best fit model. But here we have the same problem as describe above. Our calculation depends
+on our input. We therefore need to consider which variables to include in the calculation.
+
+To demonstrate that, I made different function calls. You can easely see that the results 
+are different. That means we must (1) chose wise (maybe with educational guess)
+(2) try different calls to be able to estimate how big the difference is and (3)
+document how and why what was decided.
+
+### Discussion of plot(model) call
+
+#### For the bivariate model
+
+Q-Q-Plot
+The Q-Q-Plot shows us that the variable are almost following a normal distribution.
+But the bigger the value the more is the deviation. The plot shows also that the 
+choice of a linear model was the right one because it follows almost the line with
+a 45° angle (It would then the values has a perfect normal distribution).
+
+Leverage-Plot
+There are none values behind the cook's distance. That means that there are 
+no significant outliers which distort our analysis. 
+
+#### For the multivariate model
+
+Q-Q-Plot
+The Q-Q-Plot shows us that the model is quite similar to the bivariate model.
+The plot shows also that the choice of a linear model was the right one because 
+it follows almost the line with a 45° angle. 
+
+
+Leverage
+
+
+
