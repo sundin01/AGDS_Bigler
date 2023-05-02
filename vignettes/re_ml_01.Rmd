@@ -26,34 +26,11 @@ use.good.quality.only(daily_fluxes)
 
 
 ```{r splitting_data_in_train_and_test}
-set.seed(1982)  # for reproducibility
-  split <- rsample::initial_split(daily_fluxes, prop = 0.7, strata = "VPD_F")
-  daily_fluxes_train <- rsample::training(split)
-  daily_fluxes_test <- rsample::testing(split)
+source("../R/Exercise_4/function.split.train.and.test.R")
 
-  # Model and pre-processing formulation, use all variables but LW_IN_F
-  pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
-                        data = daily_fluxes_train |> drop_na()) |>
-    recipes::step_BoxCox(all_predictors()) |>
-    recipes::step_center(all_numeric(), -all_outcomes()) |>
-    recipes::step_scale(all_numeric(), -all_outcomes())
+mod.knn <- knn.model(1982)
 
-  # Fit linear regression model
-  mod_lm <- caret::train(
-    pp,
-    data = daily_fluxes_train |> drop_na(),
-    method = "lm",
-    trControl = caret::trainControl(method = "none"),
-    metric = "RMSE")
-
-  # Fit KNN model
-  mod_knn <- caret::train(
-    pp,
-    data = daily_fluxes_train |> drop_na(),
-    method = "knn",
-    trControl = caret::trainControl(method = "none"),
-    tuneGrid = data.frame(k = 8),
-    metric = "RMSE")
+mod.lm <- lm.model()
 ```
 
 
@@ -62,14 +39,70 @@ set.seed(1982)  # for reproducibility
 source("../R/Exercise_4/function.evaluation.model.R")
 
 # Function call for linear regression model
-eval_model(mod = mod_lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+eval_model(mod = mod.lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 
 # Function call for KNN
-eval_model(mod = mod_knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 ```
 
 
 Discussion
 
+local regres
+
+Interpret observed differences in the context of the bias-variance trade-off:
+
+Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
+
+- local regression
+- MLM uses all predictors to calculate a regression, KNN uses only the nearest ones. 
+- KNN use all values in the training sets and therefore it is always at leats similar good
+
+
+Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
+How would you position the KNN and the linear regression model along the spectrum of the bias-variance trade-off?
+
+- because there are not a linear correlation
+- KNN is trained locally
+
+Lm have no variance
+
+Lm do not have a bias because it is the definition of a bias
+
+KNN will have a bias and variance and a balanced tradeoff.
+
+
+
+Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
+
+
+Let’s look at the role of k in a KNN. Answer the following questions:
+
+Based on your understanding of KNN (and without running code), state a hypothesis for how the R2
+and the MAE evaluated on the test and on the training set would change for k approaching 1 and for k
+approaching N (the number of observations in the data). 
+Explain your hypothesis, referring to the bias-variance trade-off.
+
+Put your hypothesis to the test! Write code that splits the data into a training 
+and a test set and repeats model fitting and evaluation for different values for k.
+
+Visualize results, showing model generalisability as a function of model complexity. 
+Describe how a “region” of overfitting and underfitting can be determined in your 
+visualization. Write (some of your) code into a function that takes k as an input 
+and and returns the MAE determined on the test set.
+
+Is there an “optimal” k in terms of model generalizability?
+Edit your code to determine an optimal k.
+
+An optimal K depends on the task and it is very difficult to determine the best k.
+If we want a model that works well for predictions then we choose the k which 
+gives us the highest RR in the evaluation. If we want a optimal description of the 
+data we have, we look for the K which gives us the highest RR in the training set.
+If we want a model with the best generalization, the we must have a close look 
+to both RR.For that we calculate the difference between the RR from the training 
+and the RR from the evaluation data set. The model with the smallest difference is 
+the model with the probably best generalization.
+
+High bias = underfitted
 
 
