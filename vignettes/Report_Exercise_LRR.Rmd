@@ -18,10 +18,7 @@ have the same name as a function from another package).
 
 ```{r activate_the_packages_which_are_required}
 #activate packages
-library(tidyverse)
-library(ggplot2)
-library(knitr)
-library(conflicted)
+source("../R/packages.R")
 ```
 
 In this exercises the topic is the "Logarithmic Respond Ratio" (LRR). The
