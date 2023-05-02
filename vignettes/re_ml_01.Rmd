@@ -11,25 +11,37 @@ source("../R/packages.R")
 
 
 ```{r Read_the_file}
+# Quiet a message because we know it already
+options(readr.show_col_types = FALSE)
+
 # Read the file
 daily_fluxes <- data.frame(read_csv("../data/DAV_Fluxnet_2015.csv"))
+
+# Take a closer look to the missing values
+visdat::vis_miss(
+  daily_fluxes,
+  cluster = FALSE, 
+  warn_large_data = FALSE)
 ```
 
 
 ```{r Dataquality}
-# Load the function
+# Load the function in the file
 source("../R/Exercise_4/function.use.good.quality.only.R")
 
 # Function call
-use.good.quality.only(daily_fluxes)
+daily_fluxes <- use.good.quality.only(daily_fluxes)
 ```
 
 
 ```{r splitting_data_in_train_and_test}
+# Load the function in the file
 source("../R/Exercise_4/function.split.train.and.test.R")
 
-mod.knn <- knn.model(1982)
+# Function call for KNN with k = 8
+mod.knn <- knn.model(8)
 
+# Function call for lm
 mod.lm <- lm.model()
 ```
 
@@ -46,9 +58,36 @@ eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_
 ```
 
 
+```{r visualization_time_variation}
+daily_fluxes|>
+  dplyr::filter(rownames(daily_fluxes %in% daily_fluxes_train))
+
+
+total <- merge(daily_fluxes, daily_fluxes_train,by="TIMESTAMP")
+
+x <- total|>
+  select(ends_with("x"))
+
+y <- total|>
+  select(ends_with("y"))
+z <- x-y
+
+
+```
+
+
+```{r visualization_of_generalisability}
+# Load the function into the file
+source("../R/Exercise_4/function.different.k.R")
+
+my.sequence <- c(1,2,3,4,seq(10, to = 90, by = 10), 96,97,98,99,100)
+different.k(my.sequence, daily_fluxes_train, daily_fluxes_test)
+```
+
+
 Discussion
 
-local regres
+local regression model
 
 Interpret observed differences in the context of the bias-variance trade-off:
 
@@ -56,7 +95,7 @@ Why is the difference between the evaluation on the training and the test set la
 
 - local regression
 - MLM uses all predictors to calculate a regression, KNN uses only the nearest ones. 
-- KNN use all values in the training sets and therefore it is always at leats similar good
+- KNN use all values in the training sets and therefore it is always at least similar good
 
 
 Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
@@ -78,18 +117,24 @@ Visualize temporal variations of observed and modlled GPP for both models, cover
 
 Let’s look at the role of k in a KNN. Answer the following questions:
 
-Based on your understanding of KNN (and without running code), state a hypothesis for how the R2
-and the MAE evaluated on the test and on the training set would change for k approaching 1 and for k
-approaching N (the number of observations in the data). 
-Explain your hypothesis, referring to the bias-variance trade-off.
 
-Put your hypothesis to the test! Write code that splits the data into a training 
-and a test set and repeats model fitting and evaluation for different values for k.
+state a hypothesis for how the R2 and the MAE evaluated on the test and on the 
+training set would change for k approaching 1 and for k approaching N.
+
+Hypothesis:
+
+Let k = 1. Then the training data would be perfectly predicted. The bias would be zero.
+But the model would be totally overfitted. That means if we we want 
+
+
+Let k = N. 
+
+Conclusion: There is always a bias-variance trade-off. 
 
 Visualize results, showing model generalisability as a function of model complexity. 
 Describe how a “region” of overfitting and underfitting can be determined in your 
 visualization. Write (some of your) code into a function that takes k as an input 
-and and returns the MAE determined on the test set.
+and  returns the MAE determined on the test set.
 
 Is there an “optimal” k in terms of model generalizability?
 Edit your code to determine an optimal k.
@@ -105,4 +150,21 @@ the model with the probably best generalization.
 
 High bias = underfitted
 
+```{r}
+# Load the function into the file
+source("../R/Exercise_4/function.parameter.extracter.R")
+
+# We define a sequence. each entry is a k and we iterate through the sequence
+my.sequence.extracter <- c(1,2,3,4, seq(5, to = 100, by = 5))
+
+# function call
+plot(paramter.extracter(my.sequence.extracter, daily_fluxes_train))
+```
+
+```{r}
+
+Metrics::mae(observed, predicted)
+
+Metrics::mae(df$y, predict(model))
+```
 
