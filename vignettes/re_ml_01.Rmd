@@ -57,25 +57,6 @@ eval_model(mod = mod.lm, df_train = daily_fluxes_train, df_test = daily_fluxes_t
 eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
 ```
 
-
-```{r visualization_time_variation}
-daily_fluxes|>
-  dplyr::filter(rownames(daily_fluxes %in% daily_fluxes_train))
-
-
-total <- merge(daily_fluxes, daily_fluxes_train,by="TIMESTAMP")
-
-x <- total|>
-  select(ends_with("x"))
-
-y <- total|>
-  select(ends_with("y"))
-z <- x-y
-
-
-```
-
-
 ```{r visualization_of_generalisability}
 # Load the function into the file
 source("../R/Exercise_4/function.different.k.R")
@@ -85,86 +66,99 @@ different.k(my.sequence, daily_fluxes_train, daily_fluxes_test)
 ```
 
 
-Discussion
+#Discussion
+In this part we discuss the differences between a lm model and a KNN model. 
+Further we will take a closer look to the KNN algorithm and the roll of k.
 
-local regression model
+##Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
+A lm model use all predictors to calculate a multivariate regression model.
+We take a close look to the formula:
 
-Interpret observed differences in the context of the bias-variance trade-off:
+y = a_1*x_1 + a_2*x_2 + ...+a_n*x_n + intercept
 
-Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
+Obviously, a lm model do not look for any underlying pattern. It creates a linear
+combination and all predictors should be linear independent. If we want apply the
+model then we must consider this fact. To create a lm model we use the training data.
+But we calculate only a regression and therefore it is not possible that RSQ = 1
+(only if the predictor is also the target and the predictors are linear dependent).
+Therefore, the lm model will always have a bias. Most likely the RMSE and MAE will 
+increase if we make predictions because the lm model do not know anything of 
+the underlying pattern.
 
-- local regression
-- MLM uses all predictors to calculate a regression, KNN uses only the nearest ones. 
-- KNN use all values in the training sets and therefore it is always at least similar good
+The situation of KNN is different. KNN calculate a "local regression". It use not 
+only all predictors. It uses k neighbours to calculate a local regression. The KNN
+model look for an underlying pattern. That is why the RSQ in the training data is
+lower than for the lm model. If we want to do a prediction the KNN has a adventage 
+over the lm. KNN "knows" the underlying pattern and the RMSE and MAE will not 
+increase fast.
 
+##Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
+Because the RMSE and MAE in the KNN is lower than in the lm model. Further, RSQ
+is higher in the KNN model than in the lm model. But be careful: RMSE and RSQ in the
+KNN model dependence directly from k.
 
-Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
-How would you position the KNN and the linear regression model along the spectrum of the bias-variance trade-off?
-
-- because there are not a linear correlation
-- KNN is trained locally
-
-Lm have no variance
-
-Lm do not have a bias because it is the definition of a bias
-
-KNN will have a bias and variance and a balanced tradeoff.
-
-
-
-Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
-
-
-Let’s look at the role of k in a KNN. Answer the following questions:
-
-
-state a hypothesis for how the R2 and the MAE evaluated on the test and on the 
-training set would change for k approaching 1 and for k approaching N.
-
-Hypothesis:
-
-Let k = 1. Then the training data would be perfectly predicted. The bias would be zero.
-But the model would be totally overfitted. That means if we we want 
+##How would you position the KNN and the linear regression model along the spectrum of the bias-variance trade-off?
+For the lm model the variance increase
 
 
-Let k = N. 
 
-Conclusion: There is always a bias-variance trade-off. 
 
-Visualize results, showing model generalisability as a function of model complexity. 
-Describe how a “region” of overfitting and underfitting can be determined in your 
-visualization. Write (some of your) code into a function that takes k as an input 
-and  returns the MAE determined on the test set.
+#Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
 
-Is there an “optimal” k in terms of model generalizability?
-Edit your code to determine an optimal k.
+```{r Visualization}
 
-An optimal K depends on the task and it is very difficult to determine the best k.
-If we want a model that works well for predictions then we choose the k which 
-gives us the highest RR in the evaluation. If we want a optimal description of the 
-data we have, we look for the K which gives us the highest RR in the training set.
-If we want a model with the best generalization, the we must have a close look 
-to both RR.For that we calculate the difference between the RR from the training 
-and the RR from the evaluation data set. The model with the smallest difference is 
-the model with the probably best generalization.
+```
 
-High bias = underfitted
 
-```{r}
+
+#Discuss "K"
+
+The "k" in KNN is a parameter that refers to the number of nearest neighbors.
+Here, we use MAE instead of RMSE. Although the values are different, the flows 
+are synchronous. That means that for both, MAE and RMSE are hyperbolas and have
+their global minima at the same k.
+
+##Hypothesis:
+The lower we chose k the higher is RSQ in the training data but the higher the variance 
+in the test data and therefore the higher the MAE.
+
+Explanation:
+Let k = 1. Then the training data would be perfectly predicted because only one   
+(the nearest) neighbour would be taken into account. The bias would be zero
+and therefore is RSQ = 1 and the MAE is 0 as well. But the model would be 
+totally overfitted. That means there is a bias-variance trade off. If the bias 
+in the training data is low, then is the variance in the test data is in general high. 
+
+Let k = N. Then would follow: RSQ is an element of (0,1] and the MAE
+an element of [0, inf). But we do not know where it is. However, the model tends 
+to be underfitted because there are to many neighbours. We see that in the increasing
+of the MAE with increaing of k.
+
+Conclusion: We want a model with zero bias and zero variance. But this seems impossible
+so we have to find the model with the best bias-variance-trade off.
+
+## Showing model generalisability as a function of model complexity and optimal k
+On figure xx you can see, that the model is for k = 0 totally overfitted. In the 
+training data the RSQ is 1 and it follows that the bias must be 0. But in the test data
+the MAE is at a global maximum. The model is useless for any predictions and the 
+trade off is on the side with to much variance.
+
+For k = 200 the RSQ is lowest in the training data. The MAE increase for both 
+data sets but is not at a maximum. The model is not suitable for predictons because
+the trade-off is on the side with to much bias.
+
+The optimal k is there, where the trade off is best. generalizability means that we 
+want the model with the lowest MAE in the test data. For that we mark the minimum
+of the RMSE test data hyperbola (red point = 25).
+
+```{r visualization_generalisability_optimal_k}
 # Load the function into the file
 source("../R/Exercise_4/function.parameter.extracter.R")
 
 # We define a sequence. each entry is a k and we iterate through the sequence
-my.sequence.extracter <- c(1,2,3,4, seq(5, to = 100, by = 5))
+my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))
 
 # function call
-plot(paramter.extracter(my.sequence.extracter, daily_fluxes_train))
-```
-
-```{r}
-
-Metrics::mae(observed, predicted)
-
-Metrics::mae(df$y, predict(model))
+paramter.extracter(my.sequence.extracter, daily_fluxes_train, daily_fluxes_test)
 ```
 
