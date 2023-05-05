@@ -106,12 +106,12 @@ The lm model is more or less the same.
 #Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
 
 ```{r Visualization}
+# Load the function into the file
 source("../R/Exercise_4/function.time.variation.R")
 
-time.variation(mod.knn, mod.lm, daily_fluxes_test )
-
+# Function call
+time.variation(mod.knn, mod.lm, daily_fluxes_test)
 ```
-
 
 
 #Discuss "K"
@@ -159,7 +159,7 @@ want the model with the lowest MAE in the test data (low bias) and the highest R
 # Load the function into the file
 source("../R/Exercise_4/function.parameter.extracter.R")
 
-# We define a sequence. each entry is a k and we iterate through the sequence
+# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))
 
 # function call
