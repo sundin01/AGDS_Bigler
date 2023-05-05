@@ -141,6 +141,10 @@ Conclusion: We want a model with zero bias and zero variance. But this seems imp
 so we have to find the model with the best bias-variance-trade off.
 
 ## Showing model generalisability as a function of model complexity and optimal k
+The hypothesis is not fully true. RSQ is a quantity to describe the variance. Or 
+better, it describes how many procent of the variance explains the model. For the 
+best bias-variance tradeoff we want the k where the bias in the test data is lowest 
+(low MAE) and the variance should be 
 On figure xx you can see, that the model is for k = 0 totally overfitted. In the 
 training data the RSQ is 1 and it follows that the bias must be 0. But in the test data
 the MAE is at a global maximum. The model is useless for any predictions and the 
