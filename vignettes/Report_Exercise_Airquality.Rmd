@@ -89,6 +89,11 @@ is.na(airquality)
 
 # check data type of every variable in data frame
 str(airquality)
+
+gg_miss_upset(database)
+
+
+gg_miss_upset(riskfactors)
 ```
 
 The data frame shows different variables at different times. Start was

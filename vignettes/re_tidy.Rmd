@@ -1,0 +1,150 @@
+---
+title: "re_tidy (Report Exercise 1 (Chapter 3))"
+output: 
+  html_notebook
+    toc: True
+editor_options: 
+  markdown: 
+    wrap: 75
+---
+
+# Report Exercise: "Data wrangling"
+
+Course: Applied Geo-data Science at University of Bern (Institute of Geography)
+
+Supervisor: Prof. Dr. Benjamin Stocker
+
+Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+You have questions to the workflow? Contact the Author:
+
+Reference: Report Exercise 1 (Chapter 3)
+
+Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
+
+Matriculation number: 20-100-178
+
+## Introduction
+
+The topic of this exercise is the "Logarithmic Respond Ratio" (LRR). The LRR is the natural logarithm (log()) of the response ratio. The ratio describes the elevated concentration of a quantity (e.g. CO2 or nitrogen) to the ambient concentration and is defined as followed:
+
+$$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
+
+In this exercise we work with \"Database S1\" which contains data of soil organic carbon measurements in experiments, where ecosystems are exposed to ambient (low) and elevated (high) CO2 concentrations. The mean soil organic carbon of multiple samples is recorded within each experiment for different sample dates. Information is provided for the time in years since the start of the experiment.
+
+### Original source of the file
+
+The data originate from a paper of Groenigen et al (2014). In this exercise, we take a close look to the $CO_2 - concentrations \: (\: [\frac{g}{m^{-2}}])$ in the experiments and calculate the LRR. Because we want a comprehensive analysis of the data, we calculate the LRR in different ways. For the scientific reproducibility, you will find the original source is the following article (or in the respiratory in the folder "data"):
+
+*Groenigen, Kees Jan van, Xuan Qi, Craig W. Osenberg, Yiqi Luo, and Bruce A. Hungate. "Faster Decomposition Under Increased Atmospheric CO2 Limits Soil Carbon Storage." Science 344, no. 6183 (May 2, 2014): 508--9. <https://doi.org/10.1126/science.1249534>.*
+
+## Method
+
+This section is used to briefly introduce the methods. Afterwards it is explained how the file was edited.
+
+### Editing the file manually
+
+Unfortunately, the original file is not well structured. It has several headings and empty spaces which complicates to read the file and therefore, we must the file edit manually. The Excel software (MS Office 360 with the license from the University of Bern, status: 2023-05-07) is used for this task. The following points were changed manually:
+
+1.  Extracted the sheet "Database S1" and saved it in a new Excel file
+
+2.  All empty rows between two different experiments removed.
+
+3.  Removed all the headings and subheadings of the sheet. Now has each column the same length.
+
+4.  Removed the header with the unit [g C m\^-2] for the columns at points 6, 7, 8 and 9
+
+5.  In the "Experiment" column, the corresponding experiment was assigned to each cell.
+
+6.  Column "ambient $CO_2$" with the header "mean" renamed to "mean ambient CO2"
+
+7.  Column "increased $CO_2$" with the header "mean" renamed to "mean increased CO2"
+
+8.  Column "ambient $CO_2$" with the header "n" renamed to "n ambient CO2"
+
+9.  Column "increased $CO_2$" with the header "n" renamed to "n increased CO2"
+
+10. File converted from a .xlsx file to a .csv file
+
+### Method and evaluation of the data
+
+After the manual editing the csv file can be read with the software R-Studio (Version 2022.12.0+353). This software use the language R to handle the data. In this part of the report it is shown how the data was read and processed with the software. For an efficient processing of the data we use the R-package "Tidyverse (and others: see packages). Important is the package "conflicted". It enables one to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package). I
+
+## Programming and data evaluation
+
+### Read the csv file, get a overview of the data and data controlling
+
+The following code chunk contains all packages we need. Important is the package "conflicted". It enables us to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package).
+
+```{r activate_the_packages_which_are_required}
+# Load the packages
+source("../R/packages.R")
+```
+
+The following code chunk shows how one can read the file.
+
+```{r read_csv_data_and_check_the_classes}
+# Read the csv table
+database <- read_csv("/Users/patrick/AGDS_Report/database_S1_csv.csv",
+                        show_col_types = FALSE)
+```
+
+To calculate the LRR, the columns "mean ambient CO" and "mean increased CO2" are needed. Therefore, they must have the class "numeric" , so that one can calculate with the values. The following code chunk check that. Furthermore it is advantageous, if there are not any missing values. This is why we check this as well. The response said, that the needed columns has the right class and there are no missing values. Therefore there is no need to change anything.
+
+```{r quality_controll}
+# Check the classes of each column (we will calculate --> class must be numeric)
+sapply(database, class)
+
+# Visualize the missing values
+vis_miss(database)
+```
+
+### Theory about how to calculate the LRR for each experiment
+
+For the first task we calculate the LRR for each experiment which can be calculated in two different ways:
+
+Method 1: Firstly, we group the database by 'Experiment'. Secondly, we calculate the mean for the columns "mean ambient CO2" and "mean increased CO2" columns (for each experiment). Thirdly, we calculate the LRR with the values.
+
+Method 2: Firstly, we calculate the LRR for each row. Secondly, we group the database by "Experiment". Thirdly, we take the mean of all LRR of each experiment.
+
+Although the results of both methods are the LRR for each experiment they are in general different. Therefore, it is important which method we chose. In this case it is more meaningful to use method 2 because every experiment has a sample date. In this setup are the CO2 concentrations fixed. It makes more sense that we take this in to account and calculate the LRR for a specific sample date. If we use method 1 we would calculate LRR with a CO2 concentration which never existed in the experimental setup. With method 2 we use concentrations who has been measured in an experiment and it makes therefore more sense.
+
+### Theory about how to calculate the LRR for each phase
+
+In this second task the experiments are divided into three phases accounting the duration of the experiment.
+
+1)  Phase "early" $\Longrightarrow$ lesser than 3 years
+
+2)  Phase "med" $\Longrightarrow$ between 3 and 6 years
+
+3)  Phase "late" $\Longrightarrow$ greater than 6 years
+
+For an efficient way to processing the data we use "Tidyverse" again. Here, we are confronted with the same problem as in the first task because there are again the two methods to calculate the LRR for each phase (same considerations and the same argumentation as above).
+
+### Programming
+
+The following code chunk shows how to calculate the LRR for both tasks and both methods.
+
+```{r Calculate_the_LRR}
+# Load the function to prepare the data set
+source("../R/Exercise_1/function.data.preparation.for.LRR.R")
+
+# Load the function to calculate the LRR by experiment
+source("../R/Exercise_1/function.LRR.by.experiment.R")
+
+# Load the function to calculate the LRR by phase
+source("../R/Exercise_1/function.LRR.by.phase.R")
+
+# Function calls
+DB_S1 <- data.preparation.for.LRR(database)
+
+# Function call to calculate the LRR for each experiment
+LRR.by.experiment(DB_S1)
+
+# Function call to calculate the LRR for each phase
+LRR.by.phase(DB_S1)
+```
+
+### Discussion
+
+As you can see, the results of Method 1 and Method 2 are different. In this case, Method 2 is more meaningful than Method 1. But this is not always the case. It is therefore important to consider what exactly you want to analyze and what is the context of the experiment.
