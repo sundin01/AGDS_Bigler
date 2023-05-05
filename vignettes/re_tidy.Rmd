@@ -30,7 +30,7 @@ The topic of this exercise is the "Logarithmic Respond Ratio" (LRR). The LRR is 
 
 $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
-In this exercise we work with \"Database S1\" which contains data of soil organic carbon measurements in experiments, where ecosystems are exposed to ambient (low) and elevated (high) CO2 concentrations. The mean soil organic carbon of multiple samples is recorded within each experiment for different sample dates. Information is provided for the time in years since the start of the experiment.
+In this exercise we work with "Database S1" which contains data of soil organic carbon measurements in experiments, where ecosystems are exposed to ambient (low) and elevated (high) CO2 concentrations. The mean soil organic carbon of multiple samples is recorded within each experiment for different sample dates. Information is provided for the time in years since the start of the experiment.
 
 ### Original source of the file
 
@@ -46,29 +46,13 @@ This section is used to briefly introduce the methods. Afterwards it is explaine
 
 Unfortunately, the original file is not well structured. It has several headings and empty spaces which complicates to read the file and therefore, we must the file edit manually. The Excel software (MS Office 360 with the license from the University of Bern, status: 2023-05-07) is used for this task. The following points were changed manually:
 
-1.  Extracted the sheet "Database S1" and saved it in a new Excel file
+1.  Filled the gaps between two Experiments with the name of the experiment.
 
-2.  All empty rows between two different experiments removed.
-
-3.  Removed all the headings and subheadings of the sheet. Now has each column the same length.
-
-4.  Removed the header with the unit [g C m\^-2] for the columns at points 6, 7, 8 and 9
-
-5.  In the "Experiment" column, the corresponding experiment was assigned to each cell.
-
-6.  Column "ambient $CO_2$" with the header "mean" renamed to "mean ambient CO2"
-
-7.  Column "increased $CO_2$" with the header "mean" renamed to "mean increased CO2"
-
-8.  Column "ambient $CO_2$" with the header "n" renamed to "n ambient CO2"
-
-9.  Column "increased $CO_2$" with the header "n" renamed to "n increased CO2"
-
-10. File converted from a .xlsx file to a .csv file
+2.  Removed the header and the source (see: unediting.data.groenigen --\> data.groenigen
 
 ### Method and evaluation of the data
 
-After the manual editing the csv file can be read with the software R-Studio (Version 2022.12.0+353). This software use the language R to handle the data. In this part of the report it is shown how the data was read and processed with the software. For an efficient processing of the data we use the R-package "Tidyverse (and others: see packages). Important is the package "conflicted". It enables one to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package). I
+After the manual editing the csv file can be read with the software R-Studio (Version 2022.12.0+353). This software use the language R to handle the data. In this part of the report it is shown how the data was read and processed with the software. For an efficient processing of the data we use the R-package "Tidyverse (and others: see packages). Important is the package"conflicted". It enables one to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package). I
 
 ## Programming and data evaluation
 
@@ -81,22 +65,39 @@ The following code chunk contains all packages we need. Important is the package
 source("../R/packages.R")
 ```
 
-The following code chunk shows how one can read the file.
+The following code chunk shows how one can read the file. First, the xlsx-file has several sheets. We extract the sheet of interest and save it on a variable. But we want a csv file and so we create a new folder and save the new file into it. We read the csv-file again for further editing.
 
-```{r read_csv_data_and_check_the_classes}
-# Read the csv table
-database <- read_csv("/Users/patrick/AGDS_Report/database_S1_csv.csv",
-                        show_col_types = FALSE)
+```{r}
+# Read a certain sheet of the xlsx file
+raw <- read_xlsx("../data-raw/re_tidy.raw.data/data.groenigen.xlsx", "Database S1",
+          range = NULL, col_names = TRUE, col_types = NULL, na = "")
+
+# convert the xlsx to a csv file
+write_csv(raw, "../data/re_tidy.data/re_tidy.new.data.csv")
+
+# read the csv file to further editing
+raw.data <- read_csv("../data/re_tidy.data/re_tidy.new.data.csv", show_col_types = FALSE)
 ```
 
-To calculate the LRR, the columns "mean ambient CO" and "mean increased CO2" are needed. Therefore, they must have the class "numeric" , so that one can calculate with the values. The following code chunk check that. Furthermore it is advantageous, if there are not any missing values. This is why we check this as well. The response said, that the needed columns has the right class and there are no missing values. Therefore there is no need to change anything.
+Information about the data is key. We make some calls for quality-control. We change the names of the columns we need. Now, we can refer to them better. Furthermore we want to know, which class the columns are and weather there are missing values. We can see there are many NAs (23.6%). The horizontal lines implies that there are empty rows. That is not a problem at all because that is only the empty rows between two different experiments. We are good to straight forward.
 
-```{r quality_controll}
-# Check the classes of each column (we will calculate --> class must be numeric)
-sapply(database, class)
+```{r Quality_control}
+# Shows the first 6 rows (column names!)
+head(raw.data)
+
+# Check the class of each column
+as.data.frame(sapply(raw.data, class))
+
+# Return the important statistical parameters
+summary(raw.data)
+
+# change the names of the two columns that are needed later on
+raw.data <- raw.data|>
+  rename("mean ambient CO2" = `ambient CO2...6`,
+         "mean increased CO2" = `increased CO2...7`)
 
 # Visualize the missing values
-vis_miss(database)
+vis_miss(raw.data)
 ```
 
 ### Theory about how to calculate the LRR for each experiment
@@ -127,24 +128,24 @@ The following code chunk shows how to calculate the LRR for both tasks and both 
 
 ```{r Calculate_the_LRR}
 # Load the function to prepare the data set
-source("../R/Exercise_1/function.data.preparation.for.LRR.R")
+source("../R/re_tidy.scripts/function.data.preparation.for.LRR.R")
 
 # Load the function to calculate the LRR by experiment
-source("../R/Exercise_1/function.LRR.by.experiment.R")
+source("../R/re_tidy.scripts/function.LRR.by.experiment.R")
 
 # Load the function to calculate the LRR by phase
-source("../R/Exercise_1/function.LRR.by.phase.R")
+source("../R/re_tidy.scripts/function.LRR.by.phase.R")
 
 # Function calls
-DB_S1 <- data.preparation.for.LRR(database)
+DB_S1 <- data.preparation.for.LRR(raw.data)
 
 # Function call to calculate the LRR for each experiment
-LRR.by.experiment(DB_S1)
+LRR.by.experiment <- LRR.by.experiment(DB_S1)
 
 # Function call to calculate the LRR for each phase
-LRR.by.phase(DB_S1)
+LRR.by.phase <- LRR.by.phase(DB_S1)
 ```
 
 ### Discussion
 
-As you can see, the results of Method 1 and Method 2 are different. In this case, Method 2 is more meaningful than Method 1. But this is not always the case. It is therefore important to consider what exactly you want to analyze and what is the context of the experiment.
+The result is rounded on 3 digits. As you can see, the results of Method 1 and Method 2 are different. In this case, Method 2 is more meaningful than Method 1. But this is not always the case. It is therefore important to consider what exactly you want to analyze and what is the context of the experiment.
