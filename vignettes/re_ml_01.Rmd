@@ -16,12 +16,6 @@ options(readr.show_col_types = FALSE)
 
 # Read the file
 daily_fluxes <- data.frame(read_csv("../data/DAV_Fluxnet_2015.csv"))
-
-# Take a closer look to the missing values
-visdat::vis_miss(
-  daily_fluxes,
-  cluster = FALSE, 
-  warn_large_data = FALSE)
 ```
 
 
@@ -94,18 +88,27 @@ increase fast.
 
 ##Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
 Because the RMSE and MAE in the KNN is lower than in the lm model. Further, RSQ
-is higher in the KNN model than in the lm model. But be careful: RMSE and RSQ in the
-KNN model dependence directly from k.
+is higher in the KNN model than in the lm model. The KNN model performes a predictions
+whit a low bias (MAE) and low variance (high RSQ) and is better than the lm model
+with a higher bias (MAE is higher) and more variance (lower RSQ). It follows that 
+the KNN model has the bestter bias-variance trade off than lm model But be careful:
+RMSE and RSQ in the KNN model dependence directly from k.
 
 ##How would you position the KNN and the linear regression model along the spectrum of the bias-variance trade-off?
 For the lm model the variance increase
 
+The KNN model seems overfitted. The RSQ in the training data is high and jumps down
+for the test data. The RMSE increase from the training data to the test data.
+This conclude that the KNN model is more on the bias side in the bias-variance trade off.
 
-
+The lm model is more or less the same. 
 
 #Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
 
 ```{r Visualization}
+source("../R/Exercise_4/function.time.variation.R")
+
+time.variation(mod.knn, mod.lm, daily_fluxes_test )
 
 ```
 
@@ -147,9 +150,10 @@ For k = 200 the RSQ is lowest in the training data. The MAE increase for both
 data sets but is not at a maximum. The model is not suitable for predictons because
 the trade-off is on the side with to much bias.
 
-The optimal k is there, where the trade off is best. generalizability means that we 
-want the model with the lowest MAE in the test data. For that we mark the minimum
-of the RMSE test data hyperbola (red point = 25).
+The optimal k is there, where the trade off is best. Generalizability means that we 
+want the model with the lowest MAE in the test data (low bias) and the highest RSQ
+(low variance). For that we mark the minimum of the RMSE test data hyperbola
+(green point = 25).
 
 ```{r visualization_generalisability_optimal_k}
 # Load the function into the file
