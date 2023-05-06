@@ -18,11 +18,11 @@ Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
 
 You have questions to the workflow? Contact the Author:
 
-Reference: Report Exercise 1 (Chapter 3)
-
 Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
+
+Reference: Report Exercise 1 (Chapter 3)
 
 ## Introduction
 
@@ -62,7 +62,7 @@ The following code chunk contains all packages we need. Important is the package
 
 ```{r activate_the_packages_which_are_required}
 # Load the packages
-source("../R/packages.R")
+source("../R/general/packages.R")
 ```
 
 The following code chunk shows how one can read the file. First, the xlsx-file has several sheets. We extract the sheet of interest and save it on a variable. But we want a csv file and so we create a new folder and save the new file into it. We read the csv-file again for further editing.
@@ -140,10 +140,10 @@ source("../R/re_tidy.scripts/function.LRR.by.phase.R")
 DB_S1 <- data.preparation.for.LRR(raw.data)
 
 # Function call to calculate the LRR for each experiment
-LRR.by.experiment <- LRR.by.experiment(DB_S1)
+LRR.by.experiment <- LRR.by.experiment <- LRR.by.experiment(DB_S1)
 
 # Function call to calculate the LRR for each phase
-LRR.by.phase <- LRR.by.phase(DB_S1)
+LRR.by.phase <- LRR.by.phase <- LRR.by.phase(DB_S1)
 ```
 
 ### Discussion
