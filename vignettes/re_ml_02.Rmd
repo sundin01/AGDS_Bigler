@@ -1,0 +1,29 @@
+---
+title: "Exercise_5"
+author: "Patrick Bigler"
+date: "2023-04-24"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  markdown: 
+    wrap: 75
+---
+
+# Report Exercise: "Machine Learning 2"
+
+Course: Applied Geo-data Science at University of Bern (Institute of
+Geography)
+
+Supervisor: Prof. Dr. Benjamin Stocker
+
+Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+[You have questions to the workflow? Contact the Author:]{.underline}
+
+Author: Bigler Patrick
+([patrick.bigler1\@students.unibe.ch](mailto:patrick.bigler1@students.unibe.ch){.email})
+
+Matriculation number: 20-100-178
+
+Reference: Report Exercise 5 (Chapter 10)

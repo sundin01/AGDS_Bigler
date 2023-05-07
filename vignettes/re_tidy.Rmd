@@ -8,7 +8,7 @@ editor_options:
     wrap: 75
 ---
 
-# Report Exercise: "Data wrangling"
+# Report Exercise: "Data wrangling with tidyverse"
 
 Course: Applied Geo-data Science at University of Bern (Institute of Geography)
 
@@ -16,7 +16,7 @@ Supervisor: Prof. Dr. Benjamin Stocker
 
 Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
 
-You have questions to the workflow? Contact the Author:
+[You have questions to the workflow? Contact the Author:]{.underline}
 
 Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
