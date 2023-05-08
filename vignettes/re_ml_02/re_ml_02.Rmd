@@ -28,22 +28,157 @@ Matriculation number: 20-100-178
 
 Reference: Report Exercise 5 (Chapter 10)
 
+## Programming and data evaluation
+
+### Packages
+
+The following code chunk contains all packages we need. Important is the
+package "conflicted". It enables us to chose if different functions have
+the same call but do not make the same thing (a function in a certain
+package can have the same name as a function from another package).
+
 ```{r Load_packages, error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/general/packages.R")
 ```
 
+### Original source of the file
+
+Use the URL in the code chuck to get access to the data
+
 ```{r Load_and_read_data, error=FALSE, message=FALSE, warning=FALSE}
 # Access to the data
-url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
+url.1 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
 
 # Read in the data directly from URL
-daily_fluxes.2 <- read.table(url, header = TRUE, sep = ",")
+daily_fluxes.davos <- read.table(url.1, header = TRUE, sep = ",")
 
 # Write a CSV file in the respiratory
-write_csv(daily_fluxes.2, "../../data/re_ml_02/daily_fluxes.csv")
+write_csv(daily_fluxes.davos, "../../data/re_ml_02/daily_fluxes.davos.csv")
+
+
+url.2 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Lae_FLUXNET2015_FULLSET_DD_2004-2014_1-4.csv"
+
+# Read in the data directly from URL
+daily_fluxes.laegern <- read.table(url.2, header = TRUE, sep = ",")
+
+# Write a CSV file in the respiratory
+write_csv(daily_fluxes.laegern, "../../data/re_ml_02/daily_fluxes.laegern.csv")
 ```
+
+We read the data again. Now we can ensure the reproducibility.
 
 ```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE}
 # Read the file
-daily_fluxes <- read_csv("../../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
+daily_fluxes.davos <- read_csv("../../data/re_ml_02/daily_fluxes.davos.csv")
+
+daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")
+```
+
+### Data cleaning
+
+For a good analysis, we should always do a quality control. That we do
+next. First we call the first few rows. We can see that some columns
+contains -9999 as a value. Our quality function changed that to NA. Than we
+use ymd() from the lubridate package to rewrote the date in a proper way.
+Further we want only columns which contains good quality. For that we check
+selected columns with their quality control column.If the proportion of
+good measurement is less than 80%, then we discard this variable. After
+that we discard all quality-control columns. Now we know that our dataset
+is of high enough quality to perform analyses with it.
+
+```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
+# Load the function in the file (we use the function from another markdown again)
+source("../../R/re_ml_01/function.use.good.quality.only.R")
+
+# Load the function
+source("../../R/general/function.visualize.na.values.R")
+
+# Call the first 6 rows of all columns. There is -9999 instead of NA and lot of columns
+head(daily_fluxes.davos)
+head(daily_fluxes.laegern)
+
+# Function call to clean the data
+daily_fluxes.davos <- use.good.quality.only(daily_fluxes.davos)
+
+daily_fluxes.laegern <- use.good.quality.only(daily_fluxes.laegern)
+
+# We check the again. Now our dataset contains NAs and only the columns of interest
+visualize.na.values.without.groups(daily_fluxes.davos)
+visualize.na.values.without.groups(daily_fluxes.laegern)
+```
+
+### Split the data
+
+Here we split our data in a training set and a test set. First we will
+split the data (80 % training and 20 % test). After we split the data we
+can calculate our model. For KNN, we use k = 8. This choice is random. The
+last code chunk in this workflow will show you, which k is the optimal one
+(we do not want to spoiler here. That is why you should use k = 8 first).
+
+```{r error=FALSE,message=FALSE, warning=FALSE}
+# For reproducibility (pseudo-random)
+set.seed(123)  
+# Split 80 % to 20 % 
+split_davos <- rsample::initial_split(daily_fluxes.davos, prop = 0.8, strata = "VPD_F")
+split_laegern <- rsample::initial_split(daily_fluxes.laegern, prop = 0.8, strata = "VPD_F")
+# Split the data in a training set
+daily_fluxes_davos_train <- rsample::training(split_davos)
+daily_fluxes_davos_test <- rsample::testing(split_davos)
+
+c <- rsample::training(split_laegern)
+daily_fluxes_laegern_test <- rsample::testing(split_laegern)
+
+# Load the function in the file.
+source("../../R/re_ml_01/function.split.train.and.test.R")
+
+# Function call for KNN with k = 8
+mod.knn_davos <- knn.model(daily_fluxes_davos_train, 8)
+# Function call for lm
+mod.lm_davos <- lm.model(daily_fluxes_davos_train)
+
+# Function call for KNN with k = 8
+mod.knn_laegern <- knn.model(daily_fluxes_laegern_train, 8)
+# Function call for lm
+mod.lm_laegern <- lm.model(daily_fluxes_laegern_train)
+```
+
+Compare within-site predictions and across-site predictions on the test set
+for both sites, considering different metrics. For across-site predictions,
+make sure to implement a train and test setup that enables a true
+out-of-sample prediction test.
+
+```{r}
+
+source("../../R/re_ml_01/function.evaluation.model.R")
+
+# Function call for linear regression model
+eval_model(mod.knn_davos, daily_fluxes_davos_train, daily_fluxes_davos_test)
+
+# Function call for KNN
+eval_model(mod.knn_laegern, daily_fluxes_laegern_train, daily_fluxes_laegern_test)
+
+# Across
+
+
+
+```
+
+Train a single model with training data pooled from both sites and predict
+with this single model on the test data of both sites. How do the model
+metrics on the test set compare to the true out-of-sample setup above?
+Interpret differences. Is it a valid approach to perform model training
+like this? Use your knowledge about structure in the data and its relevance
+for the model training setup.
+
+```{r}
+
+```
+
+-   Get information about the characteristics of the two sites. What are
+    the differences in terms of climate, vegetation, altitude, etc. between
+    the Davos and Laegern sites? Interpret biases of the out-of-sample
+    predictions with a view to the site characteristics.
+
+```{r}
+
 ```

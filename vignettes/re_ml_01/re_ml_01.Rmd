@@ -96,6 +96,12 @@ source("../../R/general/packages.R")
 Use the URL in the code chuck to get access to the data
 
 ```{r Access_to_the_data, error=FALSE, message=FALSE, warning=FALSE}
+filnam <- "asdf"
+
+if (file.exists(filnam)){
+  read_csv(filnam)
+} else {}
+
 # Access to the data
 url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
 
@@ -105,6 +111,8 @@ daily_fluxes.1 <- read.table(url, header = TRUE, sep = ",")
 # Write a CSV file in the respiratory
 write_csv(daily_fluxes.1, "../../data/re_ml_01/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN")
 ```
+
+We read the data again. Now we can ensure the reproducibility.
 
 ```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE{}
 # Read the file
@@ -163,10 +171,10 @@ daily_fluxes_test <- rsample::testing(split)
 source("../../R/re_ml_01/function.split.train.and.test.R")
 
 # Function call for KNN with k = 8
-mod.knn <- knn.model(8)
+mod.knn <- knn.model(daily_fluxes_train,8)
 
 # Function call for lm
-mod.lm <- lm.model()
+mod.lm <- lm.model(daily_fluxes_train)
 ```
 
 ### Evaluation
@@ -229,7 +237,9 @@ Further we will take a closer look to the KNN algorithm and the roll of k.
 A lm model use all predictors to calculate a multivariate regression model.
 We take a close look to the formula:
 
-y = a_1*x_1 + a_2*x_2 + ...+a_n\*x_n + intercept
+$$
+\hat{y} =\hat{a}_0+\hat{a}_1*x_1+\hat{a}_2*x_2+...+\hat{a}_n*x_n
+$$
 
 Obviously, a lm model do not look for any underlying pattern. It creates a
 linear combination and all predictors should be linear independent. If we
@@ -241,8 +251,14 @@ always have a bias. Most likely the RMSE and MAE will increase if we make
 predictions because the lm model do not know anything of the underlying
 pattern.
 
-The situation of KNN is different. KNN calculate a "local regression". It
-use not only all predictors. It uses k neighbours to calculate a local
+The situation of KNN is different. KNN calculate a polynomial regression
+with the following formula
+
+$$
+\hat{y}=\sum_{n=0}^{N}\hat{a}_n*x^n
+$$
+
+It use not only all predictors. It uses k neighbours to calculate a local
 regression. The KNN model look for an underlying pattern. That is why the
 RSQ in the training data is lower than for the lm model. If we want to do a
 prediction the KNN has a adventage over the lm. KNN "knows" the underlying

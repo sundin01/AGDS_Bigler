@@ -1,22 +1,24 @@
 ---
 title: "re_tidy (Report Exercise 1 (Chapter 3))"
-output: 
-  html_notebook
-    toc: True
-editor_options: 
-  markdown: 
+output:
+  toc: default
+  html_notebook:
+    toc: yes
+editor_options:
+  markdown:
     wrap: 75
 ---
 
 # Report Exercise: "Data wrangling with tidyverse"
 
-Course: Applied Geo-data Science at University of Bern (Institute of Geography)
+Course: Applied Geo-data Science at University of Bern (Institute of
+Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
 
 Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
 
-[You have questions to the workflow? Contact the Author:]{.underline}
+[You have questions to the workflow? Contact the author:]{.underline}
 
 Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
@@ -26,46 +28,80 @@ Reference: Report Exercise 1 (Chapter 3)
 
 ## Introduction
 
-The topic of this exercise is the "Logarithmic Respond Ratio" (LRR). The LRR is the natural logarithm (log()) of the response ratio. The ratio describes the elevated concentration of a quantity (e.g. CO2 or nitrogen) to the ambient concentration and is defined as followed:
+The topic of this exercise is the "Logarithmic Respond Ratio" (LRR). The
+LRR is the natural logarithm ($log()$)) of the response ratio. The ratio
+describes the elevated concentration of a quantity (e.g. CO2 or nitrogen)
+to the ambient concentration and is defined as followed:
 
 $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
-In this exercise we work with "Database S1" which contains data of soil organic carbon measurements in experiments, where ecosystems are exposed to ambient (low) and elevated (high) CO2 concentrations. The mean soil organic carbon of multiple samples is recorded within each experiment for different sample dates. Information is provided for the time in years since the start of the experiment.
+In this exercise we work with a data set which contains data of soil
+organic carbon measurements in experiments, where ecosystems are exposed to
+ambient (low) and elevated (high) CO2 concentrations. The mean soil organic
+carbon of multiple samples is recorded within each experiment for different
+sample dates. Information is provided for the time in years since the start
+of the experiment.
 
 ### Original source of the file
 
-The data originate from a paper of Groenigen et al (2014). In this exercise, we take a close look to the $CO_2 - concentrations \: (\: [\frac{g}{m^{-2}}])$ in the experiments and calculate the LRR. Because we want a comprehensive analysis of the data, we calculate the LRR in different ways. For the scientific reproducibility, you will find the original source is the following article (or in the respiratory in the folder "data"):
+The data originate from a paper of Groenigen et al (2014). In this
+exercise, we take a close look to the
+$CO_2 - concentrations \: (\: [\frac{g}{m^{-2}}])$ in the experiments and
+calculate the LRR. Because we want a comprehensive analysis of the data, we
+calculate the LRR in different ways. For the scientific reproducibility,
+you will find the original source is the following article (or in the
+respiratory in the folder "data"):
 
-*Groenigen, Kees Jan van, Xuan Qi, Craig W. Osenberg, Yiqi Luo, and Bruce A. Hungate. "Faster Decomposition Under Increased Atmospheric CO2 Limits Soil Carbon Storage." Science 344, no. 6183 (May 2, 2014): 508--9. <https://doi.org/10.1126/science.1249534>.*
+*Groenigen, Kees Jan van, Xuan Qi, Craig W. Osenberg, Yiqi Luo, and Bruce
+A. Hungate. "Faster Decomposition Under Increased Atmospheric CO2 Limits
+Soil Carbon Storage." Science 344, no. 6183 (May 2, 2014):
+508--9. <https://doi.org/10.1126/science.1249534>.*
 
 ## Method
 
-This section is used to briefly introduce the methods. Afterwards it is explained how the file was edited.
+This section is used to briefly introduce the methods. Afterwards it is
+explained how the file was edited.
 
 ### Editing the file manually
 
-Unfortunately, the original file is not well structured. It has several headings and empty spaces which complicates to read the file and therefore, we must the file edit manually. The Excel software (MS Office 360 with the license from the University of Bern, status: 2023-05-07) is used for this task. The following points were changed manually:
+Unfortunately, the original file is not well structured. It has several
+headings and empty spaces which complicates to read the file and therefore,
+we must the file edit manually. The Excel software (MS Office 360 with the
+license from the University of Bern, status: 2023-05-07) is used for this
+task. The following points were changed manually:
 
-1.  Filled the gaps between two Experiments with the name of the experiment.
+1.  Filled the gaps between two Experiments with the name of the
+    experiment.
 
-2.  Removed the header and the source (see: unediting.data.groenigen --\> data.groenigen
+2.  Removed the header and comments
 
 ### Method and evaluation of the data
 
-After the manual editing the csv file can be read with the software R-Studio (Version 2022.12.0+353). This software use the language R to handle the data. In this part of the report it is shown how the data was read and processed with the software. For an efficient processing of the data we use the R-package "Tidyverse (and others: see packages). Important is the package"conflicted". It enables one to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package). I
+After the manual editing, the csv file can be read with the software
+R-Studio (Version 2022.12.0+353). This software use the language R to
+handle the data. In this part of the report it is shown how the data was
+read and processed with the software. For an efficient processing of the
+data we use the R-package "Tidyverse (and others).
 
 ## Programming and data evaluation
 
-### Read the csv file, get a overview of the data and data controlling
+### Read the csv file and get a overview of the data and data controlling
 
-The following code chunk contains all packages we need. Important is the package "conflicted". It enables us to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package).
+The following code chunk contains all packages we need. Important is the
+package "conflicted". It enables us to chose if different functions have
+the same call but do not make the same thing (a function in a certain
+package can have the same name as a function from another package). In this
+case, we will set preferences.
 
 ```{r Packages, error=FALSE, message=FALSE, warning=FALSE}
 # Load the packages
 source("../../R/general/packages.R")
 ```
 
-The following code chunk shows how one can read the file. First, the xlsx-file has several sheets. We extract the sheet of interest and save it on a variable. But we want a csv file and so we create a new folder and save the new file into it. We read the csv-file again for further editing.
+The following code chunk shows how we can read the file. First, the
+xlsx-file has several sheets. We extract the sheet of interest and save it
+on a variable. But we want a csv file and so we create a new folder and
+save the new file into it. We read the csv-file again for further editing.
 
 ```{r eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 # Read a certain sheet of the xlsx file
@@ -79,7 +115,12 @@ write_csv(raw, "../../data/re_tidy.new.data.csv")
 raw.data <- read_csv("../../data/re_tidy.data/re_tidy.new.data.csv", show_col_types = FALSE)
 ```
 
-Information about the data is key. We make some calls for quality-control. We change the names of the columns we need. Now, we can refer to them better. Furthermore we want to know, which class the columns are and weather there are missing values. We can see there are many NAs (23.6%). The horizontal lines implies that there are empty rows. That is not a problem at all because that is only the empty rows between two different experiments. We are good to straight forward.
+Information about the data is key. We make some calls for quality-control.
+We change the names of the columns we need. Now, we can refer to them
+better. Furthermore, we want to know, which class the columns are and
+weather there are missing values. We can see there are many NAs (23.6%).
+The horizontal lines implies that there are empty rows. That is not a
+problem at all. We are good to go straight forward.
 
 ```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
 # Shows the first 6 rows (column names!)
@@ -102,17 +143,33 @@ vis_miss(raw.data)
 
 ### Theory about how to calculate the LRR for each experiment
 
-For the first task we calculate the LRR for each experiment which can be calculated in two different ways:
+For the first task we calculate the LRR for each experiment. But we can do
+this in two different ways:
 
-Method 1: Firstly, we group the database by 'Experiment'. Secondly, we calculate the mean for the columns "mean ambient CO2" and "mean increased CO2" columns (for each experiment). Thirdly, we calculate the LRR with the values.
+Method 1: Firstly, we group the database by 'Experiment'. Secondly, we
+calculate the mean for the columns "mean ambient CO2" and "mean increased
+CO2" columns (for each experiment). Thirdly, we calculate the LRR with the
+values.
 
-Method 2: Firstly, we calculate the LRR for each row. Secondly, we group the database by "Experiment". Thirdly, we take the mean of all LRR of each experiment.
+Method 2: Firstly, we calculate the LRR for each row. Secondly, we group
+the database by "Experiment". Thirdly, we take the mean of all LRR of each
+experiment.
 
-Although the results of both methods are the LRR for each experiment they are in general different. Therefore, it is important which method we chose. In this case it is more meaningful to use method 2 because every experiment has a sample date. In this setup are the CO2 concentrations fixed. It makes more sense that we take this in to account and calculate the LRR for a specific sample date. If we use method 1 we would calculate LRR with a CO2 concentration which never existed in the experimental setup. With method 2 we use concentrations who has been measured in an experiment and it makes therefore more sense.
+Although the results of both methods are the LRR for each experiment, they
+are in general different. Therefore, it is important which method we chose.
+In this case it is more meaningful to use method 2 because every experiment
+has a sample date. In this experimental setup are the CO2 concentrations
+fixed. It makes more sense that we take this in to account and calculate
+the LRR for a specific sample date. If we use method 1, we would calculate
+LRR with a CO2 concentration which never existed in the experimental setup.
+With method 2 we use concentrations who has been measured in an experiment
+and it makes therefore more sense. Here we will calculate the LRR with both
+methods because we want to demonstrate, that there is a difference.
 
 ### Theory about how to calculate the LRR for each phase
 
-In this second task the experiments are divided into three phases accounting the duration of the experiment.
+In this second task the experiments are divided into three phases,
+accounting the duration of the experiment.
 
 1)  Phase "early" $\Longrightarrow$ lesser than 3 years
 
@@ -120,11 +177,17 @@ In this second task the experiments are divided into three phases accounting the
 
 3)  Phase "late" $\Longrightarrow$ greater than 6 years
 
-For an efficient way to processing the data we use "Tidyverse" again. Here, we are confronted with the same problem as in the first task because there are again the two methods to calculate the LRR for each phase (same considerations and the same argumentation as above).
+For an efficient way to processing the data we use "Tidyverse" again. Here,
+we are confronted with the same problem as in the first task because there
+are again the two methods to calculate the LRR. We chose method 2 again for
+(same considerations and the same argumentation as above). We calculate the
+LRR with both methods because we want to demonstrate that there is a
+difference as well.
 
 ### Programming
 
-The following code chunk shows how to calculate the LRR for both tasks and both methods.
+The following code chunk shows how to calculate the LRR for both tasks and
+both methods.
 
 ```{r Calculate_the_LRR, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function to prepare the data set
@@ -137,15 +200,20 @@ source("../../R/re_tidy.scripts/function.LRR.by.experiment.R")
 source("../../R/re_tidy.scripts/function.LRR.by.phase.R")
 
 # Function calls
-DB_S1 <- data.preparation.for.LRR(raw.data)
+data.preparation.for.LRR(raw.data)
 
 # Function call to calculate the LRR for each experiment and save it as a HTML kable
 LRR.by.experiment <- LRR.by.experiment(DB_S1)
 
 # Function call to calculate the LRR for each phase and save it as a HTML kable
-LRR.by.phase <- LRR.by.phase <- LRR.by.phase(DB_S1)
+LRR.by.phase <- LRR.by.phase(DB_S1)
 ```
 
 ### Discussion
 
-The result is rounded on 3 digits. As you can see, the results of Method 1 and Method 2 are different. In this case, Method 2 is more meaningful than Method 1. But this is not always the case. It is therefore important to consider what exactly you want to analyze and what is the context of the experiment.
+The result is rounded on 3 digits. As you can see, the results of Method 1
+and Method 2 are different. In this case, Method 2 is more meaningful than
+Method 1. But this is not always the case. It is therefore important to
+consider what exactly you want to analyze and what is the context of the
+experiment.
+
