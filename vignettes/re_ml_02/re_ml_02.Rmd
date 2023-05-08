@@ -28,11 +28,11 @@ Matriculation number: 20-100-178
 
 Reference: Report Exercise 5 (Chapter 10)
 
-```{r Load_packages}
-source("../R/general/packages.R")
+```{r Load_packages, error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/general/packages.R")
 ```
 
-```{r Load_and_read_data}
+```{r Load_and_read_data, error=FALSE, message=FALSE, warning=FALSE}
 # Access to the data
 url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
 
@@ -40,10 +40,10 @@ url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FL
 daily_fluxes.2 <- read.table(url, header = TRUE, sep = ",")
 
 # Write a CSV file in the respiratory
-write_csv(daily_fluxes.2, "../data/re_ml_02/daily_fluxes.csv")
+write_csv(daily_fluxes.2, "../../data/re_ml_02/daily_fluxes.csv")
 ```
 
-```{r Read_the_data}
+```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE}
 # Read the file
-daily_fluxes <- read_csv("../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
+daily_fluxes <- read_csv("../../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
 ```

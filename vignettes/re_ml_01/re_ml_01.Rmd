@@ -87,15 +87,15 @@ package "conflicted". It enables us to chose if different functions have
 the same call but do not make the same thing (a function in a certain
 package can have the same name as a function from another package).
 
-```{r Packages}
-source("../R/general/packages.R")
+```{r Packages, error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/general/packages.R")
 ```
 
 ### Original source of the file
 
 Use the URL in the code chuck to get access to the data
 
-```{r Access_to_the_data}
+```{r Access_to_the_data, error=FALSE, message=FALSE, warning=FALSE}
 # Access to the data
 url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
 
@@ -103,12 +103,12 @@ url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FL
 daily_fluxes.1 <- read.table(url, header = TRUE, sep = ",")
 
 # Write a CSV file in the respiratory
-write_csv(daily_fluxes.1, "../data/re_ml_01/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN")
+write_csv(daily_fluxes.1, "../../data/re_ml_01/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN")
 ```
 
-```{r Read_the_data}
+```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE{}
 # Read the file
-daily_fluxes <- read_csv("../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
+daily_fluxes <- read_csv("../../data/re_ml_01/daily_fluxes.csv")
 
 ```
 
@@ -124,12 +124,12 @@ good measurement is less than 80%, then we discard this variable. After
 that we discard all quality-control columns. Now we know that our dataset
 is of high enough quality to perform analyses with it.
 
-```{r Dataquality}
+```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file
-source("../R/re_ml_01/function.use.good.quality.only.R")
+source("../../R/re_ml_01/function.use.good.quality.only.R")
 
 # Load the function
-source("../R/general/function.visualize.na.values.R")
+source("../../R/general/function.visualize.na.values.R")
 
 # Call the first 6 rows of all columns. There is -9999 instead of NA and lot of columns
 head(daily_fluxes)
@@ -149,7 +149,7 @@ can calculate our model. For KNN, we use k = 8. This choice is random. The
 last code chunk in this workflow will show you, which k is the optimal one
 (we do not want to spoiler here. That is why you should use k = 8 first).
 
-```{r splitting_data_in_train_and_test}
+```{r split_data, error=FALSE, message=FALSE, warning=FALSE}
 # For reproducibility (pseudo-random)
 set.seed(123)  
 # Split 70 % to 30 % 
@@ -160,7 +160,7 @@ daily_fluxes_train <- rsample::training(split)
 daily_fluxes_test <- rsample::testing(split)
 
 # Load the function in the file.
-source("../R/re_ml_01/function.split.train.and.test.R")
+source("../../R/re_ml_01/function.split.train.and.test.R")
 
 # Function call for KNN with k = 8
 mod.knn <- knn.model(8)
@@ -182,9 +182,9 @@ above. the number for k were 8. If we want a model with a different k, we
 have to recalculate the knn-model with the function in the code chunk
 above.
 
-```{r model_evaluation}
+```{r model_eval, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/re_ml_01/function.evaluation.model.R")
+source("../../R/re_ml_01/function.evaluation.model.R")
 
 # Function call for linear regression model
 eval_model(mod = mod.lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
@@ -202,9 +202,9 @@ therefore the RMSE in the test data would also be high. For a visualization
 of the development of RSQ and RSME as a function of k, please take a look
 on the last visualization.
 
-```{r visualization_of_generalisability}
+```{r vis_generalisability, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
-source("../R/re_ml_01/function.different.k.R")
+source("../../R/re_ml_01/function.different.k.R")
 
 my.sequence <- c(1,2,3,4,seq(10, to = 90, by = 10), 96,97,98,99,100)
 different.k(my.sequence, daily_fluxes_train, daily_fluxes_test)
@@ -271,9 +271,9 @@ The lm model is more or less the same.
 
 #### Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
 
-```{r Visualization}
+```{r Vis_time_variation, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
-source("../R/re_ml_01/function.time.variation.R")
+source("../../R/re_ml_01/function.time.variation.R")
 
 # Function call
 time.variation(mod.knn, mod.lm, daily_fluxes_test)
@@ -331,9 +331,9 @@ necessarily the best model. We have only seen that it is between 20 and 30.
 We make again a function call and use all k between 20 and 30. Now we see
 that optimal k is 25 and we can chose this model.
 
-```{r visualization_generalisability_optimal_k}
+```{r vis_generalisability_optimal_k, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
-source("../R/re_ml_01/function.parameter.extracter.R")
+source("../../R/re_ml_01/function.parameter.extracter.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))

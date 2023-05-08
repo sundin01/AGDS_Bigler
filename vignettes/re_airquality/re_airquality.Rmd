@@ -93,8 +93,8 @@ package "conflicted". It enables us to chose if different functions have
 the same call but do not make the same thing (a function in a certain
 package can have the same name as a function from another package).
 
-```{r activate_the_packages_which_are_required, warning = FALSE, message=FALSE}
-source("../R/general/packages.R")
+```{r Packages, error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/general/packages.R")
 ```
 
 ### Original source of the file
@@ -108,7 +108,7 @@ means we get the data, save it and read it from our directory.
 airquality.raw <- datasets::airquality
 
 # Write a CSV file in the respiratory to save the data
-write_csv(airquality.raw, "../data/re_airquality/airquality.csv")
+write_csv(airquality.raw, "../../data/re_airquality/airquality.csv")
 ```
 
 The data is example data frame in the R package "datasets". First, the data
@@ -118,9 +118,9 @@ gather all these information. With help() we see that the varibales do not
 have the SI-units. We also check the NAs. With str() we can see that there
 are NAs. We call a function to visualize the NAs.
 
-```{r shows_the_data_frame_airquality, warning=FALSE, message=FALSE}
+```{r shows_the_data_frame_airquality, error=FALSE, message=FALSE, warning=FALSE}
 # Read the file
-airquality <- read_csv("../data/re_airquality/airquality.csv")
+airquality <- read_csv("../../data/re_airquality/airquality.csv")
 
 # Ask for details (units, source and references)
 help("airquality")
@@ -129,7 +129,7 @@ help("airquality")
 str(airquality)
 
 # Load the function
-source("../R/general/function.visualize.na.values.R")
+source("../../R/general/function.visualize.na.values.R")
 
 # Function call
 visualize.na.values(airquality)
@@ -174,9 +174,9 @@ into the SI-units system
 -   For solar radiation the following formula was used :
     $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
 
-```{r editing_the_data_frame_in_SI_units}
+```{r editing_the_data_frame_in_SI_units, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/airquality/function.unit.converter.R")
+source("../../R/re_airquality/function.unit.converter.R")
 
 # Function call
 airquality_mutated <- unit.converter(airquality)
@@ -204,7 +204,7 @@ concentration is problematic. If we compare the span (167 ppb) with the IQR
 (45.25 ppb) we notice that the IQR is clearly smaller than the span. That
 means that we indeed have outliers but the the data core is small.
 
-```{r statistical_parameters}
+```{r statistical_parameters, error=FALSE, message=FALSE, warning=FALSE}
 # Monthly median for temperature, ozone, solar and wind
 airquality_mutated |>
 # Calculate the median for the ozone concentraion  
@@ -232,9 +232,9 @@ mean value. It is higher than the median for each box. Therefore, the
 skewness is for all months positive. Please note that there are only 9
 measurements available for June.
 
-```{r boxplot_ozone_per_month}
+```{r boxplot_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/airquality/function.boxplot.R")
+source("../../R/re_airquality/function.boxplot.R")
 
 # Function call
 airquality.boxplot(airquality_mutated)
@@ -248,9 +248,9 @@ that there are outliers (which we already see in the boxplot). July and
 August are mono-modal but have a large span. This we could also already see
 in the boxplot (large boxes).
 
-```{r density_ozone_per_month}
+```{r density_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/airquality/function.density.plot.R")
+source("../../R/airquality/function.density.plot.R")
 
 # Function call
 density.airquality(airquality_mutated)
@@ -265,9 +265,9 @@ create new values through linear interpolation is not an option because
 there is (1) to many NA and (2) the gap between to values is to big. We
 would only falsify our analysis.
 
-```{r bar_plot_missing_ozone_per_month}
+```{r bar_plot_missing_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/airquality/function.na.identifier.R")
+source("../../R/re_airquality/function.na.identifier.R")
 
 # Function call
 na.identifier(airquality_mutated )
@@ -288,9 +288,9 @@ are not negligible. In this exercise, we would use the "Spearman" method
 because it describes the correlation a little bit better. Nevertheless, the
 chosen variables are promisingly.
 
-```{r correlation_plot}
+```{r correlation_plot, error=FALSE, message=FALSE, warning=FALSE}
 
-source("../R/airquality/function.correlation.plot.R")
+source("../../R/re_airquality/function.correlation.plot.R")
 
 correlation.plot(airquality_mutated, c("pearson"))
 
@@ -327,9 +327,9 @@ the second and the third model. RSQ is only about 0.12 what explains only
 compared to the second an third model). We reject H0 but the model is not
 so good so we do not use it.
 
-```{r linear_regression_model_ozone_temperature}
+```{r linear_regression_model_ozone_temperature, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/airquality/function.regression.calculater.R")
+source("../../R/re_airquality/function.regression.calculater.R")
 
 # Function call ozone vs. Date
 regression.calculater(airquality_mutated, 4, 1)
@@ -346,9 +346,9 @@ regression.calculater(airquality_mutated, 4, 7)
 
 For a better interpretation the model can be visualized.
 
-```{r linear_regression_model_ozone_time}
+```{r linear_regression_model_ozone_time, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/airquality/function.regression.R")
+source("../../R/re_airquality/function.regression.R")
 
 # Function calls
 airquality.regression(airquality_mutated, Day, c("Day"))

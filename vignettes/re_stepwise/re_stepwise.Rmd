@@ -68,8 +68,8 @@ package "conflicted". It enables us to chose if different functions have
 the same call but do not make the same thing (a function in a certain
 package can have the same name as a function from another package).
 
-```{r Packages}
-source("../R/general/packages.R")
+```{r Packages, error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/general/packages.R")
 ```
 
 First, we get the data and save it in our repository. Because we can not be
@@ -78,13 +78,13 @@ means we get the data, save it and read it from our directory.
 
 ```{r Access_to_the_data eval=FALSE}
 # Access to the data
-url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv"
+url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/df_for_stepwise_regression.csv"
 
 # Read in the data directly from URL
 database.S1 <- read.table(url, header = TRUE, sep = ",")
 
 # Write a CSV file in the respiratory
-write_csv(database.S1,"../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
+write_csv(database.S1,"../../data/re_stepwise/FLX_CH_stepwise.csv")
 ```
 
 To make a good decision about the predictors we need as much information as
@@ -92,8 +92,8 @@ possible. For that we read our file as a data frame. After that, we want a
 overview about the data ( what variables contains teh data set? What are
 the main statistical parameters?)
 
-```{r Read_the_data}
-database <- read_csv("../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
+```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE}
+database <- read_csv("../../data/re_stepwise/FLX_CH_stepwise.csv")
 
 # Take a overview and main statistic parameters
 summary(database)
@@ -105,7 +105,7 @@ an appropriate approach. To solve this problem, we calculate a overview
 about all simple linear regression models and plot it. Now we can see that
 for most of the variables a linear regression is a good idea.
 
-```{r Overview_about_the_data}
+```{r Overview_about_the_data,error=FALSE, message=FALSE, warning=FALSE}
 # Overview about the data, the regression
 
 database|>
@@ -127,7 +127,7 @@ about the correlation. In the plot before, we have also seen that the
 relation of the variables is mostly linear. So we use the "pearson" method
 to calculate the correlation.
 
-```{r Visualization_of_the_data}
+```{r Visualization_of_the_data,error=FALSE, message=FALSE, warning=FALSE}
 # create a correlation matrix. Use "use" to ignore NAs
 cor.mat <- cor(database[, 3:17], use = "complete.obs", method = "pearson")
 
@@ -144,9 +144,9 @@ model.
 
 ## Bivariate linear regression
 
-```{r Calculate_best_Bivariante_Model}
+```{r Calculate_best_Bivariante_Model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function for the bivariate model
-source("../R/Exercise_3/function.bivariate.model.R")
+source("../../R/re_stepwise/function.bivariate.model.R")
 
 # Function call
 tibble.bi.model <- model.fitter(database, 16)
@@ -159,12 +159,12 @@ good first impression. But we want to know more about the coefficients, the
 intercept, the distribution and outliers. For that we use summary() and we
 plot the model.
 
-```{r Visualization_of_the_bivariate_regression_model}
+```{r Vis_bivariate_regression_model, error=FALSE, message=FALSE, warning=FALSE}
 # Calculate the probebly best multivariate model
 best.bi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN, data = database)
 
 # Load the function
-source("../R/re_stepwise/function.vis.bi.model.R")
+source("../../R/re_stepwise/function.vis.bi.model.R")
 
 # Plot the bivariate model
 vis.bi.model(database)
@@ -177,10 +177,10 @@ summary(best.bi.lm)
 plot(best.bi.lm)
 ```
 
-```{r Visualization_of_the_development}
+```{r Vis_RSQ_development, error=FALSE, message=FALSE, warning=FALSE}
 
 # Load the function
-source("../R/re_stepwise/function.vis.and.dev.bi.R")
+source("../../R/re_stepwise/function.vis.and.dev.bi.R")
 
 # Function call
 Vis_of_the_develop.bi.model(tibble.bi.model)
@@ -188,9 +188,9 @@ Vis_of_the_develop.bi.model(tibble.bi.model)
 
 ## Multivariate linear regression
 
-```{r Calculate_best_multivariate_model}
+```{r best_multivariate_model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function of the multivariate model
-source("../R/Exercise_3/function.multivariate.model.R")
+source("../../R/re_stepwise/function.multivariate.model.R")
 
 # Function call with all column but target (column number 16)
 multivariate.model(database, c(16))
@@ -205,7 +205,7 @@ There are no meaningful scatter-plot for multidimensional models. But we
 want to know more about the coefficients, the intercept, the distribution
 and outliers.
 
-```{r Visualization_of_the_multivariate_regression_model}
+```{r Visn_multivariate_regression_model, error=FALSE, message=FALSE, warning=FALSE}
 # Calculate the probably best multivariate model
 best.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS + 
                       SW_IN_F + P_F + WS_F + CO2_F_MDS + PA_F, data = database)
@@ -218,9 +218,9 @@ summary(best.multi.lm)
 plot(best.multi.lm)
 ```
 
-```{r Visualization_of_the_development}
+```{r Vis_RSQ_AIC_development, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../R/re_stepwise/function.vis.and.dev.multi.R")
+source("../../R/re_stepwise/function.vis.and.dev.multi.R")
 
 # Function call
 vis.and.dev.multi.model(tibble.multi.model)

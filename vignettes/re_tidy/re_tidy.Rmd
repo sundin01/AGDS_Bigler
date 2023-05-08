@@ -60,14 +60,14 @@ After the manual editing the csv file can be read with the software R-Studio (Ve
 
 The following code chunk contains all packages we need. Important is the package "conflicted". It enables us to chose if different functions have the same call but do not make the same thing (a function in a certain package can have the same name as a function from another package).
 
-```{r activate_the_packages_which_are_required}
+```{r Packages, error=FALSE, message=FALSE, warning=FALSE}
 # Load the packages
 source("../../R/general/packages.R")
 ```
 
 The following code chunk shows how one can read the file. First, the xlsx-file has several sheets. We extract the sheet of interest and save it on a variable. But we want a csv file and so we create a new folder and save the new file into it. We read the csv-file again for further editing.
 
-```{r}
+```{r eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 # Read a certain sheet of the xlsx file
 raw <- read_xlsx("../../data-raw/re_tidy.raw.data/data.groenigen.xlsx", "Database S1",
           range = NULL, col_names = TRUE, col_types = NULL, na = "")
@@ -81,7 +81,7 @@ raw.data <- read_csv("../../data/re_tidy.data/re_tidy.new.data.csv", show_col_ty
 
 Information about the data is key. We make some calls for quality-control. We change the names of the columns we need. Now, we can refer to them better. Furthermore we want to know, which class the columns are and weather there are missing values. We can see there are many NAs (23.6%). The horizontal lines implies that there are empty rows. That is not a problem at all because that is only the empty rows between two different experiments. We are good to straight forward.
 
-```{r Quality_control}
+```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
 # Shows the first 6 rows (column names!)
 head(raw.data)
 
@@ -126,7 +126,7 @@ For an efficient way to processing the data we use "Tidyverse" again. Here, we a
 
 The following code chunk shows how to calculate the LRR for both tasks and both methods.
 
-```{r Calculate_the_LRR}
+```{r Calculate_the_LRR, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function to prepare the data set
 source("../../R/re_tidy.scripts/function.data.preparation.for.LRR.R")
 

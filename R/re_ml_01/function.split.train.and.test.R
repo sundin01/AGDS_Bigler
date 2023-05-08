@@ -1,18 +1,4 @@
 
-
-# Function need set_seed (mostly = 123) an prop (mostly = 0.7) as an input
-
-set.seed(123)
-
-# Split the data. Use 70 % for training
-split <- rsample::initial_split(daily_fluxes, prop = 0.7, strata = "VPD_F")
-
-# Take random sample (actually pseudo-random because of set seed)
-daily_fluxes_train <- rsample::training(split)
-daily_fluxes_test <- rsample::testing(split)
-
-
-
 # The function need the number of k as input!
 knn.model <- function(number.of.k){
 
