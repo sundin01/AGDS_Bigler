@@ -1,0 +1,49 @@
+---
+title: "Exercise_5"
+author: "Patrick Bigler"
+date: "2023-04-24"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  markdown: 
+    wrap: 75
+---
+
+# Report Exercise: "Machine Learning 2"
+
+Course: Applied Geo-data Science at University of Bern (Institute of
+Geography)
+
+Supervisor: Prof. Dr. Benjamin Stocker
+
+Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+[You have questions to the workflow? Contact the Author:]{.underline}
+
+Author: Bigler Patrick
+([patrick.bigler1\@students.unibe.ch](mailto:patrick.bigler1@students.unibe.ch){.email})
+
+Matriculation number: 20-100-178
+
+Reference: Report Exercise 5 (Chapter 10)
+
+```{r Load_packages}
+source("../R/general/packages.R")
+```
+
+```{r Load_and_read_data}
+# Access to the data
+url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
+
+# Read in the data directly from URL
+daily_fluxes.2 <- read.table(url, header = TRUE, sep = ",")
+
+# Write a CSV file in the respiratory
+write_csv(daily_fluxes.2, "../data/re_ml_02/daily_fluxes.csv")
+```
+
+```{r Read_the_data}
+# Read the file
+daily_fluxes <- read_csv("../data/re_stepwise/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN.csv")
+```
