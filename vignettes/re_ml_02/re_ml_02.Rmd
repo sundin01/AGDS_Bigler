@@ -46,32 +46,37 @@ source("../../R/general/packages.R")
 Use the URL in the code chuck to get access to the data
 
 ```{r Load_and_read_data, error=FALSE, message=FALSE, warning=FALSE}
-# Access to the data
-url.1 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
+name.of.file <- "../../data/re_ml_02/daily_fluxes.davos.csv"
 
-# Read in the data directly from URL
-daily_fluxes.davos <- read.table(url.1, header = TRUE, sep = ",")
+# If do not exists such a file, create it!
+if (!file.exists(name.of.file)){
+  # Access to the data
+  url.1 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_C
+  -Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
+  # Read in the data directly from URL
+  daily_fluxes.davos <- read.table(url.1, header = TRUE, sep = ",")
+  # Write a CSV file in the respiratory
+  write_csv(daily_fluxes.davos, "../../data/re_ml_02/daily_fluxes.davos.csv")
+  # Read the file
+  daily_fluxes.davos <- read_csv("../../data/re_ml_02/daily_fluxes.davos.csv")
+  # If exists such a file, read it only!
+  }else{daily_fluxes.davos <- read_csv("../../data/re_ml_02/daily_fluxes.davos.csv")}
 
-# Write a CSV file in the respiratory
-write_csv(daily_fluxes.davos, "../../data/re_ml_02/daily_fluxes.davos.csv")
+name.of.file <- "../../data/re_ml_02/daily_fluxes.laegern.csv"
 
-
-url.2 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Lae_FLUXNET2015_FULLSET_DD_2004-2014_1-4.csv"
-
-# Read in the data directly from URL
-daily_fluxes.laegern <- read.table(url.2, header = TRUE, sep = ",")
-
-# Write a CSV file in the respiratory
-write_csv(daily_fluxes.laegern, "../../data/re_ml_02/daily_fluxes.laegern.csv")
-```
-
-We read the data again. Now we can ensure the reproducibility.
-
-```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE}
-# Read the file
-daily_fluxes.davos <- read_csv("../../data/re_ml_02/daily_fluxes.davos.csv")
-
-daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")
+# If do not exists such a file, create it!
+if (!file.exists(name.of.file)){
+  # Access to the data
+  url.2 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH
+  -Lae_FLUXNET2015_FULLSET_DD_2004-2014_1-4.csv"
+  # Read in the data directly from URL
+  daily_fluxes.davos <- read.table(url.1, header = TRUE, sep = ",")
+  # Write a CSV file in the respiratory
+  write_csv(daily_fluxes.laegern, "../../data/re_ml_02/daily_fluxes.laegern.csv")
+  # Read the file
+  daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")
+  # If exists such a file, read it only!
+  }else{daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")}
 ```
 
 ### Data cleaning
@@ -98,9 +103,9 @@ head(daily_fluxes.davos)
 head(daily_fluxes.laegern)
 
 # Function call to clean the data
-daily_fluxes.davos <- use.good.quality.only(daily_fluxes.davos)
+daily_fluxes.davos <- use.good.quality(daily_fluxes.davos)
 
-daily_fluxes.laegern <- use.good.quality.only(daily_fluxes.laegern)
+daily_fluxes.laegern <- use.good.quality(daily_fluxes.laegern)
 
 # We check the again. Now our dataset contains NAs and only the columns of interest
 visualize.na.values.without.groups(daily_fluxes.davos)
@@ -121,25 +126,20 @@ set.seed(123)
 # Split 80 % to 20 % 
 split_davos <- rsample::initial_split(daily_fluxes.davos, prop = 0.8, strata = "VPD_F")
 split_laegern <- rsample::initial_split(daily_fluxes.laegern, prop = 0.8, strata = "VPD_F")
-# Split the data in a training set
+
+# Split davos
 daily_fluxes_davos_train <- rsample::training(split_davos)
 daily_fluxes_davos_test <- rsample::testing(split_davos)
 
-c <- rsample::training(split_laegern)
+# Split Lägern
+daily_fluxes_laegern_train <- rsample::training(split_laegern)
 daily_fluxes_laegern_test <- rsample::testing(split_laegern)
 
 # Load the function in the file.
-source("../../R/re_ml_01/function.split.train.and.test.R")
+source("../../R/re_ml_02/function.knn.cv.model.R")
 
-# Function call for KNN with k = 8
-mod.knn_davos <- knn.model(daily_fluxes_davos_train, 8)
-# Function call for lm
-mod.lm_davos <- lm.model(daily_fluxes_davos_train)
-
-# Function call for KNN with k = 8
-mod.knn_laegern <- knn.model(daily_fluxes_laegern_train, 8)
-# Function call for lm
-mod.lm_laegern <- lm.model(daily_fluxes_laegern_train)
+knn.model.davos <- knn.cv.model(daily_fluxes_davos_train, 8)
+knn.model.laegern <- knn.cv.model(daily_fluxes_laegern_train, 8)
 ```
 
 Compare within-site predictions and across-site predictions on the test set
@@ -152,7 +152,7 @@ out-of-sample prediction test.
 source("../../R/re_ml_01/function.evaluation.model.R")
 
 # Function call for linear regression model
-eval_model(mod.knn_davos, daily_fluxes_davos_train, daily_fluxes_davos_test)
+eval_model(knn.model.davos, daily_fluxes_davos_train, daily_fluxes_davos_test)
 
 # Function call for KNN
 eval_model(mod.knn_laegern, daily_fluxes_laegern_train, daily_fluxes_laegern_test)
@@ -179,6 +179,16 @@ for the model training setup.
     the Davos and Laegern sites? Interpret biases of the out-of-sample
     predictions with a view to the site characteristics.
 
-```{r}
+because we do not need a
 
+```{r}
+new.table <- bind_rows(daily_fluxes.davos, daily_fluxes.laegern, .id = "id")
 ```
+
+Auswerten
+
+. alles mit davos
+
+. alles mit lägern
+
+. alles mit allem

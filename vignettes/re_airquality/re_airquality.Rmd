@@ -250,7 +250,7 @@ in the boxplot (large boxes).
 
 ```{r density_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
-source("../../R/airquality/function.density.plot.R")
+source("../../R/re_airquality/function.density.plot.R")
 
 # Function call
 density.airquality(airquality_mutated)

@@ -31,3 +31,11 @@ lm.model <- function(database_train){
     metric = "RMSE")
   return(mod_lm)
 }
+
+
+mod_cv <- caret::train(pp,
+                       data = daily_fluxes_train |> drop_na(),
+                       method = "knn",
+                       trControl = caret::trainControl(method = "cv", number = 10),
+                       tuneGrid = data.frame(k = c(2, 5, 10, 15, 20, 25, 30, 35, 40, 60, 100)),
+                       metric = "MAE")

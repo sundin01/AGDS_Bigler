@@ -31,3 +31,27 @@ use.good.quality.only <- function(x){
     dplyr::select(-ends_with("_QC"))
   return(y)
 }
+
+# select only the variables we are interested in
+use.good.quality <- function(x){
+  y <- x|>
+    dplyr::select(c(TIMESTAMP, GPP_NT_VUT_REF, NEE_VUT_REF_QC, SW_IN_F, SW_IN_F_QC,
+             VPD_F, VPD_F_QC, TA_F, TA_F_QC)) |>
+
+    # convert to a nice date object
+    dplyr::mutate(TIMESTAMP = ymd(TIMESTAMP)) |>
+
+    # set all -9999 to NA
+    dplyr::mutate(across(where(is.numeric), ~na_if(., -9999))) |>
+
+    # retain only data based on >=80% good-quality measurements
+    # overwrite bad data with NA (not dropping rows)
+    dplyr::mutate(GPP_NT_VUT_REF = ifelse(NEE_VUT_REF_QC < 0.8, NA, GPP_NT_VUT_REF),
+                  TA_F           = ifelse(TA_F_QC        < 0.8, NA, TA_F),
+                  SW_IN_F        = ifelse(SW_IN_F_QC     < 0.8, NA, SW_IN_F),
+                  VPD_F          = ifelse(VPD_F_QC       < 0.8, NA, VPD_F)) |>
+
+    # drop QC variables (no longer needed)
+    dplyr::select(-ends_with("_QC"))
+  return(y)
+}
