@@ -1,5 +1,5 @@
 
-knn.cv.model <- function(database_train, number.of.k){
+knn.cv.model <- function(database_train, number.of.k, number.of.validation){
   # Model and pre-processing formulation, use all variables but LW_IN_F
   pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
                         data = database_train |> drop_na()) |>
@@ -7,10 +7,10 @@ knn.cv.model <- function(database_train, number.of.k){
     recipes::step_center(all_numeric(), -all_outcomes()) |>
     recipes::step_scale(all_numeric(), -all_outcomes())
   # us cv (cross validation) as method
-  mod_cv <- caret::train(pp,
-                         data = database_train |> drop_na(),
+  mod_cv <- caret::train(pp,data = database_train |> drop_na(),
                          method = "knn",
-                         trControl = caret::trainControl(method = "cv", number = 10),
+                         trControl = caret::trainControl(method = "cv",
+                                     number = number.of.validation),
                          tuneGrid = data.frame(k = number.of.k),
                          metric = "MAE")
   return(mod_cv)

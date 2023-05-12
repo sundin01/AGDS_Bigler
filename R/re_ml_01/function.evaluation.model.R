@@ -1,5 +1,5 @@
 
-eval_model <- function(mod, df_train, df_test){
+eval_model <- function(mod, df_train, df_test, model.name.train, model.name.test){
   conflicts_prefer(dplyr::filter)
 
   # add predictions to the data frames
@@ -41,7 +41,7 @@ eval_model <- function(mod, df_train, df_test){
     geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
     labs(subtitle = bquote( italic(R)^2 == .(format(rsq_train, digits = 2)) ~~
                               RMSE == .(format(rmse_train, digits = 3))),
-         title = "Training set") +
+         title = paste("Train:", model.name.train)) +
     theme_classic()
 
   plot_2 <- ggplot(data = df_test, aes(GPP_NT_VUT_REF, fitted)) +
@@ -50,7 +50,7 @@ eval_model <- function(mod, df_train, df_test){
     geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
     labs(subtitle = bquote( italic(R)^2 == .(format(rsq_test, digits = 2)) ~~
                               RMSE == .(format(rmse_test, digits = 3))),
-         title = "Test set") +
+    title = paste("Test:", model.name.test)) +
     theme_classic()
 
   out <- cowplot::plot_grid(plot_1, plot_2)

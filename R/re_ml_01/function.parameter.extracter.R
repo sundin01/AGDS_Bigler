@@ -1,45 +1,38 @@
 
-extract.rmse <- function(mod, df){
+extract.mae <- function(mod, df_train){
   conflicts_prefer(dplyr::filter)
-  df <- df |>
-    drop_na()
-  df$fitted <- predict(mod, newdata = df)
-  metrics_df <- df |>
-    yardstick::metrics(GPP_NT_VUT_REF, fitted)
-  rmse_df <- metrics_df |>
-    filter(.metric == "rmse") |>
-    pull(.estimate)
-  return(rmse_df)
-}
 
-extract.mae <- function(mod, df){
-  conflicts_prefer(dplyr::filter)
-  df <- df |>
+  df_train <- df_train |>
     drop_na()
-  df$fitted <- predict(mod, newdata = df)
-  metrics_df <- df |>
+
+  df_train$fitted <- predict(mod, newdata = df_train)
+
+  metrics_train <- df_train |>
     yardstick::metrics(GPP_NT_VUT_REF, fitted)
-  mae_df <- metrics_df |>
+
+  mae_train <- metrics_train |>
     filter(.metric == "mae") |>
     pull(.estimate)
-  return(mae_df)
+  return(mae_train)
 }
 
 
-
-extract.rsq <- function(mod, df){
+extract.rsq <- function(mod, df_train){
   conflicts_prefer(dplyr::filter)
-  df <- df |>
+
+  df_train <- df_train |>
     drop_na()
-  df$fitted <- predict(mod, newdata = df)
-  metrics_df <- df |>
+
+  df_train$fitted <- predict(mod, newdata = df_train)
+
+  metrics_train <- df_train |>
     yardstick::metrics(GPP_NT_VUT_REF, fitted)
-  rsq_df <- metrics_df |>
+
+  rsq_train <- metrics_train |>
     filter(.metric == "rsq") |>
     pull(.estimate)
-  return(rsq_df)
+  return(rsq_train)
 }
-
 
 paramter.extracter <- function(own.sequence, df.1, df.2){
   add.rsq.1 <- NULL

@@ -26,7 +26,7 @@ Author: Bigler Patrick
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 5 (Chapter 10)
+Reference: Report Exercise 7 (Chapter 10)
 
 ## Programming and data evaluation
 
@@ -43,7 +43,9 @@ source("../../R/general/packages.R")
 
 ### Original source of the file
 
-Use the URL in the code chuck to get access to the data
+Use the URL in the code chuck to get access to the data. We use an if/else
+statement to ensure that we do not overwrite the data with every run. If
+the file exists, we read it local.
 
 ```{r Load_and_read_data, error=FALSE, message=FALSE, warning=FALSE}
 name.of.file <- "../../data/re_ml_02/daily_fluxes.davos.csv"
@@ -75,59 +77,75 @@ if (!file.exists(name.of.file)){
   write_csv(daily_fluxes.laegern, "../../data/re_ml_02/daily_fluxes.laegern.csv")
   # Read the file
   daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")
-  # If exists such a file, read it only!
-  }else{daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")}
+  # If exists such a file, read it!
+}else{daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")}
 ```
 
 ### Data cleaning
 
 For a good analysis, we should always do a quality control. That we do
-next. First we call the first few rows. We can see that some columns
+next. First, we call the first few rows. We can see that some columns
 contains -9999 as a value. Our quality function changed that to NA. Than we
-use ymd() from the lubridate package to rewrote the date in a proper way.
-Further we want only columns which contains good quality. For that we check
-selected columns with their quality control column.If the proportion of
-good measurement is less than 80%, then we discard this variable. After
-that we discard all quality-control columns. Now we know that our dataset
-is of high enough quality to perform analyses with it.
+use ymd() from the "lubridate" package to rewrote the date in a proper way.
+Further, we want only columns which contains good quality. For that we
+check selected columns with their quality control columns. We select only
+the columns we need and apply our quality control function. If the
+proportion of good measurement is less than 80%, then we discard this
+variable. Now we know that our data has a high quality and we can perform
+our analyses with it. After that we create a new data frame. The new data
+frame contains all values from Davos and Lägern. We use .id = "id" because
+we must know where the values come from. If we know that, we can use the
+filter funtion from the package "dplyr".
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
-# Load the function in the file (we use the function from another markdown again)
-source("../../R/re_ml_01/function.use.good.quality.only.R")
-
-# Load the function
-source("../../R/general/function.visualize.na.values.R")
-
 # Call the first 6 rows of all columns. There is -9999 instead of NA and lot of columns
+# We clean the data with our cleaning and quality control function
 head(daily_fluxes.davos)
 head(daily_fluxes.laegern)
 
-# Function call to clean the data
-daily_fluxes.davos <- use.good.quality(daily_fluxes.davos)
+# Load the function in the file (we use the function from another markdown again)
+source("../../R/re_ml_01/function.use.good.quality.only.R")
 
+# Function call to clean the data of Davos
+daily_fluxes.davos <- use.good.quality(daily_fluxes.davos)
+# Function call to clean the data of Lägern
 daily_fluxes.laegern <- use.good.quality(daily_fluxes.laegern)
 
+# We create a new data frame with bind_rows. We us "id" as an identifier. 
+daily_fluxes_both <- bind_rows(daily_fluxes.davos, daily_fluxes.laegern, .id = "id")
+
 # We check the again. Now our dataset contains NAs and only the columns of interest
-visualize.na.values.without.groups(daily_fluxes.davos)
-visualize.na.values.without.groups(daily_fluxes.laegern)
+# Load the function
+source("../../R/general/function.visualize.na.values.R")
+# Function call
+visualize.na.values.without.groups(daily_fluxes_both)
 ```
 
 ### Split the data
 
 Here we split our data in a training set and a test set. First we will
-split the data (80 % training and 20 % test). After we split the data we
-can calculate our model. For KNN, we use k = 8. This choice is random. The
-last code chunk in this workflow will show you, which k is the optimal one
-(we do not want to spoiler here. That is why you should use k = 8 first).
+split the data (80 % training and 20 % test). For KNN, we use k = 8. This
+choice of k is random. The last code chunk in this workflow will show you,
+which k is the optimal one (we do not want to spoiler here. That is why you
+should use k = 8 first). We use the method "cv" (cross validation). To
+evaluate the model, we want 10 validation sets. After we have trained our
+model, we will apply it on the test sets.
 
-```{r error=FALSE,message=FALSE, warning=FALSE}
+```{r error=FALSE, message=FALSE, warning=FALSE}
 # For reproducibility (pseudo-random)
 set.seed(123)  
 # Split 80 % to 20 % 
-split_davos <- rsample::initial_split(daily_fluxes.davos, prop = 0.8, strata = "VPD_F")
-split_laegern <- rsample::initial_split(daily_fluxes.laegern, prop = 0.8, strata = "VPD_F")
+split_davos <- rsample::initial_split(daily_fluxes_both|> 
+                                        dplyr::filter(id == 1) , 
+                                        prop = 0.8, strata = "VPD_F")
 
-# Split davos
+split_laegern <- rsample::initial_split(daily_fluxes_both|> 
+                                          dplyr::filter(id == 2), 
+                                          prop = 0.8, strata = "VPD_F")
+
+split_both <- rsample::initial_split(daily_fluxes_both, prop = 0.8, strata = "VPD_F")
+
+# Split Davos
 daily_fluxes_davos_train <- rsample::training(split_davos)
 daily_fluxes_davos_test <- rsample::testing(split_davos)
 
@@ -135,32 +153,44 @@ daily_fluxes_davos_test <- rsample::testing(split_davos)
 daily_fluxes_laegern_train <- rsample::training(split_laegern)
 daily_fluxes_laegern_test <- rsample::testing(split_laegern)
 
+# Split pooled
+daily_fluxes_both_train <- rsample::training(split_both)
+daily_fluxes_both_test <- rsample::testing(split_both)
+```
+
+We train our models with k=8 and validation = 10.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file.
 source("../../R/re_ml_02/function.knn.cv.model.R")
 
-knn.model.davos <- knn.cv.model(daily_fluxes_davos_train, 8)
-knn.model.laegern <- knn.cv.model(daily_fluxes_laegern_train, 8)
+# Function call for Davos
+knn.model.davos <- knn.cv.model(daily_fluxes_davos_train, 8, 10)
+# Function call for Lägern
+knn.model.laegern <- knn.cv.model(daily_fluxes_laegern_train, 8, 10)
+# Function call for Davos and Lägern
+knn.model.both <- knn.cv.model(daily_fluxes_both_train, 8, 10)
 ```
 
-Compare within-site predictions and across-site predictions on the test set
-for both sites, considering different metrics. For across-site predictions,
-make sure to implement a train and test setup that enables a true
-out-of-sample prediction test.
+evaluation of the models
 
-```{r}
-
+```{r error=FALSE, message=FALSE, warning=FALSE}
+# Load the function
 source("../../R/re_ml_01/function.evaluation.model.R")
 
-# Function call for linear regression model
-eval_model(knn.model.davos, daily_fluxes_davos_train, daily_fluxes_davos_test)
+P.1 <- eval_model(knn.model.davos, daily_fluxes_davos_train, daily_fluxes_davos_test, c("Davos"), c("Davos"))
 
+P.2 <- eval_model(knn.model.davos, daily_fluxes_davos_train, daily_fluxes_laegern_test, c("Davos"), c("Lägern"))
 # Function call for KNN
-eval_model(mod.knn_laegern, daily_fluxes_laegern_train, daily_fluxes_laegern_test)
+P.3 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, daily_fluxes_laegern_test, c("Lägern"), c("Lägern"))
 
-# Across
+P.4 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, daily_fluxes_davos_test, c("Lägern"), c("Davos"))
 
+P.5 <- eval_model(knn.model.both, daily_fluxes_both_train, daily_fluxes_both_test, c("Davos and Lägern"), c("Davos and Lägern"))
 
+P.6 <- eval_model(knn.model.both, daily_fluxes_both_train, daily_fluxes_davos_test, c("Davos and Lägern"), c("Davos"))
 
+P.7 <- eval_model(knn.model.both, daily_fluxes_both_train, daily_fluxes_laegern_test, c("Davos and Lägern"), c("Lägern"))
 ```
 
 Train a single model with training data pooled from both sites and predict
@@ -170,25 +200,35 @@ Interpret differences. Is it a valid approach to perform model training
 like this? Use your knowledge about structure in the data and its relevance
 for the model training setup.
 
-```{r}
+```{r error=FALSE, message=FALSE, warning=FALSE}
+cowplot::plot_grid(P.1, P.2, nrow = 2)
 
+cowplot::plot_grid(P.3, P.4, nrow = 2)
+
+cowplot::plot_grid(P.6, P.7, nrow = 2)
 ```
 
--   Get information about the characteristics of the two sites. What are
-    the differences in terms of climate, vegetation, altitude, etc. between
-    the Davos and Laegern sites? Interpret biases of the out-of-sample
-    predictions with a view to the site characteristics.
-
-because we do not need a
-
 ```{r}
-new.table <- bind_rows(daily_fluxes.davos, daily_fluxes.laegern, .id = "id")
+# Load the function into the file
+source("../../R/re_ml_02/function.parameter.extracter.cv.R")
+
+# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
+my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))
+
+# Function call to determine the optimal k
+paramter.extracter.knn.cv(my.sequence.extracter, 
+                   daily_fluxes_davos_train, daily_fluxes_davos_test)
 ```
 
-Auswerten
+## Discussion
 
-. alles mit davos
+### Model
 
-. alles mit lägern
+### Davos
 
-. alles mit allem
+Get information about the characteristics of the two sites. What are the
+differences in terms of climate, vegetation, altitude, etc. between the
+Davos and Laegern sites? Interpret biases of the out-of-sample predictions
+with a view to the site characteristics.
+
+### Lägern

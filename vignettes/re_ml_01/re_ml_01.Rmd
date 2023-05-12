@@ -95,29 +95,26 @@ source("../../R/general/packages.R")
 
 Use the URL in the code chuck to get access to the data
 
-```{r Access_to_the_data, error=FALSE, message=FALSE, warning=FALSE}
-filnam <- "asdf"
+```{r error=FALSE, message=FALSE, warning=FALSE}
 
-if (file.exists(filnam)){
-  read_csv(filnam)
-} else {}
+name.of.file <- "../../data/re_ml_01/daily_fluxes.csv"
 
-# Access to the data
-url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
-
-# Read in the data directly from URL
-daily_fluxes.1 <- read.table(url, header = TRUE, sep = ",")
-
-# Write a CSV file in the respiratory
-write_csv(daily_fluxes.1, "../../data/re_ml_01/FLX_CH-Lae_FLUXNET2015_FULLSET_HH_2004-2006_CLEAN")
-```
-
-We read the data again. Now we can ensure the reproducibility.
-
-```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE{}
-# Read the file
-daily_fluxes <- read_csv("../../data/re_ml_01/daily_fluxes.csv")
-
+# If do not exists such a file, create it!
+if (!file.exists(name.of.file)){
+  # Access to the data
+  url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data
+  /FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
+  
+  # Read in the data directly from URL
+  daily_fluxes <- read.table(url, header = TRUE, sep = ",")
+  
+  # Write a CSV file in the respiratory
+  write_csv(daily_fluxes, "../../data/re_ml_01/daily_fluxes.csv")
+  
+  # Read the file
+  daily_fluxes <- read_csv("../../data/re_ml_01/daily_fluxes.csv")
+  # If exists such a file, read it only!
+  }else{daily_fluxes <- read_csv("../../data/re_ml_01/daily_fluxes.csv")}
 ```
 
 ### Data cleaning
@@ -136,16 +133,17 @@ is of high enough quality to perform analyses with it.
 # Load the function in the file
 source("../../R/re_ml_01/function.use.good.quality.only.R")
 
-# Load the function
-source("../../R/general/function.visualize.na.values.R")
-
 # Call the first 6 rows of all columns. There is -9999 instead of NA and lot of columns
 head(daily_fluxes)
 
 # Function call to clean the data
-daily_fluxes <- use.good.quality.only(daily_fluxes)
+daily_fluxes <- use.good.quality(daily_fluxes)
 
 # We check the again. Now our dataset contains NAs and only the columns of interest
+
+# Load the function
+source("../../R/general/function.visualize.na.values.R")
+# Function call
 visualize.na.values.without.groups(daily_fluxes)
 ```
 
@@ -162,16 +160,17 @@ last code chunk in this workflow will show you, which k is the optimal one
 set.seed(123)  
 # Split 70 % to 30 % 
 split <- rsample::initial_split(daily_fluxes, prop = 0.7, strata = "VPD_F")
+
 # Split the data in a training set
 daily_fluxes_train <- rsample::training(split)
 # And a test set
 daily_fluxes_test <- rsample::testing(split)
 
 # Load the function in the file.
-source("../../R/re_ml_01/function.split.train.and.test.R")
+source("../../R/re_ml_01/function.train.and.test.R")
 
 # Function call for KNN with k = 8
-mod.knn <- knn.model(daily_fluxes_train,8)
+mod.knn <- knn.model(daily_fluxes_train, 8)
 
 # Function call for lm
 mod.lm <- lm.model(daily_fluxes_train)
@@ -195,10 +194,10 @@ above.
 source("../../R/re_ml_01/function.evaluation.model.R")
 
 # Function call for linear regression model
-eval_model(mod = mod.lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+eval_model(mod = mod.lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test, c("Davos (lm)"), c("Davos (lm)"))
 
 # Function call for KNN
-eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test)
+eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test, c("Davos (knn)"), c("Davos (knn)"))
 ```
 
 #### Visualization
@@ -214,8 +213,10 @@ on the last visualization.
 # Load the function into the file
 source("../../R/re_ml_01/function.different.k.R")
 
+# Define a sequence for k
 my.sequence <- c(1,2,3,4,seq(10, to = 90, by = 10), 96,97,98,99,100)
-different.k(my.sequence, daily_fluxes_train, daily_fluxes_test)
+# Function call
+different.k(my.sequence,daily_fluxes_train,daily_fluxes_test,c("Davos (knn)"),c("Davos (knn)"))
 ```
 
 ## Discussion
@@ -350,6 +351,10 @@ that optimal k is 25 and we can chose this model.
 ```{r vis_generalisability_optimal_k, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_01/function.parameter.extracter.R")
+
+extract.mae(mod.knn, daily_fluxes_test)
+
+extract.rsq(mod.knn, daily_fluxes_test)
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))

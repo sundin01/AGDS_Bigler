@@ -1,5 +1,5 @@
 ---
-title: "Report_Exercise_2"
+title: ""
 author: "Patrick Bigler"
 date: "2023-04-10"
 output: html_document
@@ -31,14 +31,14 @@ Air quality depends on factors such as particulate matter (PM10 or PM2.5),
 nitrogen dioxide $(NO_2)$ or ozone $(O_3)$. In this exercise, only the
 tropospheric ozone is considered for air quality. Ozone is not a health
 hazard per se but a high concentration over a longer period of time can
-affect the health (Brönnimann 2013, 23). But what does that mean? For
-Switzerland, the threshold value is $120\: \frac{\mu g}{m^3}$. This value
-is the average for an hour and can be exceeded only once per year (it
-exists other definitions for a threshold, but here we use this definition
-(Brönnimann 2013, 23). However, this unit depends on the air pressure,
-which decreases with altitude. The volume mixing ratio with the unit parts
-per million is more suitable which is about 60 ppb which we use in this
-exercise. (Brönnimann 2013, 26).
+affect the health (Brönnimann 2013, 23). But what are high concentrations?
+For Switzerland, the threshold value for ozone is
+$120\: \frac{\mu g}{m^3}$. This value is the average for an hour and can be
+exceeded only once per year. It exists other definitions for a threshold,
+but here we use this definition (Brönnimann 2013, 23). However, this unit
+depends on the air pressure, which decreases with altitude. The volume
+mixing ratio with the unit parts per billion is more suitable which is
+about 60 ppb which we use in this exercise. (Brönnimann 2013, 26).
 
 Ozone is a molecule consisting of 3 oxygen atoms and has various physical
 (absorption of UV and IR radiation) and chemical properties (high
@@ -62,7 +62,7 @@ concentration increases (Brönnimann 2013, 95).
 In summary, the ozone concentration depends probably on temperature (shift
 of the balance), solar radiation (mostly UV-radiation) and the
 concentration of nitrogen dioxide (which depends on traffic and wind). With
-these considerations, a data set on air-quality can be studied with a focus
+these considerations, a data set on air quality can be studied with a focus
 on ozone.
 
 This exercise is supposed to answer the following research question:
@@ -72,17 +72,14 @@ radiation and wind"*
 
 ## Methods
 
-The method is quite straigth forward.
+The method is quite straight forward.
 
 1.  We make some quality control calls
 2.  We check the source because the data set is a second source
-
-First, there is a little bit of data quality control. We have to know, what
-variables contains the data set and how many missing values are there.
-After that we check the sources and decide if we want to use the data or if
-there any changes necessary. Then we make some statistic calls and extract
-and visualize the main statistic parameters. With this knowledge we will be
-able to describe the ozone with selected variables.
+3.  We wrangle data and calculate the main statistic parameters (frequency,
+    distribution, density)
+4.  We create a very simple model (correlation, bivariate / multivariate
+    linear regression)
 
 ## Programming and data evaluation
 
@@ -103,42 +100,52 @@ First, we get the data and save it in our repository. Because we can not be
 sure if there made any changes in the data, we "freeze" our data. That
 means we get the data, save it and read it from our directory.
 
-```{r Access_to_the_data, eval=FALSE}
-# Read the data
-airquality.raw <- datasets::airquality
+```{r Read_file, error=FALSE, message=FALSE, warning=FALSE}
+# We want know, if a certain file already exists
+name.of.file <- "../../data/re_airquality/airquality.csv"
 
-# Write a CSV file in the respiratory to save the data
-write_csv(airquality.raw, "../../data/re_airquality/airquality.csv")
+# If do not exists such a file, create it!
+if (!file.exists(name.of.file)){
+  # Read the data
+  airquality.raw <- datasets::airquality
+
+  # Write a CSV file in the respiratory to save the data
+  write_csv(airquality.raw, "../../data/re_airquality/airquality.csv")
+  
+  # Read the file
+  airquality <- read_csv("../../data/re_airquality/airquality.csv")
+
+  # If exists such a file, read it only!
+  # Read the file
+  }else{airquality <- read_csv("../../data/re_airquality/airquality.csv")}
 ```
 
-The data is example data frame in the R package "datasets". First, the data
-frame is a secondary source an we must know about the contain, the values,
-the units and, of course, the primary sources. For that we can use R to
-gather all these information. With help() we see that the varibales do not
-have the SI-units. We also check the NAs. With str() we can see that there
-are NAs. We call a function to visualize the NAs.
+The data is a example data frame in the R package "datasets". The database
+is a secondary source. We must first familiarize ourselves with its
+contents, variables and units. For that we can use R to gather all these
+information. With help() we see that the variables do not have the
+SI-units. We also check the NA. With str() we can see that there are NA. We
+call a function to visualize the NA because we must know where the NA are
+and whether this could be problematic.
 
-```{r shows_the_data_frame_airquality, error=FALSE, message=FALSE, warning=FALSE}
-# Read the file
-airquality <- read_csv("../../data/re_airquality/airquality.csv")
-
+```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
 # Ask for details (units, source and references)
 help("airquality")
 
-# check data type of every variable in data frame
+# Check data type of every variable in data frame
 str(airquality)
 
 # Load the function
 source("../../R/general/function.visualize.na.values.R")
 
-# Function call
+# Function call to vis. the NA
 visualize.na.values(airquality)
 ```
 
-The data frame shows different variables at different times. Start was
-05.01.1973 (a Tuesday) and ends at 09.30.1973 and each day has an entry (it
-could be "NA" as well). We distinguish the variable according to the source
-and describing them.
+The data frame shows different variables at different times. The
+measurement series starts on 05.01.1973 and lasts until 09.30.1973. Each
+variable has a value for each day (it could be "NA" as well). We
+distinguish the variable according to the source.
 
 Data for ozone were collected from the New York State Department of
 Conservation.
@@ -161,9 +168,9 @@ Weather Service.
 ### Editing the file in SI-Units
 
 It is strongly recommended to use the SI unit system because it is
-simplifies the reproducibility and the interpretation and discussion of the
-data. It follows the formulas to calculates the values from there units
-into the SI-units system
+simplifies the reproducibility, the interpretation, and the discussion of
+the data. It follows the formulas to transform the units into the SI-units
+system.
 
 -   For temperature the following formula was used:
     $$\frac{x \left[°Fahrenheit \right]- 32}{1.8} +273.15 \Longleftrightarrow x\left[Kelvin \right]$$
@@ -187,50 +194,62 @@ airquality_mutated <- unit.converter(airquality)
 Now that all units have been converted to SI units, the question about the
 position, scattering, and distribution parameters arises. For the ozone
 concentration is the median the right position parameter because it is
-robust against outliers. This is important because a short time higher
-concentration of ozone is probably not a problem for the human well-being
-but for a long term it could be. If we use the mean, we loss the overall
-picture due to a big one time outlier. If the median has been used it
-should be used the IQR as a scattering parameter. But we are also
-interested in the maximal values. A environment with a very high ozone
-concentration can be toxic (even a short time exposure).
+robust against outliers. This is important because a short-term elevated
+ozone concentration will probably not endanger health. If we use the mean,
+we could loss the overall picture due to a big one time outlier. If the
+median has been used as a position parameter, it should be used the IQR as
+a scattering parameter. This will allow us to estimate how high the
+dispersion is in the data. But we are also interested in the maximal
+values. A environment with a very high ozone concentration can be toxic
+(even a short time exposure).
 
-The data shows us that the monthly median (may = 18 ppb, Jun = 23 ppb, Jul
-= 60 ppb, Aug = 52 ppb, Sept = 23 ppb) is lower or equal to the threshold
-value (60 ppm). Therefore, there the air-quality is acceptable. But there
-are measurements in every month which exceed the threshold value (.75
-quantile, maximum ). That means that there are isolated days when the ozone
-concentration is problematic. If we compare the span (167 ppb) with the IQR
-(45.25 ppb) we notice that the IQR is clearly smaller than the span. That
-means that we indeed have outliers but the the data core is small.
+The table shows the results of the statistical parameters in a monthly
+resolution. We round the results to integer numbers, because rational or
+real numbers do not make sense in this context. Only a few data are
+available for the month of Jun (frequency only 10 which means only a third
+of the month is available). The median (May = 18 ppb, Jun = 23 ppb, Jul =
+60 ppb, Aug = 52 ppb, Sept = 23 ppb) is always lower or equal to the
+threshold value (60 ppm). Therefore, the air quality is acceptable. But
+there are measurements in every month which exceed the threshold value
+(maximum \> 60ppm). For Jul, Aug and Sep. there are even more values (0.75
+-quantile \> 60ppm). That means that there are isolated days, when the
+ozone concentration is problematic. If we compare the standard deviation
+and IQR we notice that the are not so different. If we also take into
+account the span, we notice that the core of the data has a relatively
+small scatter. In the 0.25 and 0.75 the scatter increases, especially for
+the months Jul and Aug. Last but no least we can see that the median is
+always smaller than the mean. We can conclude a positive skewness.
 
 ```{r statistical_parameters, error=FALSE, message=FALSE, warning=FALSE}
-# Monthly median for temperature, ozone, solar and wind
-airquality_mutated |>
-# Calculate the median for the ozone concentraion  
-  summarise(median.temp = median(Temp, na.rm = TRUE),
-            median.wind = median(Wind, na.rm = TRUE),
-            median.ozone = median(Ozone, na.rm = TRUE),
-            Min.ozone = min(Ozone, na.rm = TRUE),
-            Q1.ozone = quantile(Ozone, 0.25, na.rm = TRUE),
-            Q2.ozone = quantile(Ozone, 0.5, na.rm = TRUE),
-            Q3.ozone = quantile(Ozone, 0.75, na.rm = TRUE),
-            Max.ozone = max(Ozone, na.rm = TRUE),
-            IQR.ozone = IQR(Ozone, na.rm = TRUE),
-            Span = max(Ozone, na.rm = TRUE) - min(Ozone, na.rm = TRUE),
-            Average.ozone = mean(Ozone, na.rm = TRUE))
+# Calculate the main statistic parameters.
+knitr::kable(airquality_mutated|>
+  group_by(Group)|>
+  summarise(Frequncy = length(na.omit(Ozone)),
+            Median = round(median(Ozone, na.rm = TRUE), digits = 0),
+            IQR = round(IQR(Ozone, na.rm = TRUE), digits = 0),
+            Q.25 = round(quantile(Ozone, 0.25, na.rm = TRUE), digits = 0),
+            Q.75 = round(quantile(Ozone, 0.75, na.rm = TRUE), digits = 0),
+            Max = round(max(Ozone, na.rm = TRUE), digits = 0),
+            Min = round(min(Ozone, na.rm = TRUE), digits = 0),
+            Mean = round(mean(Ozone, na.rm = TRUE),digits = 0),
+            STD = round(sd(Ozone, na.rm = TRUE), digits = 0),
+            Max = round(max(Ozone, na.rm = TRUE), digits = 0),
+            Min = round(min(Ozone, na.rm = TRUE), digits = 0),
+            Span = round(max(Ozone, na.rm = TRUE), digits = 0) - 
+                   round(min(Ozone, na.rm = TRUE), digits = 0)))
 ```
 
-We can see the same in boxplots. But in a box-whisker plot are some
-information hidden because its shows only the percentiles. Therefore, a
-jitters plot is added. The plot shows us that there are outliers (red
-triangle), but the boxes for May, June and September are small which means
-the data scattering is small. The situation for July and August is
-different. The large box indicates a large IQR for these months and the
-data scattering is relatively high. Additional, the plot shows also the
-mean value. It is higher than the median for each box. Therefore, the
-skewness is for all months positive. Please note that there are only 9
-measurements available for June.
+Probably it is difficult to imagine what the parameters mean for the data.
+That is why we visualize them. We can see the same information (even more
+if we add a jitter-plot) in a box-whisker-plot as in the table above . The
+plot shows us that there are outliers (red triangle), but the boxes for
+May, June and September are small which means the data scattering is small
+(small IQR). The situation for July and August is different. The large box
+indicates a large IQR for these months and the data scattering is
+relatively high. Additional, the plot shows also the mean value. It is
+higher than the median for each box. Therefore, the skewness is for all
+months positive. Please note that there are only 9 measurements available
+for June.
 
 ```{r boxplot_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -244,9 +263,9 @@ The density plot shows us that the data have a big span and a positive
 skewness. But the core of the data (area with a high density) has an
 acceptable span (which is basically the IQR). The graphs shows us also that
 the density for the months May, June and September is bi-modal. That means,
-that there are outliers (which we already see in the boxplot). July and
-August are mono-modal but have a large span. This we could also already see
-in the boxplot (large boxes).
+that there are outliers (which we already see in the box-whisker-plot).
+July and August are mono-modal but have a large span. This we could see in
+the box-whisker-plot (large boxes) as well.
 
 ```{r density_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -256,14 +275,15 @@ source("../../R/re_airquality/function.density.plot.R")
 density.airquality(airquality_mutated)
 ```
 
-We detect many missing values. For a stringent analysis we need to know
+We detected many missing values. For a stringent analysis we need to know
 which values are missing and where they are. Are there a systematic error
 in the instrument? Or simple forgot someone to write down the measurement?
 For that we use a bar-plot which replace all NA in -1. Now we can easily
 see which values are missing. We are missing a lot of values for June. To
 create new values through linear interpolation is not an option because
 there is (1) to many NA and (2) the gap between to values is to big. We
-would only falsify our analysis.
+would only falsify our analysis. But all other missing values are not
+problematic and we can proceed straight forward.
 
 ```{r bar_plot_missing_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -275,18 +295,18 @@ na.identifier(airquality_mutated )
 
 ## Correlation
 
-Now we have a impression of our data. Now we want to know whether the
+Now we have a impression of our data. But we want to know, whether the
 variables of the hypothesis are promisingly. For this purpose we create a
 correlation matrix. Because we do not know if the ozone distribution is
 linear or monotonic, we use the "Pearson" and the "Spearman" method. The
 graphic shows us a high positive correlation between ozone concentration
-vs. temperature (r = 0.7, $\rho=0.77$) and a high negative ozone
-concentration vs. wind (r = -0.6 and $\rho=-0.59$). There is also a
-positive correlation between ozone concentration and solar radiation (R =
-0.35 and $\rho=0.35$) but not so strong. The difference between the methods
-are not negligible. In this exercise, we would use the "Spearman" method
-because it describes the correlation a little bit better. Nevertheless, the
-chosen variables are promisingly.
+vs. temperature (r = 0.7, $\rho = 0.77$ ) and a high negative correlation
+between the ozone concentration and wind ( r = -0.6, $\rho = -0-59$ ).
+There is also a positive correlation between the ozone concentration and
+the solar radiation (r = 0.35, $\rho=0.35$) but not so strong. The
+difference between the methods are not negligible. In this exercise, we
+would use the "Spearman" method because it describes the correlation a
+little bit better. Nevertheless, the chosen variables are promisingly.
 
 ```{r correlation_plot, error=FALSE, message=FALSE, warning=FALSE}
 
@@ -317,15 +337,15 @@ We accept the model temporarily.
 
 The third model is ozone vs. wind. The RSQ is about 0.36. The model
 explains about 36 % of the variance. The p-value is \< 0.05 and the
-coefficient and the intercept are significant. We reject H0 and accept the
-model temporarily.
+coefficient and the intercept are significant (even on a 99.9% level). We
+reject H0 and accept the model temporarily.
 
 The last model is ozone vs. solar radiation. This model is not as good as
 the second and the third model. RSQ is only about 0.12 what explains only
 12 % of the variance. The p-value is \< 0.05 but the intercept is only on a
 99 % level significant (actually this is a good value but it is lower
 compared to the second an third model). We reject H0 but the model is not
-so good so we do not use it.
+good. Because we have better option, we will not use this model.
 
 ```{r linear_regression_model_ozone_temperature, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -344,7 +364,7 @@ regression.calculater(airquality_mutated, 4, 6)
 regression.calculater(airquality_mutated, 4, 7)
 ```
 
-For a better interpretation the model can be visualized.
+For a better interpretation the models can be visualized.
 
 ```{r linear_regression_model_ozone_time, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -371,13 +391,13 @@ However, these are not used here because they will be introduced later.
 
 Although the RSQ for the second and third model was not so bad, the
 visualization shows a new problem. The RSQ in the model is valid for the
-whole time-period. However, in the visualization you can see that the RSQ
-is highly fluctuating. It could be a good idea, when we chose a new
-approach for each month. If we analyse more data (maybe over 20-50 years)
-we could discover pattern. May be we must use for the month May another
-variable than for June. With only this data it is impossible to say what we
-should to. If we look for patterns in this data, any pattern found would
-probably be random.
+whole time-period. However, in the visualization (regression for each
+month) you can see that the RSQ is highly fluctuating. It could be a good
+idea, when we chose a new approach for each month. If we analyse more data
+(maybe over 20-50 years) we could discover pattern. Perhaps we must use for
+the month May another variable than for June. With only this data it is
+impossible to say what we should do. If we look for patterns in this data,
+any pattern found would probably be random.
 
 But we can take a look on this specific data set and analyse the year 1973.
 First we must discuss the source. It is problematic that not all variables
@@ -385,12 +405,12 @@ were measured at the same location. The ozone was measured on Roosvelt
 Island. It is an island on the East River in NYC. But the temperature and
 wind were measured at La Guardia Airfield. The solar irradiance in Central
 Park. The measuring stations are up to 10 km apart and this is in the
-middle of a highly city. There is no guarantee that the meteorological
-conditions are the same. There is probably more wind at the airport than at
-Roosvelt Island. It would be better to collect new, up-to-date data
-ourselves and measure all variables at the same place. It would be even
-better if we implemented an urban measurement network. This would probably
-improve the model massively.
+middle of a city. There is no guarantee that the meteorological conditions
+are the same. There is probably more wind at the airport than at Roosvelt
+Island. It would be better to collect new, up-to-date data ourselves and
+measure all variables at the same place. It would be even better if we
+implemented an urban measurement network. This would probably improve the
+model massively.
 
 Second we can see, that the median is lower than the threshold for all
 months. The temperature is a important factor for the ozone concentration.
@@ -402,20 +422,19 @@ concentration is higher during summer (summer smog), there is not relation
 to the day of a month. The concentrations reacts on physical parameter like
 radiation, wind and temperature. It makes absolutely sense, that the
 temperature is higher Jun, Jul, Aug and Sept than May. The ozone
-concentration is tends to be higher if the temperature is high. In a urban
+concentration tends to be higher if the temperature is high. In a urban
 space this effect will be amplified due to heat-islands. A city like NYC is
 predestined for such an effect.
 
-As a conclusion we can say that the air-quality is less bad as expected.
+As a conclusion we can say that the air quality is less bad as expected.
 But there are days, where the concentration is to high (true for all
 months). The city of NY should take measures to prevent heat islands. This
-could lower temeprature, which inhibits ozone production, thus lowering
-concentration. Further, the source material should be limited. With less
-traffic, NOX could be lowered, inhibiting ozone production. But first more
-data should be collected. We therefore recommend to build up a city-wide
-monitoring network, which should include more air quality parameters, such
-as particulate matter. This would give us an overall picture and allow us
-to take evidence-based measures.
+could lower temperature, which inhibits ozone production. Further, the
+source material should be limited. With less traffic, NOX could be lowered
+what would inhibit the ozone production. But first we should collect more
+data. We recommend to build up a city-wide monitoring network, which should
+include more air quality parameters, such as particulate matter. This would
+give us an overall picture and allow us to take evidence-based measures.
 
 ## Bibliography
 
