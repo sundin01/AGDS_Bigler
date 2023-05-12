@@ -62,7 +62,7 @@ what software was used and which edits were made by hand.
 
 Unfortunately, the original file is not well structured. It has several
 headings and empty spaces which complicates to read the file and therefore,
-we must the file edit manually. The Excel software (MS Office 360 with the
+we must the file edit manually. The software EXCEL (MS Office 360 with the
 license from the University of Bern, status: 2023-05-07) is used for this
 task. The following points were changed manually:
 
@@ -85,7 +85,7 @@ data we use the R-package "Tidyverse (and others).
 
 The following code chunk contains all packages we need. Important is the
 package "conflicted". It enables us to chose if different functions have
-the same call but do not make the same thing (a function in a certain
+the same call, but do not make the same thing (a function in a certain
 package can have the same name as a function from another package). In this
 case, we will set preferences.
 
@@ -96,7 +96,7 @@ source("../../R/general/packages.R")
 
 The following code chunk shows how we can read the file. First, the
 xlsx-file has several sheets. We extract the sheet of interest and save it
-on a variable. But we want a csv file and so we create a new folder and
+on a variable. But we want a csv-file and so we create a new folder and
 save the new file into it. We read the csv-file again for further editing.
 But we must do this only once. If the file exists, then we can read it
 directly. That is why we implemented a if-else statement.
@@ -125,9 +125,9 @@ if (!file.exists(name.of.file)){
 
 Information about the data is key. We make some calls for quality-control.
 We change the names of the columns we need. Now, we can refer to them
-better. Furthermore, we want to know, which class the columns are and
-weather there are missing values. We can see there are many NAs (23.6%).
-The horizontal lines implies that there are empty rows. But this is not a
+better. Furthermore, we want to know which class the columns are and
+weather there are missing values. We can see there are many NA (23.6%). The
+horizontal lines implies that there are empty rows. But this is not a
 problem at all. R will ignore them. We are good to go straight forward.
 
 ```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
@@ -158,23 +158,23 @@ this in two different ways:
 
 Method 1: Firstly, we group the database by 'Experiment'. Secondly, we
 calculate the mean for the columns "mean ambient CO2" and "mean increased
-CO2" columns (for each experiment). Thirdly, we calculate the LRR with the
-values.
+CO2" (for each experiment). Thirdly, we calculate the LRR with the values.
 
 Method 2: Firstly, we calculate the LRR for each row. Secondly, we group
 the database by "Experiment". Thirdly, we take the mean of all LRR of each
 experiment.
 
 Although the results of both methods are the LRR for each experiment, they
-are in general different. Therefore, it is important which method we chose.
-In this case it is more meaningful to use method 2 because every experiment
-has a sample date. In this experimental setup are the CO2 concentrations
-fixed. It makes more sense that we take this in to account and calculate
-the LRR for a specific sample date. If we use method 1, we would calculate
-LRR with a CO2 concentration which never existed in the experimental setup.
-With method 2 we use concentrations who has been measured in an experiment
-and it makes therefore more sense. Here we will calculate the LRR with both
-methods because we want to demonstrate, that there is a difference.
+will be in general different. Therefore, it is important which method we
+chose. In this case, it is more meaningful to use method 2 because every
+experiment has a sample date. In the experimental setup are the CO2
+concentrations fixed. It makes more sense that we take this into account
+and calculate the LRR for a specific sample date. If we use method 1, we
+would calculate LRR with a CO2 concentration which never existed in the
+experimental setup. With method 2 we use concentrations who has been
+measured in an experiment and it makes therefore more sense. Here we will
+calculate the LRR with both methods because we want to demonstrate, that
+there is a difference.
 
 ### Theory about how to calculate the LRR for each phase
 
@@ -189,17 +189,17 @@ accounting the duration of the experiment.
 
 For an efficient way to processing the data we use "Tidyverse" again. Here,
 we are confronted with the same problem as in the first task because there
-are again the two methods to calculate the LRR. We chose method 2 again for
-(same considerations and the same argumentation as above). We calculate the
-LRR with both methods because we want to demonstrate that there is a
-difference as well.
+are again the two methods to calculate the LRR. We chose method 2 again
+(same considerations and the same argumentation as for task one). We
+calculate the LRR with both methods because we want to demonstrate that
+there is a difference as well.
 
 ### Programming
 
 We have to edit the data first. We wrote a function to wrangle our data.
-After the call we want know, wheater the function has worked and if there
-any improvement. That is why we make a quality control call again. We can
-see that the function did exactly what we wanted it to do.
+After the call we want to know, weather the function has worked and if
+there any improvement. That is why we make a quality control call again. We
+can see that the function did exactly what we wanted it to do.
 
 ```{r Calculate_the_LRR, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function to prepare the data set
