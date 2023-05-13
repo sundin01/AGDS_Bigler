@@ -22,11 +22,11 @@ model.fitter <- function(dataframe, target.column.nr){
     }
   }
   # We create a tibble for a proper overview
-  my.tibble <- print(tibble("Target" = rep(col.names[target.column.nr],
+  my.tibble <- tibble("Target" = rep(col.names[target.column.nr],
                                            times = ncol(dataframe)),
                             "Predictor" = col.names,
                             "RR"  = my.vec,
                             "AIC" = aic.vec,
-                            "Fit" = ifelse(RR >= max(RR, na.rm = TRUE), "BEST FIT", "NO")))
-  return(print(my.tibble))
+                            "Fit" = ifelse(RR >= max(RR, na.rm = TRUE), "BEST FIT", "NO"))
+  return(my.tibble)
 }

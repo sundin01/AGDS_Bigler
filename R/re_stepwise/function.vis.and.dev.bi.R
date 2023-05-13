@@ -18,9 +18,10 @@ Vis_of_the_develop.bi.model <- function(tibble.bi.model){
     scale_y_continuous(limits = c(0 , 0.6)) +
     labs(x = "Predictors"
          , y = "RR",
-         title = "Overview of the development RR",
-         subtitle = "Development of a bivariate linear Regression model",
-         caption = "AGDS Report Exercise 4 (Chapter 8)")+
+         title = "Overview about the RSQ",
+         subtitle = "RSQ for each bivariate linear Regression model",
+         caption = "AGDS Report re_stepwise (Chapter 8)")+
+    theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
           panel.background = element_rect(fill = "white"),
           plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))

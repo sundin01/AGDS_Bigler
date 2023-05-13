@@ -5,10 +5,17 @@ vis.bi.model <- function(database){
     # create the model
     geom_smooth(formula = y~x, method = "lm", se = TRUE) +
     labs(title = "Bivariate lineare Regression Model",
-         y = "GPP_NT_VUT_REF", x = "PPFD_IN") +
+         y = "GPP_NT_VUT_REF", x = "PPFD_IN",
+         caption = "AGDS Report re_stepwise (Chapter 8)") +
     # Add some important parameters
-    stat_poly_eq(use_label(c("eq", "R2", "AIC"))) +
-    theme_bw()
+    stat_poly_eq(use_label(c("eq", "R2", "AIC")), label.x = "right",
+                 label.y = "bottom",) +
+    theme_bw()+
+    theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+    theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
+
 
   # Return the plot
   return(plot_1)

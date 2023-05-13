@@ -1,38 +1,42 @@
-vis.and.dev.multi.model <- function(tibble.multi.model){
-  # We define a new order because R would sort the column alphabetically
-  new.level <- c(tibble.multi.model$Predictors)
-  tibble.multi.model$Predictors <- factor(tibble.multi.model$Predictors,
+vis.and.dev.multi.model <- function(tibble.multi.model, label = NULL){
+
+# We define a new order because R would sort the column alphabetically
+new.level <- c(tibble.multi.model$Predictors)
+tibble.multi.model$Predictors <- factor(tibble.multi.model$Predictors,
                                           levels =  new.level,
                                           labels = new.level)
 
-  # We scale R square because it is easier to interpret if RR and AIC is on the same plot
-  tibble.multi.model <- tibble.multi.model|>
-    mutate(RR.mutated = round(RR * 10000, digits = 0),
-           AIC = round(AIC, digits = 1),
-           RR = round(RR, digits = 4))
-
-  plot_1 <- tibble.multi.model|>
-
+  p1 <- tibble.multi.model|>
+    # We round our results
+    mutate(AIC = round(AIC, digits = 1),
+           RSQ = round(RSQ, digits = 4))|>
     # We use pivot longer...
     pivot_longer(cols = c(tibble.multi.model|>
-                            select("RR.mutated", "AIC")|>
-                            colnames()), names_to = "Variable", values_to = "Value")|>
-
-    # ...and plot a bar plot
-    ggplot(aes(x = `Predictors`, y = `Value`, fill = `Variable`)) +
-    geom_bar(position = "dodge", stat = "identity") +
-    geom_text(aes(label = `Value`), vjust = 0, hjust = 0, colour = "black", angle = 90) +
-    scale_y_continuous(limits = c(0,40000)) +
-    scale_fill_discrete(labels=c('AIC', 'RR (scaled with 10`000)')) +
-    labs(x = "Predictors [Each variable contains all variables that are left of it]"
-         , y = "Value",
-         title = "Overview of the development of AIC and RR",
-         subtitle = "Development of a multivariate linear Regression model",
-         caption = "AGDS Report Exercise 4 (Chapter 8)")+
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
+                            select("RSQ", "AIC")|>
+                            colnames()), names_to = "Type")|>
+    # We scale RSQ because we want a second y-axis
+    mutate(scaled_value = ifelse(`Type` == "AIC", value, value*30000))|>
+    # We use GGPLOT
+    ggplot(aes(x = `Predictors`, y = scaled_value, fill = Type)) +
+    # We chose a column plot instead of a bar plot because we want to be flexible
+    geom_col(position="dodge")+
+    # We set limits fpr the first y-axis
+    # We create a second  y-axis and scale it. (thats why we scaled our pivot table)
+    scale_y_continuous(limits = c(0,30000),sec.axis = sec_axis(~ . / 30000, name = "RSQ"))+
+    # We label our columns. We want the label in the columns , centered and top
+    geom_text(aes(label = `value`), vjust = 0.5, hjust = 1, colour = "black", angle = 90,
+              position =  position_dodge(.9)) +
+    # We add our standard boarders
+    labs(x = "Predictors [Each variable contains all variables that are left of it]",
+         y = "AIC", title = "Overview of the development of AIC and RR",
+         subtitle = paste("Development of a multivariate linear Regression model",label),
+         caption = "AGDS Report Exercise re_stepwise (Chapter 8)") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+    theme(legend.background = element_rect( fill = "lightblue",
+                                            size = 0.5, linetype = "solid", colour = "black"))+
     theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
           panel.background = element_rect(fill = "white"),
           plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
-
-  return(plot_1)
+  return(p1)
 }

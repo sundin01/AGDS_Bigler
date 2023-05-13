@@ -1,14 +1,16 @@
 ---
-title: ""
+title: "Report Exercise: re_airquality"
 author: "Patrick Bigler"
 date: "2023-04-10"
-output: html_document
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+    number_sections: yes
 editor_options: 
   markdown: 
     wrap: 75
 ---
-
-# Report Exercise: "Data visualization"
 
 Course: Applied Geo-data Science at University of Bern (Institute of
 Geography)
@@ -16,6 +18,8 @@ Geography)
 Supervisor: Prof. Dr. Benjamin Stocker
 
 Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+Further information: <https://geco-bern.github.io/agds/>
 
 [You have questions to the workflow? Contact the Author:]{.underline}
 
@@ -25,7 +29,24 @@ Matriculation number: 20-100-178
 
 Reference: Report Exercise 2 (Chapter 4)
 
-## Introduction and Hypothesis
+# Introduction
+
+## Objectives
+
+Visualizations are a proper way to communicate the results. The variety of
+diagrams, colors and shapes is almost limitless. However, not all of them
+are always equally suitable. It is essential to create the right graphic to
+transport the message. With a realistic problem, the following goals should
+be trained:
+
+-   Appropriate choice of visualisations for different data types and
+    different aspects of the data
+
+-   Grammar of graphics (ggplot2)
+
+-   The proper use of colours in visualization
+
+## Theory
 
 Air quality depends on factors such as particulate matter (PM10 or PM2.5),
 nitrogen dioxide $(NO_2)$ or ozone $(O_3)$. In this exercise, only the
@@ -38,7 +59,7 @@ exceeded only once per year. It exists other definitions for a threshold,
 but here we use this definition (Brönnimann 2013, 23). However, this unit
 depends on the air pressure, which decreases with altitude. The volume
 mixing ratio with the unit parts per billion is more suitable which is
-about 60 ppb which we use in this exercise. (Brönnimann 2013, 26).
+about 60 ppb (Brönnimann 2013, 26). Here, we use this value.
 
 Ozone is a molecule consisting of 3 oxygen atoms and has various physical
 (absorption of UV and IR radiation) and chemical properties (high
@@ -65,25 +86,41 @@ concentration of nitrogen dioxide (which depends on traffic and wind). With
 these considerations, a data set on air quality can be studied with a focus
 on ozone.
 
+## Hypothesis
+
 This exercise is supposed to answer the following research question:
 
 *"Quantify the dependency of ozone concentration from temperature, solar
 radiation and wind"*
 
-## Methods
+# Methods
 
-The method is quite straight forward.
+## Unit transformation into SI-Units
 
-1.  We make some quality control calls
-2.  We check the source because the data set is a second source
-3.  We wrangle data and calculate the main statistic parameters (frequency,
-    distribution, density)
-4.  We create a very simple model (correlation, bivariate / multivariate
-    linear regression)
+It is strongly recommended to use the SI unit system because it is
+simplifies the reproducibility, the interpretation, and the discussion of
+the data. It follows the formulas to transform the units into the SI-units
+system.
 
-## Programming and data evaluation
+-   For temperature the following formula was used:
+    $$\frac{x \left[°Fahrenheit \right]- 32}{1.8} +273.15 \Longleftrightarrow x\left[Kelvin \right]$$
 
-### Packages
+-   For wind speed the following formula was used :
+    $$1 \left[\frac{mile}{hour} \right] \Longleftrightarrow 0.44704 \left[\frac{meter}{second}\right]$$
+
+-   For solar radiation the following formula was used :
+    $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
+
+## R: Evaluation of the data
+
+All analysis are done with the open source software R-Studio (Version
+2022.12.0+353). This software use the language R to handle the data. For an
+efficient processing of the data we use the R-package "Tidyverse (and
+others).
+
+# Programming and data evaluation
+
+## Packages
 
 The following code chunk contains all packages we need. Important is the
 package "conflicted". It enables us to chose if different functions have
@@ -94,11 +131,11 @@ package can have the same name as a function from another package).
 source("../../R/general/packages.R")
 ```
 
-### Original source of the file
+## Read the file
 
-First, we get the data and save it in our repository. Because we can not be
-sure if there made any changes in the data, we "freeze" our data. That
-means we get the data, save it and read it from our directory.
+First, we get the data and save it in our repository. But we must do this
+only once. If the file exists, then we can read it directly. That is why we
+implemented a if-else statement.
 
 ```{r Read_file, error=FALSE, message=FALSE, warning=FALSE}
 # We want know, if a certain file already exists
@@ -120,13 +157,18 @@ if (!file.exists(name.of.file)){
   }else{airquality <- read_csv("../../data/re_airquality/airquality.csv")}
 ```
 
+## Data Overview
+
 The data is a example data frame in the R package "datasets". The database
 is a secondary source. We must first familiarize ourselves with its
 contents, variables and units. For that we can use R to gather all these
-information. With help() we see that the variables do not have the
-SI-units. We also check the NA. With str() we can see that there are NA. We
-call a function to visualize the NA because we must know where the NA are
-and whether this could be problematic.
+information.
+
+### Missing values
+
+With help() we see that the variables do not have the SI-units. With
+apply() we can see that there are NA. We call a function to visualize the
+NA because we must know where they are.
 
 ```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
 # Ask for details (units, source and references)
@@ -135,12 +177,20 @@ help("airquality")
 # Check data type of every variable in data frame
 str(airquality)
 
+# Take a overview and main statistic parameters
+summary(airquality)
+
+# Check wheater there are any missing values (We try with only the first six rows)
+head(apply(airquality,2, function(x) is.na(x)))
+
 # Load the function
 source("../../R/general/function.visualize.na.values.R")
 
 # Function call to vis. the NA
 visualize.na.values(airquality)
 ```
+
+### Sources
 
 The data frame shows different variables at different times. The
 measurement series starts on 05.01.1973 and lasts until 09.30.1973. Each
@@ -165,22 +215,6 @@ Weather Service.
 -   Solar. R [Langley] average in the frequency band 4000-7700 Angstroms
     (wavelength: 400-770 nano meter) from 8am to noon in Central Park NYC.
 
-### Editing the file in SI-Units
-
-It is strongly recommended to use the SI unit system because it is
-simplifies the reproducibility, the interpretation, and the discussion of
-the data. It follows the formulas to transform the units into the SI-units
-system.
-
--   For temperature the following formula was used:
-    $$\frac{x \left[°Fahrenheit \right]- 32}{1.8} +273.15 \Longleftrightarrow x\left[Kelvin \right]$$
-
--   For wind speed the following formula was used :
-    $$1 \left[\frac{mile}{hour} \right] \Longleftrightarrow 0.44704 \left[\frac{meter}{second}\right]$$
-
--   For solar radiation the following formula was used :
-    $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
-
 ```{r editing_the_data_frame_in_SI_units, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
 source("../../R/re_airquality/function.unit.converter.R")
@@ -198,10 +232,10 @@ robust against outliers. This is important because a short-term elevated
 ozone concentration will probably not endanger health. If we use the mean,
 we could loss the overall picture due to a big one time outlier. If the
 median has been used as a position parameter, it should be used the IQR as
-a scattering parameter. This will allow us to estimate how high the
-dispersion is in the data. But we are also interested in the maximal
-values. A environment with a very high ozone concentration can be toxic
-(even a short time exposure).
+a scattering parameter. This will allow us to estimate how high the data
+dispersion is. But we are also interested in the maximal values. A
+environment with a very high ozone concentration can be toxic (even a short
+time exposure).
 
 The table shows the results of the statistical parameters in a monthly
 resolution. We round the results to integer numbers, because rational or
@@ -211,10 +245,10 @@ of the month is available). The median (May = 18 ppb, Jun = 23 ppb, Jul =
 60 ppb, Aug = 52 ppb, Sept = 23 ppb) is always lower or equal to the
 threshold value (60 ppm). Therefore, the air quality is acceptable. But
 there are measurements in every month which exceed the threshold value
-(maximum \> 60ppm). For Jul, Aug and Sep. there are even more values (0.75
+(maximum \> 60ppm). For Jul, Aug and Sep there are even more values (0.75
 -quantile \> 60ppm). That means that there are isolated days, when the
 ozone concentration is problematic. If we compare the standard deviation
-and IQR we notice that the are not so different. If we also take into
+and IQR we notice that they are not so different. If we also take into
 account the span, we notice that the core of the data has a relatively
 small scatter. In the 0.25 and 0.75 the scatter increases, especially for
 the months Jul and Aug. Last but no least we can see that the median is
@@ -239,9 +273,11 @@ knitr::kable(airquality_mutated|>
                    round(min(Ozone, na.rm = TRUE), digits = 0)))
 ```
 
+### Box-Whisker-Plot
+
 Probably it is difficult to imagine what the parameters mean for the data.
 That is why we visualize them. We can see the same information (even more
-if we add a jitter-plot) in a box-whisker-plot as in the table above . The
+if we add a jitter-plot) in a box-whisker-plot as in the table above. The
 plot shows us that there are outliers (red triangle), but the boxes for
 May, June and September are small which means the data scattering is small
 (small IQR). The situation for July and August is different. The large box
@@ -259,6 +295,8 @@ source("../../R/re_airquality/function.boxplot.R")
 airquality.boxplot(airquality_mutated)
 ```
 
+### Density-Plot
+
 The density plot shows us that the data have a big span and a positive
 skewness. But the core of the data (area with a high density) has an
 acceptable span (which is basically the IQR). The graphs shows us also that
@@ -275,15 +313,17 @@ source("../../R/re_airquality/function.density.plot.R")
 density.airquality(airquality_mutated)
 ```
 
+### Bar Plot and the distribution of the missing values
+
 We detected many missing values. For a stringent analysis we need to know
 which values are missing and where they are. Are there a systematic error
-in the instrument? Or simple forgot someone to write down the measurement?
-For that we use a bar-plot which replace all NA in -1. Now we can easily
-see which values are missing. We are missing a lot of values for June. To
-create new values through linear interpolation is not an option because
-there is (1) to many NA and (2) the gap between to values is to big. We
-would only falsify our analysis. But all other missing values are not
-problematic and we can proceed straight forward.
+in the instrument (sensitivity)? Or simple forgot someone to write down the
+measurement? For that we use a bar-plot which replace all NA values in -1.
+Now we can easily see which values are missing. We are missing a lot of
+values for June. To create new values through linear interpolation is not
+an option because there is (1) to many NA and (2) the gap between to values
+is to big. We would only falsify our analysis. But all other missing values
+are not problematic and we can proceed straight forward.
 
 ```{r bar_plot_missing_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -293,7 +333,7 @@ source("../../R/re_airquality/function.na.identifier.R")
 na.identifier(airquality_mutated )
 ```
 
-## Correlation
+### Correlation
 
 Now we have a impression of our data. But we want to know, whether the
 variables of the hypothesis are promisingly. For this purpose we create a
@@ -317,11 +357,13 @@ correlation.plot(airquality_mutated, c("pearson"))
 correlation.plot(airquality_mutated, c("spearman"))
 ```
 
-## Regression models
+## Modelling
 
 We want to be able to predict new values. For that we need a model. Here we
 create a simple linear regression model. For that we calculate four
 different models.
+
+### Linear Regression Models
 
 The first model is ozone vs. time. The model explains only about 2.5 % of
 the variance (RSQ = 0.024). Both the coefficient and the intercept are not
@@ -364,6 +406,8 @@ regression.calculater(airquality_mutated, 4, 6)
 regression.calculater(airquality_mutated, 4, 7)
 ```
 
+### Visualization of the models
+
 For a better interpretation the models can be visualized.
 
 ```{r linear_regression_model_ozone_time, error=FALSE, message=FALSE, warning=FALSE}
@@ -380,7 +424,7 @@ airquality.regression(airquality_mutated, Wind, c("Wind [m/s]"))
 airquality.regression(airquality_mutated, Solar.R, c("Solar.R [W/m^2]"))
 ```
 
-## Discussion
+# Discussion
 
 In this short analysis we can see that ozone probably depends on
 temperature, wind and solar radiation. Although the RSQ and the p-value was
@@ -403,7 +447,7 @@ But we can take a look on this specific data set and analyse the year 1973.
 First we must discuss the source. It is problematic that not all variables
 were measured at the same location. The ozone was measured on Roosvelt
 Island. It is an island on the East River in NYC. But the temperature and
-wind were measured at La Guardia Airfield. The solar irradiance in Central
+wind were measured at La Guardia Airfield, the solar irradiance in Central
 Park. The measuring stations are up to 10 km apart and this is in the
 middle of a city. There is no guarantee that the meteorological conditions
 are the same. There is probably more wind at the airport than at Roosvelt
@@ -436,7 +480,7 @@ data. We recommend to build up a city-wide monitoring network, which should
 include more air quality parameters, such as particulate matter. This would
 give us an overall picture and allow us to take evidence-based measures.
 
-## Bibliography
+# Bibliography
 
 Brönnimann Stefan (2013): Ozon in der Atmosphäre. Bern, Haupt Verlag. DOI:
 10.480/GB2013.03

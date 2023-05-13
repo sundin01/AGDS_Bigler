@@ -25,12 +25,10 @@ multivariate.model <- function(dataframe, vector){
     for (i in col.names) {
       # For each round, we create a new formula for the linear regression model.
       changeable.formula <- as.formula(paste("GPP_NT_VUT_REF~", paste(c(predictors, i), collapse = "+")))
-      print(changeable.formula)
       # Calculate the linear regression model
       lm.model <- lm(changeable.formula, data = database)
       # Read R^2
       RR.new <- summary(lm.model)$r.squared
-      print(RR.new)
       # Search the highest R square and save the column name. We have to delete the column for the next round
       if(RR.new > RR.now){
         # Change the guard to enter the if condition
@@ -51,14 +49,13 @@ multivariate.model <- function(dataframe, vector){
     predictors.tibble <- predictors
     collect.RR <- c(collect.RR, RR.now)
     collect.AIC <- c(collect.AIC, AIC.new)
-    print(AIC.new)
   }# end while loop
   # if we finished the while loop, we print our model
   print(paste("Best model fit has AIC =", AIC.old))
   predictors <- predictors[-length(predictors)]
   print(predictors)
   my.tibble <- tibble::tibble("Predictors" = predictors.tibble,
-                              "RR" = collect.RR,
+                              "RSQ" = collect.RR,
                               "AIC" = collect.AIC)
   return(my.tibble)
 }

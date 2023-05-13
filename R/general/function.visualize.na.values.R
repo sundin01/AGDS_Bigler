@@ -1,9 +1,9 @@
 visualize.na.values <- function(database){
   # Plot the NA with percentage
-  plot_1 <- vis_miss(airquality)
+  plot_1 <- vis_miss(database)
 
   # Plot NA per group
-  plot_2 <- gg_miss_var(airquality, facet = Month)
+  plot_2 <- gg_miss_var(database, facet = Month)
 
   # Create a cowplot
   out.plot <- cowplot::plot_grid(plot_1, plot_2)
