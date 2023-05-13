@@ -13,7 +13,7 @@ visualize.na.values <- function(database){
 visualize.na.values.without.groups <- function(database){
   plot_1 <- vis_miss(database)
 
-  plot_2 <- gg_miss_var(database, show_pct = TRUE)
+  plot_2 <- gg_miss_var(database)
 
   out.plot <- cowplot::plot_grid(plot_1, plot_2)
   return(out.plot)

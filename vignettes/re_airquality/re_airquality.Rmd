@@ -301,7 +301,7 @@ correlation matrix. Because we do not know if the ozone distribution is
 linear or monotonic, we use the "Pearson" and the "Spearman" method. The
 graphic shows us a high positive correlation between ozone concentration
 vs. temperature (r = 0.7, $\rho = 0.77$ ) and a high negative correlation
-between the ozone concentration and wind ( r = -0.6, $\rho = -0-59$ ).
+between the ozone concentration and wind ( r = -0.6, $\rho = -0.59$ ).
 There is also a positive correlation between the ozone concentration and
 the solar radiation (r = 0.35, $\rho=0.35$) but not so strong. The
 difference between the methods are not negligible. In this exercise, we
