@@ -40,7 +40,7 @@ trained:
 
 -   Read and transform tabulated data
 
--   Understand the \'tidy\' data concept
+-   Understand the 'tidy' data concept
 
 -   Select variables
 

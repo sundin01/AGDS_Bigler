@@ -1,16 +1,16 @@
 ---
-title: "Exercise_5"
+title: "Report Exercise: re_ml_02"
 author: "Patrick Bigler"
 date: "2023-04-24"
 output:
-  pdf_document: default
-  html_document: default
+  html_document:
+    toc: yes
+    toc_float: yes
+    number_sections: yes
 editor_options: 
   markdown: 
     wrap: 75
 ---
-
-# Report Exercise: "Machine Learning 2"
 
 Course: Applied Geo-data Science at University of Bern (Institute of
 Geography)
@@ -18,6 +18,8 @@ Geography)
 Supervisor: Prof. Dr. Benjamin Stocker
 
 Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+Further information: <https://geco-bern.github.io/agds/>
 
 [You have questions to the workflow? Contact the Author:]{.underline}
 
@@ -28,9 +30,37 @@ Matriculation number: 20-100-178
 
 Reference: Report Exercise 7 (Chapter 10)
 
-## Programming and data evaluation
+# Introduction
 
-### Packages
+## Objectives
+
+Here, we explore the role of structure in the data for model
+generalisability and how to best estimate a \"true\" out-of-sample error
+that corresponds to the prediction task. The task here is to train a model
+on ecosystem flux observations from one site and predict to another site
+(spatially upscaling).
+
+-   Concept of cross validation
+
+-   spatially upscalling
+
+## Theory
+
+# Method
+
+We will not change everything for this exercise because we can reuse our
+function from the last exercise (re_ml_01).
+
+## R: Evaluation of the data
+
+All analysis are done with the open source software R-Studio (Version
+2022.12.0+353). This software use the language R to handle the data. For an
+efficient processing of the data we use the R-package "Tidyverse (and
+others).
+
+# Programming and data evaluation
+
+## Packages
 
 The following code chunk contains all packages we need. Important is the
 package "conflicted". It enables us to chose if different functions have
@@ -41,7 +71,7 @@ package can have the same name as a function from another package).
 source("../../R/general/packages.R")
 ```
 
-### Original source of the file
+## Read the file
 
 Use the URL in the code chuck to get access to the data. We use an if/else
 statement to ensure that we do not overwrite the data with every run. If
@@ -81,28 +111,26 @@ if (!file.exists(name.of.file)){
 }else{daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")}
 ```
 
+## Data Overview
+
 ### Data cleaning
 
-For a good analysis, we should always do a quality control. That we do
-next. First, we call the first few rows. We can see that some columns
-contains -9999 as a value. Our quality function changed that to NA. Than we
-use ymd() from the "lubridate" package to rewrote the date in a proper way.
-Further, we want only columns which contains good quality. For that we
-check selected columns with their quality control columns. We select only
-the columns we need and apply our quality control function. If the
-proportion of good measurement is less than 80%, then we discard this
-variable. Now we know that our data has a high quality and we can perform
-our analyses with it. After that we create a new data frame. The new data
-frame contains all values from Davos and Lägern. We use .id = "id" because
-we must know where the values come from. If we know that, we can use the
-filter funtion from the package "dplyr".
+We can see that some columns contains -9999 as a value. Our quality
+function changed that to NA. Than we use ymd() from the "lubridate" package
+to rewrote the date in a proper way. Further, we want only columns which
+contains good quality. For that we check selected columns with their
+quality control columns. If the proportion of good measurement is less than
+80%, then we overwrite the value with NA (and do not drop the row!). Now we
+know that our data has a high quality and we can perform our analyses with
+it.
+
+Here, we work with two location (Davos and Lägern). But we do not want to
+do everything twice. That why we define a new data frame which contains all
+information about the two locations. We use .id = "id" because we must know
+where the values come from. If we know that, we can use the filter function
+from the package "dplyr" and analyse our data efficient.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
-# Call the first 6 rows of all columns. There is -9999 instead of NA and lot of columns
-# We clean the data with our cleaning and quality control function
-head(daily_fluxes.davos)
-head(daily_fluxes.laegern)
-
 # Load the function in the file (we use the function from another markdown again)
 source("../../R/re_ml_01/function.use.good.quality.only.R")
 
@@ -117,19 +145,16 @@ daily_fluxes_both <- bind_rows(daily_fluxes.davos, daily_fluxes.laegern, .id = "
 # We check the again. Now our dataset contains NAs and only the columns of interest
 # Load the function
 source("../../R/general/function.visualize.na.values.R")
+
 # Function call
 visualize.na.values.without.groups(daily_fluxes_both)
 ```
 
-### Split the data
+## Split the data
 
 Here we split our data in a training set and a test set. First we will
-split the data (80 % training and 20 % test). For KNN, we use k = 8. This
-choice of k is random. The last code chunk in this workflow will show you,
-which k is the optimal one (we do not want to spoiler here. That is why you
-should use k = 8 first). We use the method "cv" (cross validation). To
-evaluate the model, we want 10 validation sets. After we have trained our
-model, we will apply it on the test sets.
+split the data (80 % training and 20 % test). We set seed for a
+pseudo-random choice (reproducibility).
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # For reproducibility (pseudo-random)
@@ -158,7 +183,11 @@ daily_fluxes_both_train <- rsample::training(split_both)
 daily_fluxes_both_test <- rsample::testing(split_both)
 ```
 
-We train our models with k=8 and validation = 10.
+For KNN, we use k = 8a again (which is a random choice)). The last code
+chunk in this workflow will show you, which k is the optimal one (we do not
+want to spoiler here. That is why you should use k = 8 first). We use the
+method "cv" (cross validation). To evaluate the model, we want 10
+validation sets.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file.
@@ -172,25 +201,43 @@ knn.model.laegern <- knn.cv.model(daily_fluxes_laegern_train, 8, 10)
 knn.model.both <- knn.cv.model(daily_fluxes_both_train, 8, 10)
 ```
 
-evaluation of the models
+We evaluate our models. For that we make seven different calls:
+
+1.  Davos $\Longrightarrow$ Davos
+2.  Davos $\Longrightarrow$ Lägern
+3.  Lägern $\Longrightarrow$ Lägern
+4.  Lägern $\Longrightarrow$ Davos
+5.  Davos+Lägern $\Longrightarrow$ Davos
+6.  Davos+Lägern $\Longrightarrow$ Lägern
+7.  Davos+Lägern $\Longrightarrow$ Davos+Lägern
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
 source("../../R/re_ml_01/function.evaluation.model.R")
 
-P.1 <- eval_model(knn.model.davos, daily_fluxes_davos_train, daily_fluxes_davos_test, c("Davos"), c("Davos"))
+P.1 <- eval_model(knn.model.davos, daily_fluxes_davos_train, 
+                  daily_fluxes_davos_test, c("Davos (knn: k=8)"), c("Davos (knn: k=8)"))
 
-P.2 <- eval_model(knn.model.davos, daily_fluxes_davos_train, daily_fluxes_laegern_test, c("Davos"), c("Lägern"))
+P.2 <- eval_model(knn.model.davos, daily_fluxes_davos_train, 
+                  daily_fluxes_laegern_test, c("Davos (knn: k=8)"), c("Lägern (knn: k=8)"))
 # Function call for KNN
-P.3 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, daily_fluxes_laegern_test, c("Lägern"), c("Lägern"))
+P.3 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, 
+                  daily_fluxes_laegern_test, c("Lägern (knn: k=8)"), c("Lägern (knn: k=8)"))
 
-P.4 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, daily_fluxes_davos_test, c("Lägern"), c("Davos"))
+P.4 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, 
+                  daily_fluxes_davos_test, c("Lägern (knn: k=8)"), c("Davos (knn: k=8)"))
 
-P.5 <- eval_model(knn.model.both, daily_fluxes_both_train, daily_fluxes_both_test, c("Davos and Lägern"), c("Davos and Lägern"))
+P.5 <- eval_model(knn.model.both, daily_fluxes_both_train, 
+                  daily_fluxes_both_test, c("Davos and Lägern (knn: k=8)"), 
+                  c("Davos and Lägern (knn: k=8)"))
 
-P.6 <- eval_model(knn.model.both, daily_fluxes_both_train, daily_fluxes_davos_test, c("Davos and Lägern"), c("Davos"))
+P.6 <- eval_model(knn.model.both, daily_fluxes_both_train,
+                  daily_fluxes_davos_test, c("Davos and Lägern (knn: k=8)"), 
+                  c("Davos (knn: k=8)"))
 
-P.7 <- eval_model(knn.model.both, daily_fluxes_both_train, daily_fluxes_laegern_test, c("Davos and Lägern"), c("Lägern"))
+P.7 <- eval_model(knn.model.both, daily_fluxes_both_train, 
+                  daily_fluxes_laegern_test, c("Davos and Lägern (knn: k=8)"), 
+                  c("Lägern (knn: k=8)"))
 ```
 
 Train a single model with training data pooled from both sites and predict
@@ -206,29 +253,31 @@ cowplot::plot_grid(P.1, P.2, nrow = 2)
 cowplot::plot_grid(P.3, P.4, nrow = 2)
 
 cowplot::plot_grid(P.6, P.7, nrow = 2)
+
+cowplot::plot_grid(P.5, NULL, nrow = 2)
 ```
 
-```{r}
+```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
-my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))
+my.sequence.extracter <- c(1,2,3,4,seq(5, to = 100, by = 5))
 
 # Function call to determine the optimal k
-paramter.extracter.knn.cv(my.sequence.extracter, 
-                   daily_fluxes_davos_train, daily_fluxes_davos_test)
+parameter.extracter.knn.cv(my.sequence.extracter, 
+                   daily_fluxes_both_train, daily_fluxes_davos_test, 10)
 ```
 
-## Discussion
+# Discussion
 
-### Model
+## Model
 
 ### Davos
 
 Get information about the characteristics of the two sites. What are the
 differences in terms of climate, vegetation, altitude, etc. between the
-Davos and Laegern sites? Interpret biases of the out-of-sample predictions
+Davos and Lägern sites? Interpret biases of the out-of-sample predictions
 with a view to the site characteristics.
 
 ### Lägern

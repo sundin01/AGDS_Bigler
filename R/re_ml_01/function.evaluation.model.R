@@ -33,7 +33,7 @@ eval_model <- function(mod, df_train, df_test, model.name.train, model.name.test
     filter(.metric == "rsq") |>
     pull(.estimate)
 
-  # visualise as a scatterplot
+  # visualize as a scatterplot
   # adding information of metrics as sub-titles
   plot_1 <- ggplot(data = df_train, aes(GPP_NT_VUT_REF, fitted)) +
     geom_point(alpha = 0.3) +

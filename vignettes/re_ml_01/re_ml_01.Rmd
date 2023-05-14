@@ -1,16 +1,16 @@
 ---
-title: "Report_Exercise_4"
+title: "Report Exercise: re_ml_01"
 author: "Patrick Bigler"
 date: "2023-05-01"
 output: 
   html_document:
-    toc: true
+    toc: yes
+    toc_float: yes
+    number_sections: yes
 editor_options: 
   markdown: 
     wrap: 75
 ---
-
-# Report Exercise: "Machine Learning 1"
 
 Course: Applied Geo-data Science at University of Bern (Institute of
 Geography)
@@ -18,6 +18,8 @@ Geography)
 Supervisor: Prof. Dr. Benjamin Stocker
 
 Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+Further information: <https://geco-bern.github.io/agds/>
 
 [You have questions to the workflow? Contact the Author:]{.underline}
 
@@ -27,27 +29,39 @@ Matriculation number: 20-100-178
 
 Reference: Report Exercise 4 (Chapter 9)
 
-## Introduction
+# Introduction
+
+## Objectives
+
+This exercise is a introduction into supervised machine learning. With a
+realistic problem, the following goals should be trained:
+
+-   Implementation of the KNN algorithm
+
+-   Discuss the bias-variance trade-off
+
+-   The role of k
+
+## Theory
 
 Supervised machine learning is a type of machine learning where the model
 is trained using labeled data to predict new and unseen data and this as
-accurate as possible (lowest error in the new data). But this is approach
-has same challenges. For example, we need to know how good is the quality
-of the new data predicted by the model. Therefore we use only a part of the
-labeled data to train the algorithm. The other part of the data we need to
-check the model.
+accurate as possible (lowest error in the new data). But this approach has
+some challenges. For example, we need to know how good the quality of the
+predicted data is. Therefore, we use only a part of the labeled data for
+training. With the other part of the labeld data we quantify the error.
 
-For the training process there are many ways to describe the data. We use
-polynomials to approximate the target in the training data. If we use a
-polynomial with $deg=0$, then we describe the data with an intercept and is
-probably a very poor choice. The bias will be very high since we will not
-hit almost any value of the target exactly. The model can explain very
-little of the variance of the target. The higher the degree of the
-polynomial, the more flexible we can bend, stretch, or compress our
-function. In the best case, we have found a polynomial that exactly
-describes the target in the training data. The bias in the training data
-will be zero. We tend to say, that our best model would be the one which
-describes the target of the training data best. But this is not true.
+There are many ways to train the algorithm. Here we use polynomials to
+approximate the target. If we use a polynomial with $deg=0$, then we
+describe the data with an intercept and is probably a very poor choice. The
+bias will be very high since we will not hit almost any value of the target
+exactly. The model explains only very little of the variance of the target.
+The higher the degree of the polynomial, the more flexible we can bend,
+stretch, or compress our function. In the best case, we have found a
+polynomial which hits every target value in the training data exactly. The
+bias in the training data will be zero. We tend to say, that our best model
+would be the one which describes the target of the training data best. But
+this is not true.
 
 Consider the following: If we use the model which approximate the target in
 the training data best, then we have also include all errors. The target
@@ -56,31 +70,38 @@ statistical and almost always systematic errors (measurement noise)). If we
 use a polynomial with $deg = 0$ we will not have a good prediction. The
 model describes the target in the training data so bad that it will not be
 able to predict the target in a good quality. The RSME is high in the
-training data and will bi high in the test data. We call that a underfitted
-model and the bias-variance trade off shifts to the very high bias. Because
+training data and will be high in the test data. We call that a underfitted
+model and the bias-variance trade off shifts to a very high bias. Because
 of the high variance in the predicted data, the RSME will be also high in
 the predicted data.
 
 If we use a polynomial with $deg = n$ then we project the error into the
 new data. That will cause a higher variance in the predicted data because
-our model is overfitted. The bias-variance trade off shift to the variance.
-The goal is finding the model with the best generalisability which is the
-model with the best bias-variance trade-off. This exercise shows you how we
-can find the best model with a KNN-Algorithm.
+our model is overfitted. The bias-variance trade off in the train data
+shifts to the variance. The goal is finding the model with the best
+generalisability which is the model with the best bias-variance trade-off.
+This exercise shows you how we can find the best model with a
+KNN-algorithm.
 
-## Methods
+# Methods
 
-We use the KNN (k-nearest neighbours) algorithm and compare the models to a
-linear regression model.
+We use the KNN (k-nearest neighbours) algorithm and compare the model to a
+multivariate linear regression model. For the KNN we split our data. We use
+70 % for training and 30 % to validate the model. Because the algorithm use
+a distance we have to standardize our data. With the box.cox function we
+transform our data in a normal distribution. We use set.seed for
+reproducibility.
 
-For the KNN we split our data. We use 70 % for training and 30 % to
-validate the model. Because the algorithm use a distance we have to
-standardize our data. With the box.cox function we transform our data in a
-normal distribution. We use set.seed for reproducibility.
+## R: Evaluation of the data
 
-## Programming and data evaluation
+All analysis are done with the open source software R-Studio (Version
+2022.12.0+353). This software use the language R to handle the data. For an
+efficient processing of the data we use the R-package "Tidyverse (and
+others).
 
-### Packages
+# Programming and data evaluation
+
+## Packages
 
 The following code chunk contains all packages we need. Important is the
 package "conflicted". It enables us to chose if different functions have
@@ -91,12 +112,13 @@ package can have the same name as a function from another package).
 source("../../R/general/packages.R")
 ```
 
-### Original source of the file
+## Read the file
 
-Use the URL in the code chuck to get access to the data
+First, we get the data and save it in our repository. But we must do this
+only once. If the file exists, then we can read it directly. That is why we
+implemented a if-else statement.
 
-```{r error=FALSE, message=FALSE, warning=FALSE}
-
+```{r read_file, error=FALSE, message=FALSE, warning=FALSE}
 name.of.file <- "../../data/re_ml_01/daily_fluxes.csv"
 
 # If do not exists such a file, create it!
@@ -112,48 +134,56 @@ if (!file.exists(name.of.file)){
   write_csv(daily_fluxes, "../../data/re_ml_01/daily_fluxes.csv")
   
   # Read the file
-  daily_fluxes <- read_csv("../../data/re_ml_01/daily_fluxes.csv")
+  daily_fluxes.raw <- read_csv("../../data/re_ml_01/daily_fluxes.csv")
   # If exists such a file, read it only!
-  }else{daily_fluxes <- read_csv("../../data/re_ml_01/daily_fluxes.csv")}
+  }else{daily_fluxes.raw <- read_csv("../../data/re_ml_01/daily_fluxes.csv")}
 ```
+
+## Data Overview
+
+### Missing values
+
+If we take a closer look to the file, we see that there are 334 variables.
+We can not continue with our usual procedure because there are to many
+variables. That is why we have to clean our data first.
 
 ### Data cleaning
 
-For a good analysis, we should always do a quality control. That we do
-next. First we call the first few rows. We can see that some columns
+We select only columns we need. Further, we can see that some columns
 contains -9999 as a value. Our quality function changed that to NA. Than we
 use ymd() from the lubridate package to rewrote the date in a proper way.
 Further we want only columns which contains good quality. For that we check
 selected columns with their quality control column.If the proportion of
-good measurement is less than 80%, then we discard this variable. After
-that we discard all quality-control columns. Now we know that our dataset
-is of high enough quality to perform analyses with it.
+good measurement is less than 80%, then we overwrite the value with NA (and
+do not drop the row!). After that we discard all quality-control columns.
+Now we know that our data set is of high enough quality to perform analyses
+with it.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file
 source("../../R/re_ml_01/function.use.good.quality.only.R")
 
-# Call the first 6 rows of all columns. There is -9999 instead of NA and lot of columns
-head(daily_fluxes)
-
 # Function call to clean the data
-daily_fluxes <- use.good.quality(daily_fluxes)
-
-# We check the again. Now our dataset contains NAs and only the columns of interest
+daily_fluxes <- use.good.quality.only(daily_fluxes.raw)
 
 # Load the function
 source("../../R/general/function.visualize.na.values.R")
+
 # Function call
 visualize.na.values.without.groups(daily_fluxes)
 ```
 
+## Implementation of the KNN algorithm
+
 ### Split the data
 
-Here we split our data in a training set and a test set. First we will
-split the data (70 % training and 30 % test). After we split the data we
-can calculate our model. For KNN, we use k = 8. This choice is random. The
-last code chunk in this workflow will show you, which k is the optimal one
-(we do not want to spoiler here. That is why you should use k = 8 first).
+Here we split our data in a training subset and a test subset (70 %
+training and 30 % test). After we split the data we can calculate our
+model. We use these three variables as predictors: SW_IN_F, VPD_F, and TA_F
+. For KNN, we use k = 8 as a first try. This choice is random. The last
+code chunk in this workflow will show you which k is the optimal one (we do
+not want to spoiler here. That is why you should use k = 8 first). Now we
+calculate a KNN model and a lm model.
 
 ```{r split_data, error=FALSE, message=FALSE, warning=FALSE}
 # For reproducibility (pseudo-random)
@@ -178,10 +208,10 @@ mod.lm <- lm.model(daily_fluxes_train)
 
 ### Evaluation
 
-Here we make a model evaluation. The first function call is for the
-lm-model. The function needs the model which we have calculated in the code
-chunk above. This is a multivariate regression model and therefore we can
-not improve the formula.
+After we split our data, we have to make a model evaluation. The first
+function call is for the lm-model. The function needs the model which we
+have calculated in the code chunk above. This is a multivariate regression
+model and therefore, we can not improve the formula.
 
 The second function call is for the KNN model. The function needs the
 knn-model as a input. The knn-model has been calculated in the code chunk
@@ -197,49 +227,52 @@ source("../../R/re_ml_01/function.evaluation.model.R")
 eval_model(mod = mod.lm, df_train = daily_fluxes_train, df_test = daily_fluxes_test, c("Davos (lm)"), c("Davos (lm)"))
 
 # Function call for KNN
-eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test, c("Davos (knn)"), c("Davos (knn)"))
+eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_test, c("Davos (knn: k=8))"), c("Davos (knn: k=8)"))
 ```
 
-#### Visualization
+### Visualization
 
 Here you can see how the knn-model depends on k. If we use k=0, than we
-have perfect training data. But the RMSE in the test data is high ( model
-is overfitted). If we use k = n our model would be underfitted and
-therefore the RMSE in the test data would also be high. For a visualization
-of the development of RSQ and RSME as a function of k, please take a look
-on the last visualization.
+have perfect training data. But the RMSE in the test data is high (model is
+overfitted). If we use k = n our model would be underfitted and therefore
+the RMSE in the test data would also be high. For a visualization of the
+development of RSQ and RSME as a function of k, please take a look on the
+last visualization.
 
-```{r vis_generalisability, error=FALSE, message=FALSE, warning=FALSE}
+```{r vis_generalisability, eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_01/function.different.k.R")
 
 # Define a sequence for k
-my.sequence <- c(1,2,3,4,seq(10, to = 90, by = 10), 96,97,98,99,100)
+my.sequence <- c(1, 8, 25, 50, 100)
 # Function call
-different.k(my.sequence,daily_fluxes_train,daily_fluxes_test,c("Davos (knn)"),c("Davos (knn)"))
+different.k(my.sequence,daily_fluxes_train,daily_fluxes_test,c("Davos"),c("Davos"))
 ```
 
-## Discussion
+# Discussion
 
 In this short discussion part, we want to show you two main aspect of this
 exercise and discuss this aspects shortly. First, we need to know how to
 judge the models. For this we need to know why one model can be considered
-better than another and why. How can we estimate the bias-variance-trade
-off? Second, we need to know how the KNN algorithm works. For this we need
+better than another. How can we estimate the bias-variance-trade off?
+Second, we need to know how the KNN algorithm works. For this we need
 knowledge about the role of k-neighbors.
 
-### Model discussion and the role of the bias-variance trade off
+## Model discussion and the role of the bias-variance trade-off
 
 In this part we discuss the differences between a lm model and a KNN model.
-Further we will take a closer look to the KNN algorithm and the roll of k.
 
 #### Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
 
+To answer this question we have to take a closer look to the formulas:
+
 A lm model use all predictors to calculate a multivariate regression model.
-We take a close look to the formula:
+However, it is a linear regression. It means that the polynomial has a
+deg(polynomial)=1. In the training set it creates a straight line in a
+multidimensional space with dim = N.
 
 $$
-\hat{y} =\hat{a}_0+\hat{a}_1*x_1+\hat{a}_2*x_2+...+\hat{a}_n*x_n
+\hat{y}=a_0 +\sum_{n=1}^{N}\hat{a}_n*x_n
 $$
 
 Obviously, a lm model do not look for any underlying pattern. It creates a
@@ -286,7 +319,12 @@ the bias-variance trade off.
 
 The lm model is more or less the same.
 
-#### Visualize temporal variations of observed and modlled GPP for both models, covering all available dates.
+#### Visualize temporal variations of observed and modeled GPP for both models, covering all available dates.
+
+It seems that our model predict better if the target is between 2005 and
+2010. We can also see that the difference between the model is not very
+big. But the residue is very high because the target has a quantity of
+about $10^{-1}$.
 
 ```{r Vis_time_variation, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
@@ -296,7 +334,7 @@ source("../../R/re_ml_01/function.time.variation.R")
 time.variation(mod.knn, mod.lm, daily_fluxes_test)
 ```
 
-### Discussion the role of "k" and generalisability of a model
+## Discussion the role of "k" and generalisability of a model
 
 The "k" in KNN is a parameter that refers to the number of nearest
 neighbors. Here, we use MAE instead of RMSE. Although the values are
@@ -328,19 +366,20 @@ bias-variance-trade off.
 #### Showing model generalisability as a function of model complexity and optimal k
 
 The hypothesis is not fully true. RSQ is a quantity to describe the
-variance. Or better, it describes how many procent of the variance explains
-the model. For the best bias-variance tradeoff we want the k where the bias
-in the test data is lowest (low MAE) and the variance should be On figure
-xx you can see, that the model is for k = 0 totally overfitted. In the
-training data the RSQ is 1 and it follows that the bias must be 0. But in
-the test data the MAE is at a global maximum. The model is useless for any
-predictions and the trade off is on the side with to much variance.
+variance. Or better, it describes how many procentage of the variance
+explains the model. For the best bias-variance trade-off we want the k
+where the bias in the test data is lowest (low MAE) and the variance should
+be On figure xx you can see, that the model is for k = 0 totally
+overfitted. In the training data the RSQ is 1 and it follows that the bias
+must be 0. But in the test data the MAE is at a global maximum. The model
+is useless for any predictions and the trade off is on the side with to
+much variance.
 
 For k = 200 the RSQ is lowest in the training data. The MAE increase for
 both data sets but is not at a maximum. The model is not suitable for
-predictons because the trade-off is on the side with to much bias.
+predictions because the trade-off is on the side with to much bias.
 
-The optimal k is there, where the trade off is best. Generalizability means
+The optimal k is there, where the trade off is best. Generalisability means
 that we want the model with the lowest MAE in the test data (low bias) and
 the highest RSQ (low variance). For that we mark the minimum of the RMSE
 test data hyperbola (green point = 25). Unfortunately, k = 25 is not
@@ -348,20 +387,18 @@ necessarily the best model. We have only seen that it is between 20 and 30.
 We make again a function call and use all k between 20 and 30. Now we see
 that optimal k is 25 and we can chose this model.
 
+Important: Here we set a seed and split our data only pseudo-random. If we
+do not use set.seed(123), then it would be a other optimal k.
+
 ```{r vis_generalisability_optimal_k, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_01/function.parameter.extracter.R")
 
-extract.mae(mod.knn, daily_fluxes_test)
-
-extract.rsq(mod.knn, daily_fluxes_test)
-
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
-my.sequence.extracter <- c(1,2,3,4,seq(5, to = 200, by = 5))
+my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
 
-# Function call to determine the optimal k
-paramter.extracter(my.sequence.extracter, daily_fluxes_train, daily_fluxes_test)
-
-# New function call with new parameters
-paramter.extracter(c(20:30), daily_fluxes_train, daily_fluxes_test)
+# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
+parameter.extracter(my.sequence, daily_fluxes_train, daily_fluxes_test)
+# Visualize MAE and RSQ for k = 20:30 --> it is 25
+parameter.extracter(c(20:30), daily_fluxes_train, daily_fluxes_test)
 ```

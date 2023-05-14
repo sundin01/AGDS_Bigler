@@ -11,9 +11,9 @@ time.variation <- function(mod1, mod2, df_test){
   plot_1 <- ggplot(data = residuen.mod1)+
     geom_point(aes(x = residuen.mod1$Time, y = residuen.mod1$Residuen),
                alpha = 0.3)+
-    labs(x = "Time", y = "Residuen",
+    labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
-         subtitle = "KNN model (k=8)", caption = "AGDS Report Exercise 5 (Chapter 9)")+
+         subtitle = "KNN model (k=8)", caption = "AGDS Report Exercise re_ml_01 (Chapter 9)")+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     # add an individual panel boarder around the whole graph
@@ -31,9 +31,9 @@ time.variation <- function(mod1, mod2, df_test){
 
   plot_2 <- ggplot(data = residuen.mod2)+
     geom_point(aes(x = residuen.mod2$Time, y = residuen.mod2$Residuen), alpha = 0.3)+
-    labs(x = "Time", y = "Residuen",
+    labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
-         subtitle = "linear regression model", caption = "AGDS Report Exercise 5 (Chapter 9)")+
+         subtitle = "linear regression model", caption = "AGDS Report Exercise re_ml_01 (Chapter 9)")+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     # add an individual panel boarder around the whole graph
