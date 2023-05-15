@@ -239,7 +239,7 @@ the RMSE in the test data would also be high. For a visualization of the
 development of RSQ and RSME as a function of k, please take a look on the
 last visualization.
 
-```{r vis_generalisability, eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
+```{r vis_generalisability, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_01/function.different.k.R")
 
