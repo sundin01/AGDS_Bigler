@@ -54,7 +54,7 @@ The topic of this exercise is the "Logarithmic Respond Ratio" (LRR). The
 LRR is the natural logarithm $(log())$ of the response ratio
 $(\frac{x_{elevated}}{x_{ambient}})$. The LRR describes the elevated
 concentration of a quantity (e.g. CO2 or nitrogen) to the ambient
-concentration and is defined as followed:
+concentration and is defined as followed: test
 
 $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
