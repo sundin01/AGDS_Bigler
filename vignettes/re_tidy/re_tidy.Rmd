@@ -34,9 +34,9 @@ Reference: Report Exercise 1 (Chapter 3)
 
 Handling data is key in science. It takes practice and experience to be
 able to process data efficiently and without errors. This exercise serves
-as an introduction to "Tidyverse" and has the goal to gain practical
+as an introduction to "Tidyverse" and has the goal of gaining practical
 experience. With a realistic problem, the following goals should be
-trained:
+achieved:
 
 -   Read and transform tabulated data
 
@@ -58,19 +58,18 @@ concentration and is defined as followed:
 
 $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
-In this exercise, we work with a data set which contains data of soil
+In this exercise, we worked with a data set which includes data of soil
 organic carbon measurements in experiments where ecosystems are exposed to
 ambient (low) and elevated (high) CO2 concentrations. The mean soil organic
 carbon of multiple samples is recorded within each experiment for different
-sample dates. Information is provided for the time in years since the start
-of the experiment.
+dates.
 
 ## Original source of the file
 
-The data originate from a paper of Groenigen et al (2014). In this
+The data originate from a paper of Groenigen et al. (2014). In this
 exercise, we take a close look to the $CO_2$ - concentrations
 $(\: [\frac{g}{m^{-2}}])$ in the experiments and calculate the LRR. For the
-scientific reproducibility, you will find the original source is the
+scientific reproducibility, you will find the original source in the
 following article (or in the folder "data-raw"):
 
 *Groenigen, Kees Jan van, Xuan Qi, Craig W. Osenberg, Yiqi Luo, and Bruce
@@ -80,15 +79,11 @@ Soil Carbon Storage." Science 344, no. 6183 (May 2, 2014):
 
 # Method
 
-This section is used to briefly introduce the methods. It will be shown
-what software was used and which edits were made by hand. After that
-follows a short description of how the LRR was calculated.
-
 ## Software
 
 ### EXCEL: Editing the file manually
 
-Unfortunately, the original file is not well structured. It has several
+Unfortunately the original file is not well structured. It has several
 headings and empty spaces which complicates to read the file and therefore,
 we must the file edit manually. The software EXCEL (MS Office 360 with the
 license from the University of Bern, status: 2023-05-07) is used for this
@@ -97,7 +92,7 @@ task. The following points were changed manually:
 1.  Filled the gaps between two Experiments with the name of the
     experiment.
 
-2.  Removed the header and all comments
+2.  Removed the co- and sub-headers and all comments
 
 ### R: Evaluation of the data
 
@@ -111,30 +106,33 @@ R-package "Tidyverse (and others).
 For the first task we calculate the LRR for each experiment. But we can do
 this in two different ways:
 
-Method 1: First, we group the database by 'Experiment'. Second, we
-calculate the mean for the columns "mean ambient CO2" and "mean increased
-CO2" (for each experiment). Third, we calculate the LRR for each experiment
-by using the values from the second step.
+[Method 1:]{.underline}
 
-Method 2: First, we calculate the LRR for each row (now, every sample date
-has a LRR). Second, we group the database by "Experiment". Third, we take
-the mean of all LRRs of each experiment by using the values from the first
-step.
+First, we group the database by 'Experiment'. Second, we calculate the mean
+for the columns "mean ambient CO2" and "mean increased CO2" (for each
+experiment). Third, we calculate the LRR for each experiment by using the
+values of the second step.
+
+[Method 2:]{.underline}
+
+First, we calculate the LRR for each row (now, every sample date has a
+LRR). Second, we group the database by "Experiment". Third, we take the
+mean of all LRRs of each experiment by using the values of the first step.
 
 Although the results of both methods are the LRR for each experiment, they
 will be in general different. Therefore, it is important which method we
 chose. In this case, it is more meaningful to use method 2 because we use
 CO2 concentrations which has been measured during the experiment. It makes
 more sense that we take this into account and calculate the LRR for a
-specific sample date. If we use method 1, we would calculate LRR with a CO2
-concentration which never existed in the experimental setup. But here we
-will calculate the LRR with both methods because we want to demonstrate,
-that there is a difference.
+specific sample date. If we use method 1, we would calculate the LRR with a
+CO2 concentration which never existed in the experimental setup. In this
+exercise we will calculate the LRR with both methods because we want to
+demonstrate, that there is a difference.
 
 ## LRR for each phase
 
-In this second task the experiments are divided into three phases,
-accounting the duration of the experiment.
+In the second task we calculate the LRR for each phase. Each phase
+corresponds to the duration of the experiments. We define three phases:
 
 1)  Phase "early" $\Longrightarrow$ lesser than 3 years
 
@@ -142,10 +140,10 @@ accounting the duration of the experiment.
 
 3)  Phase "late" $\Longrightarrow$ greater than 6 years
 
-For an efficient way to processing the data we use "Tidyverse" again. Here,
-we are confronted with the same problem as in the first task because there
-are again the two methods to calculate the LRR. We chose method 2 again
-(same considerations and the same argumentation as for task one). We
+For an efficient way to processing the data, we use "Tidyverse" again.
+Here, we are confronted with the same problem as in the first task because
+there are again the two methods to calculate the LRR. We chose method 2
+again (same considerations and the same argumentation as for task one). We
 calculate the LRR with both methods because we want to demonstrate that
 there is a difference as well.
 
@@ -166,7 +164,7 @@ source("../../R/general/packages.R")
 
 ## Read the file
 
-The following code chunk shows how we can read the file. First, the
+The following code chunk shows us, how we can read the file. First, the
 xlsx-file has several sheets. We extract the sheet of interest and save it
 on a variable. But we want a csv-file and so we create a new folder and
 save the new file into it. We read the csv-file again for further editing.
@@ -175,7 +173,7 @@ directly. That is why we implemented a if-else statement.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # We want know, if a certain file already exists
-name.of.file <- "../../data/re_tidy.data/re_tidy.new.data.csv"
+name.of.file <- "../../data/re_tidy/re_tidy.new.data.csv"
 
 # If do not exists such a file, create it!
 if (!file.exists(name.of.file)){
@@ -187,11 +185,11 @@ if (!file.exists(name.of.file)){
   write_csv(raw, "../../data/re_tidy.new.data.csv")
   
   # Read the file
-  raw.data <- read_csv("../../data/re_tidy.data/re_tidy.new.data.csv", 
+  raw.data <- read_csv("../../data/re_tidy/re_tidy.new.data.csv", 
               show_col_types = FALSE)
 
   # If exists such a file, read it only!
-  }else{raw.data <- read_csv("../../data/re_tidy.data/re_tidy.new.data.csv", 
+  }else{raw.data <- read_csv("../../data/re_tidy/re_tidy.new.data.csv", 
                     show_col_types = FALSE)}
 ```
 
@@ -199,15 +197,12 @@ if (!file.exists(name.of.file)){
 
 Information about the data is key. That is why we make some calls. We
 change the names of the columns we need. Now, we can refer to them better.
-Furthermore, we want to know which class the columns are and weather there
+Furthermore, we want to know which class the columns have and weather there
 are missing values. We can see there are many NA (23.6%). The horizontal
-lines implies that there are empty rows. But this is not a problem at all
-because R will ignore them. We are good to go.
+lines implies that there are empty rows. But this is not a problem at all.
+R will ignore them and we are good to go.
 
 ```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
-# Shows the first 6 rows (column names!)
-head(raw.data)
-
 # Check the class of each column
 as.data.frame(sapply(raw.data, class))
 
@@ -227,14 +222,17 @@ visualize.na.values.without.groups(raw.data)
 
 ## Quality Control
 
-We have to edit the data first. We wrote a function to wrangle our data.
-After the call we want to know, weather the function has worked and if
-there any improvement. That is why we make a quality control call. We can
-see that the function did exactly what we wanted it to do.
+We want to edit the data. We wrote a function to wrangle our data. After
+the call we want to know, weather the function has worked and if there any
+improvement. That is why we make a quality control call. We can see the
+function did exactly what we wanted it to do. The new table DB_S1 contains
+only selected columns. Further, the we used bind_rows() to add a new column
+with the corresponding phase for each row. Now we are sure that our data
+has a good quality.
 
 ```{r Calculate_the_LRR, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function to prepare the data set
-source("../../R/re_tidy.scripts/function.data.preparation.for.LRR.R")
+source("../../R/re_tidy/function.data.preparation.for.LRR.R")
 
 # Function calls
 DB_S1 <- data.preparation.for.LRR(raw.data)
@@ -244,11 +242,12 @@ visualize.na.values.without.groups(DB_S1)
 
 ## LRR calculation for each experiment
 
-Now we calculate the LRR for each experiment...
+Now we calculate the LRR for each experiment and use knitr::kable() for a
+proper outcome...
 
 ```{r}
 # Load the function to calculate the LRR by experiment
-source("../../R/re_tidy.scripts/function.LRR.by.experiment.R")
+source("../../R/re_tidy/function.LRR.by.experiment.R")
 
 # Function call to calculate the LRR for each experiment and save it as a HTML kable
 LRR.by.experiment(DB_S1)
@@ -256,11 +255,11 @@ LRR.by.experiment(DB_S1)
 
 ## LRR calculation for each phase
 
-...and for each phase
+...and do the same for each phase.
 
 ```{r}
 # Load the function to calculate the LRR by phase
-source("../../R/re_tidy.scripts/function.LRR.by.phase.R")
+source("../../R/re_tidy/function.LRR.by.phase.R")
 
 # Function call to calculate the LRR for each phase and save it as a HTML kable
 LRR.by.phase(DB_S1)
