@@ -6,6 +6,7 @@ knn.cv.model <- function(database_train, number.of.k, number.of.validation){
     recipes::step_BoxCox(all_predictors()) |>
     recipes::step_center(all_numeric(), -all_outcomes()) |>
     recipes::step_scale(all_numeric(), -all_outcomes())
+
   # us cv (cross validation) as method
   mod_cv <- caret::train(pp,data = database_train |> drop_na(),
                          method = "knn",

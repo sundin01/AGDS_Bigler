@@ -35,9 +35,9 @@ Reference: Report Exercise 7 (Chapter 10)
 ## Objectives
 
 Here, we explore the role of structure in the data for model
-generalisability and how to best estimate a \"true\" out-of-sample error
-that corresponds to the prediction task. The task here is to train a model
-on ecosystem flux observations from one site and predict to another site
+generalisability and how to best estimate a "true" out-of-sample error that
+corresponds to the prediction task. The task here is to train a model on
+ecosystem flux observations from one site and predict to another site
 (spatially upscaling).
 
 -   Concept of cross validation
@@ -46,10 +46,9 @@ on ecosystem flux observations from one site and predict to another site
 
 ## Theory
 
-# Method
+The theory is very similar to re_ml_01. We change only our method:
 
-We will not change everything for this exercise because we can reuse our
-function from the last exercise (re_ml_01).
+# Method
 
 ## R: Evaluation of the data
 
@@ -183,101 +182,305 @@ daily_fluxes_both_train <- rsample::training(split_both)
 daily_fluxes_both_test <- rsample::testing(split_both)
 ```
 
-For KNN, we use k = 8a again (which is a random choice)). The last code
-chunk in this workflow will show you, which k is the optimal one (we do not
-want to spoiler here. That is why you should use k = 8 first). We use the
-method "cv" (cross validation). To evaluate the model, we want 10
-validation sets.
+## Find optimal k
+
+We us a sequence to determine the optimal k. The model with a optimal k has
+the smallest mean absolute error (MAE). But we are also interest in other
+metrics like RSQ. Our function will read RSQ as well. We create three
+models.
+
+1.  We train a model with data from Davos
+2.  We train a model with data from Lägern
+3.  We train a model with data from Davos+Lägern
+
+### Davos
+
+We can see, that the optimal k is 59. This seems odd because the data are
+the same as for the exercise re_ml_01 snd there was our optimal k = 25. But
+we have to consider that we use a different approch to create our model. We
+use "cross validation" which is why we find different optimal k for the
+same data (and same set.seed).
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
-# Load the function in the file.
+source("../../R/re_ml_01/function.parameter.extracter.R")
+
+source("../../R/re_ml_01/function.train.and.test.R")
+
+# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
+my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5), 59)
+
+# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
+parameter.extracter(my.sequence, daily_fluxes_davos_train, daily_fluxes_davos_test)
+```
+
+### Lägern
+
+We make the same thing for Lägern. Here is optimal k equal to 25. We
+visualize the main metrics again.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/re_ml_01/function.parameter.extracter.R")
+
+source("../../R/re_ml_01/function.train.and.test.R")
+
+# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
+my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
+
+# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
+parameter.extracter(my.sequence, daily_fluxes_laegern_train, daily_fluxes_laegern_test)
+```
+
+### Davos + Lägern
+
+We do the same thing for the pooled data and we find a optimal k equal to
+38.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/re_ml_01/function.parameter.extracter.R")
+
+source("../../R/re_ml_01/function.train.and.test.R")
+
+# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
+my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
+
+# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
+parameter.extracter(my.sequence, daily_fluxes_both_train, daily_fluxes_both_test)
+parameter.extracter(c(30:40), daily_fluxes_both_train, daily_fluxes_both_test)
+
+```
+
+## Best models
+
+Now we know the optimal k for each model and we recalculate them...
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.knn.cv.model.R")
 
 # Function call for Davos
-knn.model.davos <- knn.cv.model(daily_fluxes_davos_train, 8, 10)
+knn.model.davos.optimal <- knn.cv.model(daily_fluxes_davos_train, 59, 10)
 # Function call for Lägern
-knn.model.laegern <- knn.cv.model(daily_fluxes_laegern_train, 8, 10)
+knn.model.laegern.optimal <- knn.cv.model(daily_fluxes_laegern_train, 25, 10)
 # Function call for Davos and Lägern
-knn.model.both <- knn.cv.model(daily_fluxes_both_train, 8, 10)
+knn.model.both.optimal <- knn.cv.model(daily_fluxes_both_train, 38, 10)
 ```
 
-We evaluate our models. For that we make seven different calls:
+### Visualization of the models
 
-1.  Davos $\Longrightarrow$ Davos
-2.  Davos $\Longrightarrow$ Lägern
-3.  Lägern $\Longrightarrow$ Lägern
-4.  Lägern $\Longrightarrow$ Davos
-5.  Davos+Lägern $\Longrightarrow$ Davos
-6.  Davos+Lägern $\Longrightarrow$ Lägern
-7.  Davos+Lägern $\Longrightarrow$ Davos+Lägern
+...and visualize our findings.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
 source("../../R/re_ml_01/function.evaluation.model.R")
 
-P.1 <- eval_model(knn.model.davos, daily_fluxes_davos_train, 
-                  daily_fluxes_davos_test, c("Davos (knn: k=8)"), c("Davos (knn: k=8)"))
+# Model Davos
+P_1 <- eval_model(knn.model.davos.optimal, daily_fluxes_davos_train, 
+                  daily_fluxes_davos_test, 
+                  c("Davos (opt. k = 59)"), c("Davos (opt. k = 59)"))
 
-P.2 <- eval_model(knn.model.davos, daily_fluxes_davos_train, 
-                  daily_fluxes_laegern_test, c("Davos (knn: k=8)"), c("Lägern (knn: k=8)"))
-# Function call for KNN
-P.3 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, 
-                  daily_fluxes_laegern_test, c("Lägern (knn: k=8)"), c("Lägern (knn: k=8)"))
+P_2 <- eval_model(knn.model.davos.optimal, daily_fluxes_davos_train, 
+                  daily_fluxes_laegern_test, 
+                  c("Davos (opt. k = 59)"), c("Lägern (opt. k = 59)"))
 
-P.4 <- eval_model(knn.model.laegern, daily_fluxes_laegern_train, 
-                  daily_fluxes_davos_test, c("Lägern (knn: k=8)"), c("Davos (knn: k=8)"))
+P_3 <- eval_model(knn.model.davos.optimal, daily_fluxes_davos_train, 
+                  daily_fluxes_both_test, 
+                  c("Davos (opt. k = 59)"), c("Davos and Lägern(opt. k = 59)"))
 
-P.5 <- eval_model(knn.model.both, daily_fluxes_both_train, 
-                  daily_fluxes_both_test, c("Davos and Lägern (knn: k=8)"), 
-                  c("Davos and Lägern (knn: k=8)"))
+# Model Lägern
+P_4 <- eval_model(knn.model.laegern.optimal, daily_fluxes_laegern_train, 
+                  daily_fluxes_davos_test, 
+                  c("Lägern (opt. k = 25)"), c("Davos (opt. k = 25)"))
 
-P.6 <- eval_model(knn.model.both, daily_fluxes_both_train,
-                  daily_fluxes_davos_test, c("Davos and Lägern (knn: k=8)"), 
-                  c("Davos (knn: k=8)"))
+P_5 <- eval_model(knn.model.laegern.optimal, daily_fluxes_laegern_train, 
+                  daily_fluxes_laegern_test,
+                  c("Lägern (opt. k = 25)"), c("Lägern (opt. k = 25)"))
 
-P.7 <- eval_model(knn.model.both, daily_fluxes_both_train, 
-                  daily_fluxes_laegern_test, c("Davos and Lägern (knn: k=8)"), 
-                  c("Lägern (knn: k=8)"))
+
+P_6 <- eval_model(knn.model.laegern.optimal, daily_fluxes_laegern_train, 
+                  daily_fluxes_both_test, 
+                  c("Lägern (opt. k = 25)"), c("Davos+Lägern (opt. k = 25)"))
+
+# Model Davos und Lägern
+P_7 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train,
+                  daily_fluxes_davos_test, c("Davos and Lägern (opt. k = 38)"), 
+                  c("Davos (opt. k = 38)"))
+
+P_8 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train, 
+                  daily_fluxes_laegern_test, c("Davos and Lägern (opt. k = 38)"), 
+                  c("Lägern (opt. k = 38)"))
+
+
+P_9 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train,
+                  daily_fluxes_both_test, c("Davos and Lägern (opt. k = 38)"), 
+                  c("Davos+Lägern (opt. k = 38)"))
+
+# Plots
+cowplot::plot_grid(P_1, P_2, P_3, ncol = 1)
+
+cowplot::plot_grid(P_4, P_5, P_6, ncol = 1)
+
+cowplot::plot_grid(P_7, P_8, P_9, ncol = 1)
 ```
 
-Train a single model with training data pooled from both sites and predict
-with this single model on the test data of both sites. How do the model
-metrics on the test set compare to the true out-of-sample setup above?
-Interpret differences. Is it a valid approach to perform model training
-like this? Use your knowledge about structure in the data and its relevance
-for the model training setup.
+### Residue for Davos
 
-```{r error=FALSE, message=FALSE, warning=FALSE}
-cowplot::plot_grid(P.1, P.2, nrow = 2)
-
-cowplot::plot_grid(P.3, P.4, nrow = 2)
-
-cowplot::plot_grid(P.6, P.7, nrow = 2)
-
-cowplot::plot_grid(P.5, NULL, nrow = 2)
-```
+The function is very flexible. If we do not specifies which months we want,
+then the function will use all months. Now we can analyse weather there are
+any patterns. First we take a look over the whole year. We can see, that
+the model underestimate the GPP-values in Davos. For Lägern, the model
+overestimate the GPP-value. To explain that, we need a higher resolution
+(monthly). we take a closer look to the seasons (DJF, MAM, JJA, SON). The
+function calculate the difference between the measured GPP and the fitted
+GPP.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
-source("../../R/re_ml_02/function.parameter.extracter.cv.R")
+source("../../R/re_ml_02/function.vis.residue.R")
 
-# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
-my.sequence.extracter <- c(1,2,3,4,seq(5, to = 100, by = 5))
+# Residue for Davos: train: pooled, test: Davos (year)
+time.variation.year(knn.model.both.optimal, daily_fluxes_davos_test,
+                    c("Train: Pooled, Test: Davos, k = 38"), 
+                    c("re_ml_2 (Chapter 10)"))
 
-# Function call to determine the optimal k
-parameter.extracter.knn.cv(my.sequence.extracter, 
-                   daily_fluxes_both_train, daily_fluxes_davos_test, 10)
+# Residue for Davos: train: pooled, test: Davos (monthly)
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_davos_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_davos_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("December", "January", "February"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_davos_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("March","April", "May"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_davos_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("June","July", "August"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_davos_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("September","October", "November"))
+```
+
+### Residue for Lägern
+
+We do the same for Lägern
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+
+# Residue for Läger: train: pooled, test: Lägern (year)
+time.variation.year(knn.model.both.optimal, daily_fluxes_laegern_test,
+                    c("Train: Pooled, Test: Lägern, k = 38"), 
+                    c("re_ml_2 (Chapter 10)"))
+
+# We predict Lägern with pooled
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_laegern_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Lägern, k = 38"),
+                     c("re_ml_02 (Chapter 10)"))
+
+# We predict Lägern with pooled
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_laegern_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Lägern, k = 38"),
+                     c("re_ml_02 (Chapter 10)"),c("December","January", "February"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_laegern_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("December", "January", "February"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_laegern_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("March","April", "May"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_laegern_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("June","July", "August"))
+
+time.variation.ml.02(knn.model.both.optimal, 
+                     daily_fluxes_laegern_test,c("KNN-Model:"), 
+                     c("Train: Pooled, Test: Davos, k = 38"),
+                     c("re_ml_02 (Chapter 10)"), c("September","October", "November"))
 ```
 
 # Discussion
 
+## Location
+
+We have merged two data sets. But the two locations are very different.
+
+| Quantity                         | Davos                 | Lägern            |
+|----------------------------------|-----------------------|-------------------|
+| Coordinates^1^:                  | 46.81°N, 9.84°E       | 47.48°N, 8.4°E    |
+| Elevation^1^:                    | 1594 m.a.s.l.         | 873 m.a.s.l.      |
+| Exposure^1^:                     | South-East slope      | Summit            |
+| 2m Temperature^1^ (1990-2020)    | 3.8°C - 5.3°C         | 6.2°C - 9.4°C     |
+| Precipitation^1^ (1990-2020      | 1046 mm per year      | \-                |
+| Hours of sunshine^1^ (1990-2020) | 1537 h - 2076 h       | 1462 h - 2152 h   |
+| Wind^1^ (1990-2020)              | 6 .8 km/h - 10.4 km/h | 15 km/h - 18 km/h |
+| Vegetation^2^:                   | Coniferous forests    | Deciduous forests |
+
+: Table 1: Comparison of the measuring stations (Davos vs. Lägern)
+
 ## Model
 
-### Davos
+### Interpretation pooled train data applied on test data
 
-Get information about the characteristics of the two sites. What are the
-differences in terms of climate, vegetation, altitude, etc. between the
-Davos and Lägern sites? Interpret biases of the out-of-sample predictions
-with a view to the site characteristics.
+### Interpret biases of the out-of-sample predictions with a view to the site characteristics
 
-### Lägern
+We tried different approaches to modelling the GPP. We took some metrics
+into account (e.g. RSQ, MAE) and optimized k. Our goal was to create a
+model which is generalizable. That means, that we want a model which can
+predict the same variable (GPP) in different locations (Davos, Lägern).
+After we have found the probably best model, we applied the model to
+predict the test data. The difference between predicted test data and the
+test data is called the bias. With this parameter we are able to discuss
+our analysis.
+
+A very important parameter is the bias. We can see, that our model
+underestimate the GPP for Davos. If we group the data in months then we can
+see that the model underestimate every month. However, not every month has
+the same dispersion. In the winter-season (DJF) is the dispersion smaller
+than in spring (MAM).
+
+The bias for Lägern is positive. Therefore, the model overestimate the GPP
+in Lägern. But if we take a monthly resolution we can see, that this is
+true, but the amplitude varies. For example overestimate the model GPP in
+summer (JJA) by almost $1.8\:\mu mol*m^{-2}*s^{-1}$ and for all other
+months almost zero.
+
+The reason for that is not clear. It could be the elevation. In Davos, the
+dispersion starts with April. The later snowmelt could be responsible for
+this. In Lägern not so much snowfall is measured. The dispersion start in
+February. That means that the the vegetation is in Lägern earlier "active"
+than in Davos.
+
+Another explanation could be the exposure. In Lägern, the station is at a
+"summit". That means there are more wind. Maybe the wind falsify the
+measurement (But we do not think that because that would be very
+unprofessional).
+
+The vegetational context could also be a explanation. Decidious
+
+# Bibliography
+
+[(1) Meteorological Data]{.underline}
+
+Data for Davos:
+<https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#param=messnetz-automatisch&lang=de&station=DAV&chart=year>
+
+Data for Lägern:
+<https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#param=messnetz-automatisch&lang=de&station=LAE&chart=year>
+
+[(2) Vegetation]{.underline}
+
+[https://de.wikipedia.org/wiki/Höhenstufe\_%28Ökologie%29](https://de.wikipedia.org/wiki/Höhenstufe_%28Ökologie%29)

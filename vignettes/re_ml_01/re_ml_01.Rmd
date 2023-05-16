@@ -329,9 +329,19 @@ about $10^{-1}$.
 ```{r Vis_time_variation, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_01/function.time.variation.R")
+source("../../R/re_ml_02/function.vis.residue.R")
 
 # Function call
 time.variation(mod.knn, mod.lm, daily_fluxes_test)
+
+# lm, monthly resolution
+time.variation.ml.02(mod.lm,daily_fluxes_test,c("lm-Model"), c("Davos"),
+                     c("re_ml_01 (Chapter 9)"))
+
+# KNN, monthly resoultion
+time.variation.ml.02(mod.knn,daily_fluxes_test, c("KNN-Model"),
+                     c("Train: Davos, Test: Davos, k = 25"),
+                     c("re_ml_01 (Chapter 9)"))
 ```
 
 ## Discussion the role of "k" and generalisability of a model
@@ -401,4 +411,5 @@ my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
 parameter.extracter(my.sequence, daily_fluxes_train, daily_fluxes_test)
 # Visualize MAE and RSQ for k = 20:30 --> it is 25
 parameter.extracter(c(20:30), daily_fluxes_train, daily_fluxes_test)
+
 ```

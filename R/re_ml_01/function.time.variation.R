@@ -1,16 +1,17 @@
-time.variation <- function(mod1, mod2, df_test){
+time.variation <- function(mod1, mod2=NULL, df_test){
 
   df_test_predicted.mod1 <- df_test |>
     drop_na()
 
   df_test_predicted.mod1$fitted <- predict(mod1, newdata =   df_test_predicted.mod1)
 
-  residuen.mod1 <- tibble("Time" = df_test$TIMESTAMP,
-                          "Residuen" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod1$fitted)
+  residue.mod1 <- tibble("Time" = df_test$TIMESTAMP,
+                          "Residue" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod1$fitted)
 
-  plot_1 <- ggplot(data = residuen.mod1)+
-    geom_point(aes(x = residuen.mod1$Time, y = residuen.mod1$Residuen),
+  plot_1 <- ggplot(data = residue.mod1)+
+    geom_point(aes(x = residue.mod1$Time, y = residue.mod1$Residue),
                alpha = 0.3)+
+    geom_hline(yintercept = mean(residue.mod1$Residue,na.rm=TRUE),color = "royalblue")+
     labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
          subtitle = "KNN model (k=8)", caption = "AGDS Report Exercise re_ml_01 (Chapter 9)")+
@@ -24,13 +25,14 @@ time.variation <- function(mod1, mod2, df_test){
   df_test_predicted.mod2 <- df_test |>
     drop_na()
 
-  df_test_predicted.mod2$fitted <- predict(mod2, newdata =   df_test_predicted.mod2)
+  df_test_predicted.mod2$fitted <- predict(mod2, newdata = df_test_predicted.mod2)
 
-  residuen.mod2 <- tibble("Time" = df_test$TIMESTAMP,
-                          "Residuen" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod2$fitted)
+  residue.mod2 <- tibble("Time" = df_test$TIMESTAMP,
+                          "Residue" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod2$fitted)
 
-  plot_2 <- ggplot(data = residuen.mod2)+
-    geom_point(aes(x = residuen.mod2$Time, y = residuen.mod2$Residuen), alpha = 0.3)+
+  plot_2 <- ggplot(data = residue.mod2)+
+    geom_point(aes(x = residue.mod2$Time, y = residue.mod2$Residue), alpha = 0.3)+
+    geom_hline(yintercept = mean(residue.mod2$Residue,na.rm=TRUE),color = "royalblue")+
     labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
          subtitle = "linear regression model", caption = "AGDS Report Exercise re_ml_01 (Chapter 9)")+
