@@ -12,7 +12,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at University of Bern (Institute of
+Course: Applied Geo-data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -21,14 +21,13 @@ Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
 
 Further information: <https://geco-bern.github.io/agds/>
 
-[You have questions to the workflow? Contact the Author:]{.underline}
+[Do you have questions about the workflow? Contact the Author:]{.underline}
 
-Author: Bigler Patrick
-([patrick.bigler1\@students.unibe.ch](mailto:patrick.bigler1@students.unibe.ch){.email})
+Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 7 (Chapter 10)
+Reference: Report Exercise 5 (Chapter 10)
 
 # Introduction
 
@@ -37,7 +36,7 @@ Reference: Report Exercise 7 (Chapter 10)
 Here, we explore the role of structure in the data for model
 generalisability and how to best estimate a "true" out-of-sample error that
 corresponds to the prediction task. The task here is to train a model on
-ecosystem flux observations from one site and predict to another site
+ecosystem flux observations from one site and predict them for another site
 (spatially upscaling).
 
 -   Concept of cross validation
@@ -46,25 +45,27 @@ ecosystem flux observations from one site and predict to another site
 
 ## Theory
 
-The theory is very similar to re_ml_01. We change only our method:
+The theory is very similar to re_ml_01. We change only our method to
+cross-validation.
 
 # Method
 
 ## R: Evaluation of the data
 
-All analysis are done with the open source software R-Studio (Version
-2022.12.0+353). This software use the language R to handle the data. For an
-efficient processing of the data we use the R-package "Tidyverse (and
-others).
+The open-source program R-Studio (Version 2022.12.0+353) was used for all
+studies. The data handling in this program is done using the R language. We
+utilize the R-package "Tidyverse" and other packages to process the data
+effectively.
 
 # Programming and data evaluation
 
 ## Packages
 
 The following code chunk contains all packages we need. Important is the
-package "conflicted". It enables us to chose if different functions have
-the same call but do not make the same thing (a function in a certain
-package can have the same name as a function from another package).
+package "conflicted". It enables us to choose if different functions have
+the same call, but do not make the same thing (a function in a certain
+package can have the same name as a function from another package). In this
+case, we will set preferences.
 
 ```{r Load_packages, error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/general/packages.R")
@@ -72,9 +73,9 @@ source("../../R/general/packages.R")
 
 ## Read the file
 
-Use the URL in the code chuck to get access to the data. We use an if/else
-statement to ensure that we do not overwrite the data with every run. If
-the file exists, we read it local.
+First, we get the data and save it in our repository. But we must do this
+only once. If the file exists, then we can read it directly. That is why we
+implemented an if-else statement.
 
 ```{r Load_and_read_data, error=FALSE, message=FALSE, warning=FALSE}
 name.of.file <- "../../data/re_ml_02/daily_fluxes.davos.csv"
@@ -114,20 +115,20 @@ if (!file.exists(name.of.file)){
 
 ### Data cleaning
 
-We can see that some columns contains -9999 as a value. Our quality
-function changed that to NA. Than we use ymd() from the "lubridate" package
-to rewrote the date in a proper way. Further, we want only columns which
-contains good quality. For that we check selected columns with their
+We can see that some columns contain -9999 as a value. Our quality function
+changed that to NA. Then we use ymd() from the "lubridate" package to
+rewrite the date in a proper way. Further, we want only columns that
+contain good quality. For that, we check selected columns against their
 quality control columns. If the proportion of good measurement is less than
 80%, then we overwrite the value with NA (and do not drop the row!). Now we
-know that our data has a high quality and we can perform our analyses with
+know that our data has high quality, and we can perform our analyses with
 it.
 
-Here, we work with two location (Davos and Lägern). But we do not want to
-do everything twice. That why we define a new data frame which contains all
-information about the two locations. We use .id = "id" because we must know
-where the values come from. If we know that, we can use the filter function
-from the package "dplyr" and analyse our data efficient.
+Here, we work with two locations (Davos and Lägern). But we do not want to
+do everything twice. That is why we define a new data frame that contains
+all the information about the two locations. We use .id = "id" because we
+must know where the values come from. If we know that, we can use the
+filter function from the package "dplyr" to efficiently analyze our data.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file (we use the function from another markdown again)
@@ -151,8 +152,8 @@ visualize.na.values.without.groups(daily_fluxes_both)
 
 ## Split the data
 
-Here we split our data in a training set and a test set. First we will
-split the data (80 % training and 20 % test). We set seed for a
+Here, we split our data into a training set and a test set. First, we will
+split the data (80% training and 20% testing). We set the seed for a
 pseudo-random choice (reproducibility).
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
@@ -184,22 +185,22 @@ daily_fluxes_both_test <- rsample::testing(split_both)
 
 ## Find optimal k
 
-We us a sequence to determine the optimal k. The model with a optimal k has
-the smallest mean absolute error (MAE). But we are also interest in other
-metrics like RSQ. Our function will read RSQ as well. We create three
-models.
+We use a sequence to determine the optimal k. The model with an optimal k
+has the smallest mean absolute error (MAE). But we are also interested in
+other metrics, like RSQ. Our function will read RSQ as well. We created
+three models.
 
 1.  We train a model with data from Davos
 2.  We train a model with data from Lägern
-3.  We train a model with data from Davos+Lägern
+3.  We train a model with data from Davos+Lägern (pooled)
 
 ### Davos
 
-We can see, that the optimal k is 59. This seems odd because the data are
-the same as for the exercise re_ml_01 snd there was our optimal k = 25. But
-we have to consider that we use a different approch to create our model. We
-use "cross validation" which is why we find different optimal k for the
-same data (and same set.seed).
+We can see that the optimal k is 59. This seems odd because the data are
+the same as for the exercise re_ml_01 and there was our optimal k = 25. But
+we have to consider that we used a different approach to create our model.
+We use "cross-validation," which is why we find different optimal k for the
+same data (and the same set.seed).
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_01/function.parameter.extracter.R")
@@ -216,7 +217,7 @@ parameter.extracter(my.sequence, daily_fluxes_davos_train, daily_fluxes_davos_te
 ### Lägern
 
 We make the same thing for Lägern. Here is optimal k equal to 25. We
-visualize the main metrics again.
+visualized the main metrics again.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_01/function.parameter.extracter.R")
@@ -232,7 +233,7 @@ parameter.extracter(my.sequence, daily_fluxes_laegern_train, daily_fluxes_laeger
 
 ### Davos + Lägern
 
-We do the same thing for the pooled data and we find a optimal k equal to
+We do the same thing for the pooled data, and we find an optimal k equal to
 38.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
@@ -251,7 +252,7 @@ parameter.extracter(c(30:40), daily_fluxes_both_train, daily_fluxes_both_test)
 
 ## Best models
 
-Now we know the optimal k for each model and we recalculate them...
+Now we know the optimal k for each model, and we recalculate them...
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.knn.cv.model.R")
@@ -323,13 +324,13 @@ cowplot::plot_grid(P_7, P_8, P_9, ncol = 1)
 
 ### Residue for Davos
 
-The function is very flexible. If we do not specifies which months we want,
-then the function will use all months. Now we can analyse weather there are
-any patterns. First we take a look over the whole year. We can see, that
-the model underestimate the GPP-values in Davos. For Lägern, the model
-overestimate the GPP-value. To explain that, we need a higher resolution
-(monthly). we take a closer look to the seasons (DJF, MAM, JJA, SON). The
-function calculate the difference between the measured GPP and the fitted
+The function is very flexible. If we do not specify which months we want,
+then the function will use all months. Now we can analyze whether there are
+any patterns. First, we take a look at the whole year. We can see that the
+model underestimates the GPP values in Davos. For Lägern, the model
+overestimates the GPP value. To explain that, we need a higher resolution
+(monthly). We take a closer look at the seasons (DJF, MAM, JJA, SON). The
+function calculates the difference between the measured GPP and the fitted
 GPP.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
@@ -370,7 +371,7 @@ time.variation.ml.02(knn.model.both.optimal,
 
 ### Residue for Lägern
 
-We do the same for Lägern
+We do the same for Lägern.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 
@@ -437,36 +438,33 @@ We have merged two data sets. But the two locations are very different.
 
 ### Interpret biases of the out-of-sample predictions with a view to the site characteristics
 
-We tried different approaches to modelling the GPP. We took some metrics
-into account (e.g. RSQ, MAE) and optimized k. Our goal was to create a
-model which is generalizable. That means, that we want a model which can
+We tried different approaches to modeling the GPP. We took some metrics
+into account (e.g., RSQ, MAE) and optimized k. Our goal was to create a
+model that is generalizable. That means that we want a model that can
 predict the same variable (GPP) in different locations (Davos, Lägern).
-After we have found the probably best model, we applied the model to
-predict the test data. The difference between predicted test data and the
-test data is called the bias. With this parameter we are able to discuss
-our analysis.
+After we found the probably best model, we applied the model to predict the
+test data. The difference between predicted test data and test data is
+called the bias. With this parameter, we are able to discuss our analysis.
 
-A very important parameter is the bias. We can see, that our model
-underestimate the GPP for Davos. If we group the data in months then we can
-see that the model underestimate every month. However, not every month has
-the same dispersion. In the winter-season (DJF) is the dispersion smaller
-than in spring (MAM).
+A very important parameter is the bias. We can see that our model
+underestimates the GPP for Davos. If we group the data by month, then we
+can see that the model underestimates every month. However, not every month
+has the same dispersion. In the winter season (DJF) the dispersion is
+smaller than in the spring (MAM).
 
-The bias for Lägern is positive. Therefore, the model overestimate the GPP
-in Lägern. But if we take a monthly resolution we can see, that this is
-true, but the amplitude varies. For example overestimate the model GPP in
-summer (JJA) by almost $1.8\:\mu mol*m^{-2}*s^{-1}$ and for all other
-months almost zero.
+The bias for Lägern is positive. Therefore, the model overestimates the GPP
+in Lägern. But if we take a monthly resolution, we can see that this is
+true, but the amplitude varies. For example, overestimate the model GPP in
+summer (JJA) by almost $1.8\:\mu mol*m^{-2}*s^{-1}$ and for all other
+months by almost zero.The reason for that is not clear. It could be the
+elevation. In Davos, the dispersion starts in April. The later snowmelt
+could be responsible for this. In Lägern not so much snowfall is measured.
+The dispersion starts in February. That means that the vegetation in Lägern
+was earlier "active" than in Davos.
 
-The reason for that is not clear. It could be the elevation. In Davos, the
-dispersion starts with April. The later snowmelt could be responsible for
-this. In Lägern not so much snowfall is measured. The dispersion start in
-February. That means that the the vegetation is in Lägern earlier "active"
-than in Davos.
-
-Another explanation could be the exposure. In Lägern, the station is at a
-"summit". That means there are more wind. Maybe the wind falsify the
-measurement (But we do not think that because that would be very
+Another explanation could be exposure. In Lägern, the station is at a
+"summit". That means there is more wind. Maybe the wind falsifies the
+measurement (but we do not think that because that would be very
 unprofessional).
 
 The vegetational context could also be a explanation. Decidious
