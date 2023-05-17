@@ -13,7 +13,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at University of Bern (Institute of
+Course: Applied Geo-data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -22,7 +22,7 @@ Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
 
 Further information: <https://geco-bern.github.io/agds/>
 
-[You have questions to the workflow? Contact the author:]{.underline}
+[Do you have questions about the workflow? Contact the author:]{.underline}
 
 Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
@@ -60,7 +60,7 @@ concentration and is defined as followed: test
 
 $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
-In this exercise, we worked with a data set which includes data of soil
+In this exercise, we worked with a data set that includes data of soil
 organic carbon measurements in experiments where ecosystems are exposed to
 ambient (low) and elevated (high) CO2 concentrations. The mean soil organic
 carbon of multiple samples is recorded within each experiment for different
@@ -68,9 +68,9 @@ dates.
 
 ## Original source of the file
 
-The data originate from a paper of Groenigen et al. (2014). In this
+The data originate from a paper by Groenigen et al. (2014). In this
 exercise, we take a close look to the $CO_2$ - concentrations
-$(\: [\frac{g}{m^{-2}}])$ in the experiments and calculate the LRR. For the
+$(\: [\frac{g}{m^{-2}}])$ in the experiments and calculate the LRR. For
 scientific reproducibility, you will find the original source in the
 following article (or in the folder "data-raw"):
 
@@ -85,9 +85,9 @@ Soil Carbon Storage." Science 344, no. 6183 (May 2, 2014):
 
 ### EXCEL: Editing the file manually
 
-Unfortunately the original file is not well structured. It has several
-headings and empty spaces which complicates to read the file and therefore,
-we must the file edit manually. The software EXCEL (MS Office 360 with the
+Unfortunately, the original file is not well structured. It has several
+headings and empty spaces which complicates reading the file and therefore,
+we must the file edit manually. The software EXCEL (MS Office 360 with a
 license from the University of Bern, status: 2023-05-07) is used for this
 task. The following points were changed manually:
 
@@ -99,13 +99,13 @@ task. The following points were changed manually:
 ### R: Evaluation of the data
 
 After the manual editing, the xlsx file can be read with the software
-R-Studio (Version 2022.12.0+353). This software use the language R to
-handle the data. For an efficient processing of the data we use the
-R-package "Tidyverse (and others).
+R-Studio (Version 2022.12.0+353). This software uses the language R to
+handle the data. For efficient processing of the data, we use the R-package
+"Tidyverse (and others).
 
 ## LRR for each experiment
 
-For the first task we calculate the LRR for each experiment. But we can do
+For the first task, we calculate the LRR for each experiment. But we can do
 this in two different ways:
 
 [Method 1:]{.underline}
@@ -124,16 +124,16 @@ mean of all LRRs of each experiment by using the values of the first step.
 Although the results of both methods are the LRR for each experiment, they
 will be in general different. Therefore, it is important which method we
 chose. In this case, it is more meaningful to use method 2 because we use
-CO2 concentrations which has been measured during the experiment. It makes
+CO2 concentrations that have been measured during the experiment. It makes
 more sense that we take this into account and calculate the LRR for a
 specific sample date. If we use method 1, we would calculate the LRR with a
-CO2 concentration which never existed in the experimental setup. In this
-exercise we will calculate the LRR with both methods because we want to
+CO2 concentration that never existed in the experimental setup. In this
+exercise, we will calculate the LRR with both methods because we want to
 demonstrate, that there is a difference.
 
 ## LRR for each phase
 
-In the second task we calculate the LRR for each phase. Each phase
+In the second task, we calculate the LRR for each phase. Each phase
 corresponds to the duration of the experiments. We define three phases:
 
 1)  Phase "early" $\Longrightarrow$ lesser than 3 years
@@ -142,19 +142,19 @@ corresponds to the duration of the experiments. We define three phases:
 
 3)  Phase "late" $\Longrightarrow$ greater than 6 years
 
-For an efficient way to processing the data, we use "Tidyverse" again.
-Here, we are confronted with the same problem as in the first task because
-there are again the two methods to calculate the LRR. We chose method 2
-again (same considerations and the same argumentation as for task one). We
-calculate the LRR with both methods because we want to demonstrate that
-there is a difference as well.
+For an efficient way to process the data, we use "Tidyverse" again. Here,
+we are confronted with the same problem as in the first task because there
+are again two methods to calculate the LRR. We chose method 2 again (same
+considerations and the same argumentation as for task one). We calculate
+the LRR with both methods because we want to demonstrate that there is a
+difference as well.
 
 # Programming and data evaluation
 
 ## Packages
 
 The following code chunk contains all packages we need. Important is the
-package "conflicted". It enables us to chose if different functions have
+package "conflicted". It enables us to choose if different functions have
 the same call, but do not make the same thing (a function in a certain
 package can have the same name as a function from another package). In this
 case, we will set preferences.
@@ -168,13 +168,13 @@ source("../../R/general/packages.R")
 
 The following code chunk shows us, how we can read the file. First, the
 xlsx-file has several sheets. We extract the sheet of interest and save it
-on a variable. But we want a csv-file and so we create a new folder and
-save the new file into it. We read the csv-file again for further editing.
+on a variable. But we want a CSV-file and so we create a new folder and
+save the new file into it. We read the CSV-file again for further editing.
 But we must do this only once. If the file exists, then we can read it
-directly. That is why we implemented a if-else statement.
+directly. That is why we implemented an if-else statement.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
-# We want know, if a certain file already exists
+# We want to know, if a certain file already exists
 name.of.file <- "../../data/re_tidy/re_tidy.new.data.csv"
 
 # If do not exists such a file, create it!
