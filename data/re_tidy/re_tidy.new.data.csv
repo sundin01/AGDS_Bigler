@@ -1,0 +1,288 @@
+Experiment,Citation,Depth,Sample date,Time (years),ambient CO2...6,increased CO2...7,ambient CO2...8,increased CO2...9,Description of data source,Value treatment
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+ArizonaFACE - wheat - high N,Leavitt et al. 2001,0-15 cm,nov. 1995,0,1343.84,1228.4,4,4,fig. 3,assumed BD= 1.48 g/cm3 (Post et al. 1988)
+ArizonaFACE - wheat - high N,Leavitt et al. 2001,0-15 cm,may 1996,0.5,1363.08,1305.3600000000001,4,4,fig. 3,assumed BD= 1.48 g/cm3 (Post et al. 1988)
+ArizonaFACE - wheat - high N,Leavitt et al. 2001,0-15 cm,dec. 1996,1,1253.56,1263.92,4,4,fig. 3,assumed BD= 1.48 g/cm3 (Post et al. 1988)
+ArizonaFACE - wheat - high N,Leavitt et al. 2001,0-15 cm,may 1997,1.5,1258,1400.08,4,4,fig. 3,assumed BD= 1.48 g/cm3 (Post et al. 1988)
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Biosphere 2,Trueman and  Gonzalez-Meler 2005,0-25 cm,average 1999,0,5949.999999999996,6362.434210526315,1,1,fig. 3,"bulk density: 0.91 g/cm3 for ambient, 0.97 for 800 ppm (table 2)"
+Biosphere 2,Trueman and  Gonzalez-Meler 2005,0-25 cm,average 2000,1,5253.571428571431,4735.131578947367,1,1,fig. 3,"bulk density: 0.91 g/cm3 for ambient, 0.97 for 800 ppm (table 2)"
+Biosphere 2,Trueman and  Gonzalez-Meler 2005,0-25 cm,average 2001,2,6084.090909090911,4784.766081871344,1,1,fig. 3,"bulk density: 0.91 g/cm3 for ambient, 0.97 for 800 ppm (table 2)"
+Biosphere 2,Trueman and  Gonzalez-Meler 2005,0-25 cm,average 2002,3,5470.000000000001,4063.7894736842113,1,1,fig. 3,"bulk density: 0.91 g/cm3 for ambient, 0.97 for 800 ppm (table 2)"
+Biosphere 2,Trueman and  Gonzalez-Meler 2005,0-25 cm,average 2003,4,5334.999999999999,4220.350877192981,1,1,fig. 3,"bulk density: 0.91 g/cm3 for ambient, 0.97 for 800 ppm (table 2)"
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+China FACE - low N,Zhong et al. 2009,0-15 cm,mar. 2008,3.66,1936.6200000000001,2192.3999999999996,3,3,table 1,bulk density: 1.16 g/cm3 f(text)
+China FACE - low N,Zhong et al. 2009,0-15 cm,jun. 2008,4,1936.6200000000001,2122.7999999999997,3,3,table 1,bulk density: 1.16 g/cm3 f(text)
+China FACE - low N,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+China FACE - high N,Zhong et al. 2009,0-15 cm,mar. 2008,3.66,1926.1799999999998,2134.98,3,3,table 1,bulk density: 1.16 g/cm3 f(text)
+China FACE - high N,Zhong et al. 2009,0-15 cm,jun. 2008,4,1936.6200000000001,2105.3999999999996,3,3,table 1,bulk density: 1.16 g/cm3 f(text)
+China FACE - high N,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+China OTC - low N,Liu et al. 2010,0-20 cm,jul. 2005,0.33,1103.1712328767123,1168.4615384615386,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,nov. 2005,0.666,1035.6301369863013,1096.9230769230767,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,apr. 2006,1,1936.1780821917805,2384.6153846153843,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,aug. 2006,1.33,2318.91095890411,2217.692307692308,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,nov. 2006,1.66,2060.003424657534,2050.76923076923,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,apr. 2007,2,2431.479452054795,2301.153846153846,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,aug. 2007,2.33,2262.626712328767,2360.7692307692305,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,nov. 2007,2.66,2116.287671232877,2158.0769230769233,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,apr. 2008,3,3624.7054794520554,3314.6153846153843,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,aug. 2008,3.33,3253.229452054794,3278.8461538461534,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - low N,Liu et al. 2010,0-20 cm,nov. 2008,3.66,3287,3410,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+China OTC - high N,Liu et al. 2010,0-20 cm,jul. 2005,0.33,1200.7058823529412,1198.0677966101696,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,nov. 2005,0.666,921.970588235294,1409.4915254237287,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,apr. 2006,1,1929.7058823529412,2372.6440677966107,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,aug. 2006,1.33,1951.1470588235293,2513.5932203389834,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,nov. 2006,1.66,1586.6470588235297,3053.8983050847464,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,apr. 2007,2,2015.4705882352946,3030.406779661017,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,aug. 2007,2.33,2272.764705882353,2725.016949152542,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,nov. 2007,2.66,2187,2701.5254237288136,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,apr. 2008,3,3602.117647058824,3946.576271186441,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,aug. 2008,3.33,3580.6764705882356,4169.745762711865,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+China OTC - high N,Liu et al. 2010,0-20 cm,nov. 2008,3.66,3645,4158,2,3,fig. 3,"bulk density estimated from final soil C contents (text, page 733 and fig. 3)"
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS I,Lichter et al. 2008,0-15 cm,aug. 1996,0,1977,2142,3,3,tab. 3,NA
+FACTS I,Lichter et al. 2008,0-15 cm,oct. 1999,3.17,1902,2208,3,3,tab. 3,NA
+FACTS I,Lichter et al. 2008,0-15 cm,aug. 2002,6,2407,2734,3,3,tab. 3,NA
+FACTS I,Lichter et al. 2008,0-15 cm,aug. 2006,9,2164,2096,3,3,tab. 3,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2001,4,3575.07,3562.4,3,3,pers. comm.,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2003,6,3625.2200000000003,4434.77,3,3,pers. comm.,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2004,7,3235.4799999999996,3242.6400000000003,3,3,pers. comm.,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2005,8,3741.46,3506.2199999999993,3,3,pers. comm.,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2006,9,4243.47,3840.6799999999994,3,3,pers. comm.,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2007,10,4373.51,3760.06,3,3,pers. comm.,NA
+FACTS II - Aspen,Talhelm et al. 2009,0-10 cm,2008,11,5118.869999999999,3267.4700000000003,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2001,4,3192.54,3199.4300000000003,3,3,pers. comm.,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2003,6,3080.7999999999997,3433.2400000000002,3,3,pers. comm.,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2004,7,3418.3599999999997,2804.18,3,3,pers. comm.,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2005,8,3886.1400000000003,2889.98,3,3,pers. comm.,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2006,9,4072.9700000000003,3444.45,3,3,pers. comm.,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2007,10,4382.11,3268.49,3,3,pers. comm.,NA
+FACTS II - Aspen (+O3),Talhelm et al. 2009,0-10 cm,2008,11,4782.79,3140.94,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2001,4,3256.0499999999997,3816.8100000000004,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2003,6,3347.32,3274.32,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2004,7,3407.67,3457.47,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2005,8,3652.93,3436.2799999999997,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2006,9,4432.999999999999,4196.18,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2007,10,4124.99,3831.5899999999997,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch,Talhelm et al. 2009,0-10 cm,2008,11,3483.65,3946.42,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2001,4,3305.46,3120.98,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2003,6,4104.62,3798.11,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2004,7,2942.85,3255.4499999999994,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2005,8,3577.5899999999997,3350.9500000000003,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2006,9,4083.14,4063.81,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2007,10,3909.2700000000004,4289.800000000001,3,3,pers. comm.,NA
+FACTS II - Aspen/Birch (+O3),Talhelm et al. 2009,0-10 cm,2008,11,4113.33,3849.28,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2001,4,2908.2000000000003,3541.12,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2003,6,3327.21,3185.62,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2004,7,3134.93,3269.54,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2005,8,4205.96,3959.5899999999997,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2006,9,4022.99,3849.77,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2007,10,4013.859999999999,4450.249999999999,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel,Talhelm et al. 2009,0-10 cm,2008,11,3947.7600000000007,4674.969999999999,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2001,4,3449.0800000000004,3333.9,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2003,6,3512.41,2960.9300000000003,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2004,7,3320.87,3240.0699999999997,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2005,8,3564.09,3375.91,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2006,9,4115,3739.11,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2007,10,3982.34,3737.1000000000004,3,3,pers. comm.,NA
+FACTS II - Aspen/Mapel (+O3),Talhelm et al. 2009,0-10 cm,2008,11,4093.1800000000003,3722.54,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+GiFACE,Lenhart 2008,0-7.5 cm,may 1998,0,3420.0000000000005,3528,3,3,fig. 3.13,assumed bulk density: 1.0 g/cm3
+GiFACE,Lenhart 2008,0-7.5 cm,june 2007,9.083333333333334,3149.999999999999,3096,3,3,fig. 3.13,assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Hohenheim,Marhan et al. 2010,0-10 cm,mar. 2004,2,1725,1767,5,5,tab. 2,NA
+Hohenheim,Marhan et al. 2010,0-10 cm,oct. 2004,2.5,1707,1641,5,5,tab. 2,NA
+Hohenheim,Marhan et al. 2010,0-10 cm,mar. 2005,3,1805,1744,5,5,tab. 2,NA
+Hohenheim,Marhan et al. 2010,0-10 cm,oct. 2005,3.5,1567,1588,5,5,tab. 2,NA
+Hohenheim,Marhan et al. 2010,0-10 cm,mar. 2006,4,1680,1717,5,5,tab. 2,NA
+Hohenheim,Marhan et al. 2010,0-10 cm,oct. 2006,4.5,1721,1763,5,5,tab. 2,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Jasper Ridge - sandstone,Hungate et al. 1997,0-15 cm,jan. 1992,0,2646,2646,10,10,"fig. 1, pers. comm.",NA
+Jasper Ridge - sandstone,Hungate et al. 1997,0-15 cm,may 1993,1.41,2645.6692913385823,2354.3307086614172,10,10,"fig. 1, pers. comm.",NA
+Jasper Ridge - sandstone,Hungate et al. 1997,0-15 cm,may 1994,2.41,2251.968503937008,2338.582677165354,10,10,"fig. 1, pers. comm.",NA
+Jasper Ridge - sandstone,Hungate et al. 1997,0-15 cm,may 1995,3.41,2314.9606299212596,2314.9606299212596,10,10,"fig. 1, pers. comm.",NA
+Jasper Ridge - sandstone,Hungate et al. 1997,0-15 cm,may 1996,4.41,2497,2486,10,10,"fig. 1, pers. comm.",NA
+Jasper Ridge - sandstone,Hungate et al. 1997,0-15 cm,may 1997,5.41,2612,2750,10,10,"fig. 1, pers. comm.",NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Control,Hungate et al. unpublished,0-15 cm,2000,2,2383.7435291457664,2344.244879192732,6,6,pers. comm.,NA
+JRGCE - Control,Hungate et al. unpublished,0-15 cm,2006,8,2427.8607817375996,2173.412490201781,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Burn,Hungate et al. unpublished,0-15 cm,2000,2,2295.9631169370923,2496.8210846782827,4,4,pers. comm.,NA
+JRGCE - Burn,Hungate et al. unpublished,0-15 cm,2006,8,2544.482915358183,2268.8305995277133,4,4,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - N,Hungate et al. unpublished,0-15 cm,2000,2,2247.6928853253453,2380.9193864309605,6,6,pers. comm.,NA
+JRGCE - N,Hungate et al. unpublished,0-15 cm,2006,8,2551.5509234564006,2328.908668362559,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - N x Burn,Hungate et al. unpublished,0-15 cm,2000,2,2359.1593679525786,2424.661017972471,4,4,pers. comm.,NA
+JRGCE - N x Burn,Hungate et al. unpublished,0-15 cm,2006,8,2528.579897137194,2226.4225509384105,4,4,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Water,Hungate et al. unpublished,0-15 cm,2000,2,2292.479382830013,2268.0494311326106,6,6,pers. comm.,NA
+JRGCE - Water,Hungate et al. unpublished,0-15 cm,2006,8,2311.2386481170165,2085.062388974067,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Water x Burn,Hungate et al. unpublished,0-15 cm,2000,2,2393.8820185477935,2563.045791650876,4,4,pers. comm.,NA
+JRGCE - Water x Burn,Hungate et al. unpublished,0-15 cm,2006,8,2396.0547452956225,2300.636635969691,4,4,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Water x N,Hungate et al. unpublished,0-15 cm,2000,2,2192.7258026962663,2263.7267946110865,6,6,pers. comm.,NA
+JRGCE - Water x N,Hungate et al. unpublished,0-15 cm,2006,8,2625.765008487681,2441.9967979340345,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Water x N x Burn,Hungate et al. unpublished,0-15 cm,2000,2,2251.4097199556772,2568.693392366063,4,4,pers. comm.,NA
+JRGCE - Water x N x Burn,Hungate et al. unpublished,0-15 cm,2006,8,2231.723557012073,2385.452733148297,4,4,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Heat,Hungate et al. unpublished,0-15 cm,2000,2,2298.123837344219,2294.907430444076,6,6,pers. comm.,NA
+JRGCE - Heat,Hungate et al. unpublished,0-15 cm,2006,8,2385.452733148297,2438.4627938849253,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Heat x N,Hungate et al. unpublished,0-15 cm,2000,2,2287.779312935299,2454.2947173100806,6,6,pers. comm.,NA
+JRGCE - Heat x N,Hungate et al. unpublished,0-15 cm,2006,8,2282.9666157241477,2449.0648060322515,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Heat x Water,Hungate et al. unpublished,0-15 cm,2000,2,2326.7955999774276,2309.9136658406674,6,6,pers. comm.,NA
+JRGCE - Heat x Water,Hungate et al. unpublished,0-15 cm,2006,8,2074.460376826741,2413.7247655411657,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+JRGCE - Heat x Water x N,Hungate et al. unpublished,0-15 cm,2000,2,2393.2079743255067,2453.4790931982957,6,6,pers. comm.,NA
+JRGCE - Heat x Water x N,Hungate et al. unpublished,0-15 cm,2006,8,2109.800417317827,2406.6567574429478,6,6,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Merritt Island,Hungate unpublished,0-10 cm,dec. 1996,0.6242299794661191,1209.3201328915666,1335.0191160903612,8,8,pers. comm.,NA
+Merritt Island,Hungate unpublished,0-10 cm,jun. 1998,2.088980150581793,1130.5014644680898,1220.0629769199952,8,8,pers. comm.,NA
+Merritt Island,Hungate unpublished,0-10 cm,jul. 1998,2.1711156741957565,1263.559598391772,1291.7154469702891,8,8,pers. comm.,NA
+Merritt Island,Hungate unpublished,0-10 cm,aug. 1998,2.3107460643394937,1356.1098025794693,1280.81924477758,8,8,pers. comm.,NA
+Merritt Island,Carney et al. 2007,0-10 cm,nov. 1998,2.546201232032854,1733.8959407711754,1567.264949586369,8,8,"fig. 1, pers. comm.",NA
+Merritt Island,Carney et al. 2007,0-10 cm,sept. 1999,3.356605065023956,1781.7420849860116,1712.4928179645362,8,8,"fig. 1, pers. comm.",NA
+Merritt Island,Carney et al. 2007,0-10 cm,mar. 2001,4.870636550308008,2191.1727411131023,1941.4597531126092,8,8,"fig. 1, pers. comm.",NA
+Merritt Island,Carney et al. 2007,0-10 cm,may 2002,5.9986310746064335,2099.4689245347695,1740.7057640517298,8,8,"fig. 1, pers. comm.",NA
+Merritt Island,Langley et al. 2009,0-10 cm,may 2002,6,1999,1628,8,8,pers. comm.,NA
+Merritt Island,McKinley et al. unpublished,0-10 cm,may 2007,11,1512,1411.2,8,8,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+NewZealandFACE,Ross et al. 2004,0-5 cm,may/oct. 1997,0,2685,2465,3,3,table 1,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2004,0-5 cm,may/oct. 1998,1,2650,2490.0000000000005,3,3,table 1,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2004,0-5 cm,may/oct. 1999,2,2655,2525,3,3,table 1,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2004,0-5 cm,may/oct. 2000,3,2675,2565,3,3,table 1,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2004,0-5 cm,may/oct. 2001,4,2515,2444.9999999999995,3,3,table 1,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2004,0-5 cm,may/oct. 2002,5,2585,2490.0000000000005,3,3,table 1,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2013,0-5 cm,may/oct. 2003,6,2518.7499999999995,2509.821428571429,3,3,fig. 3,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2013,0-5 cm,may/oct. 2004,7,2599.1071428571427,2534.3749999999995,3,3,fig. 3,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2013,0-5 cm,may/oct. 2005,8,2659.375,2659.375,3,3,fig. 3,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2013,0-5 cm,may/oct. 2006,9,2657.142857142857,2721.875,3,3,fig. 3,assumed bulk density: 1.0 g/cm3
+NewZealandFACE,Ross et al. 2013,0-5 cm,may/oct. 2007,10,2721.875,2822.3214285714284,3,3,fig. 3,assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+New Zealand Greenhouse,Ross et al. 1995,0-5 cm,-,0,2112.2448979591836,2122.448979591837,1,1,fig. 2,assumed bulk density: 1.0 g/cm3
+New Zealand Greenhouse,Ross et al. 1995,0-5 cm,-,0.25,2122.448979591837,2142.857142857143,1,1,fig. 2,assumed bulk density: 1.0 g/cm3
+New Zealand Greenhouse,Ross et al. 1995,0-5 cm,-,0.5,1969.3877551020405,1979.5918367346935,1,1,fig. 2,assumed bulk density: 1.0 g/cm3
+New Zealand Greenhouse,Ross et al. 1995,0-5 cm,-,0.75,1969.3877551020405,2000,1,1,fig. 2,assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+New Zealand OTC - P. radiata,Ross et al. 2006,0-10 cm,apr.1994,0,100,100,2,2,fig. 2,assumed bulk density: 1.0 g/cm3
+New Zealand OTC - P. radiata,Ross et al. 2006,0-10 cm,mar. 2000,6,411.6883116883117,529.8701298701299,2,2,fig. 2,assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+New Zealand OTC - N. fusca,Ross et al. 2006,0-10 cm,apr.1994,0,100,100,3,3,fig. 2,assumed bulk density: 1.0 g/cm3
+New Zealand OTC - N. fusca,Ross et al. 2006,0-10 cm,mar. 2000,6,2402.7697634160418,3401.6156953260243,3,3,fig. 2,assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+ORNL FACE,Jastrow et al. 2005,0-15 cm,oct. 1997,0,2671.7277486910994,2791.0994764397906,3,2,fig. 1b,NA
+ORNL FACE,Jastrow et al. 2005,0-15 cm,nov. 2000,2.42,2784.8167539267015,2866.4921465968587,3,2,fig. 1b,NA
+ORNL FACE,Jastrow et al. 2005,0-15 cm,oct. 2002,4.33,2730.366492146597,2990.890052356021,3,2,fig. 1b,NA
+ORNL FACE,Iversen et al. 2012,0-15 cm,june 2009,11,3370,3850,3,2,tab. 1,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Placerville - low N,Johnson et al. 2006,0-30 cm,mar. 1991,0,8400,8000,3,3,fig. 4,NA
+Placerville - low N,Johnson et al. 2006,0-30 cm,mar. 1993,1.75,7600,7600,3,3,fig. 4,NA
+Placerville - low N,Johnson et al. 2006,0-30 cm,sept. 1996,5.5,7400,7600,3,3,fig. 4,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Placerville - medium N,Johnson et al. 2006,0-30 cm,mar. 1991,0,7800,7900,3,3,fig. 4,NA
+Placerville - medium N,Johnson et al. 2006,0-30 cm,mar. 1993,1.75,7700,7800,3,3,fig. 4,NA
+Placerville - medium N,Johnson et al. 2006,0-30 cm,sept. 1996,5.5,7400,8300,3,3,fig. 4,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Placerville - high N,Johnson et al. 2006,0-30 cm,mar. 1991,0,8100,7500,3,3,fig. 4,NA
+Placerville - high N,Johnson et al. 2006,0-30 cm,mar. 1993,1.75,7500,8500,3,3,fig. 4,NA
+Placerville - high N,Johnson et al. 2006,0-30 cm,sept. 1996,5.5,7400,8100,3,3,fig. 4,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+POPFACE - alba,Hoosbeek et al. 2009,0-10 cm,oct. 1999,0,1319.7666666666667,1128.0333333333335,3,3,"fig. 5, pers. comm.",NA
+POPFACE - alba,Hoosbeek et al. 2009,0-10 cm,oct. 2000,1,1364.5183333333332,1195.0583333333334,3,3,"fig. 5, pers. comm.",NA
+POPFACE - alba,Hoosbeek et al. 2009,0-10 cm,oct. 2001,2,1524.40835,1295.0502333333334,3,3,"fig. 5, pers. comm.",NA
+POPFACE - alba,Hoosbeek et al. 2009,0-10 cm,oct. 2003,4,1629.3773567039018,1377.4895754427387,3,3,"fig. 5, pers. comm.",NA
+POPFACE - alba,Hoosbeek et al. 2009,0-10 cm,oct. 2004,5,1646.9291999999998,1479.6399333333331,3,3,"fig. 5, pers. comm.",NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+POPFACE - euramericana,Hoosbeek et al. 2009,0-10 cm,oct. 1999,0,1251.8,1165.2333333333333,3,3,"fig. 5, pers. comm.",NA
+POPFACE - euramericana,Hoosbeek et al. 2009,0-10 cm,oct. 2000,1,1429.215,1213.325,3,3,"fig. 5, pers. comm.",NA
+POPFACE - euramericana,Hoosbeek et al. 2009,0-10 cm,oct. 2001,2,1405.2082833333334,1084.26115,3,3,"fig. 5, pers. comm.",NA
+POPFACE - euramericana,Hoosbeek et al. 2009,0-10 cm,oct. 2003,4,1634.56451378944,1431.2596072398974,3,3,"fig. 5, pers. comm.",NA
+POPFACE - euramericana,Hoosbeek et al. 2009,0-10 cm,oct. 2004,5,1686.1117777777774,1370.2392666666667,3,3,"fig. 5, pers. comm.",NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+POPFACE - nigra,Hoosbeek et al. 2009,0-10 cm,oct. 1999,0,1379.45,1149.25,3,3,"fig. 5, pers. comm.",NA
+POPFACE - nigra,Hoosbeek et al. 2009,0-10 cm,oct. 2000,1,1457.7983333333334,1169.0266666666666,3,3,"fig. 5, pers. comm.",NA
+POPFACE - nigra,Hoosbeek et al. 2009,0-10 cm,oct. 2001,2,1534.1099666666664,1111.61515,3,3,"fig. 5, pers. comm.",NA
+POPFACE - nigra,Hoosbeek et al. 2009,0-10 cm,oct. 2003,4,1518.4140734181783,1246.4650088700357,3,3,"fig. 5, pers. comm.",NA
+POPFACE - nigra,Hoosbeek et al. 2009,0-10 cm,oct. 2004,5,1508.7230666666665,1343.9469555555554,3,3,"fig. 5, pers. comm.",NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Shortgrass prairie,Pendall et al. 2004,0-5 cm,nov. 1995,0,617,645,3,3,appendix,NA
+Shortgrass prairie,Pendall et al. 2004,0-5 cm,end growing season  1997,1,527,542,3,3,appendix,NA
+Shortgrass prairie,Pendall et al. 2004,0-5 cm,end growing season  1998,2,488,522,3,3,appendix,NA
+Shortgrass prairie,Pendall et al. 2004,0-5 cm,end growing season  1999,3,618,616,3,3,appendix,NA
+NA,Pendall et al. 2004,0-5 cm,end growing season  2000,4,603,593,3,3,appendix,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+SoyFACE,Moran and Jastrow 2010,0-12.5 cm,spring 2001,0,4802.884970605373,4141.977510849635,3,3,pers. comm.,assumed bulk density: 1.24 g/cm3. 1  ring removed from dataset
+SoyFACE,Moran and Jastrow 2010,0-12.5 cm,spring 2006,5,4671.121580824256,4099.967277646065,3,3,pers. comm.,assumed bulk density: 1.23 g/cm3. 1 ring removed from dataset
+SoyFACE,Moran and Jastrow 2010,0-12.5 cm,spring 2007,6,4437.467639893293,3836.1739506324134,3,3,pers. comm.,assumed bulk density: 1.19 g/cm3. 1 ring removed from dataset
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 1995,2,2878.48,2861.72,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 1996,3,2796,3584,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 1997,4,2854.8154647491106,2790.4893730742742,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 1998,5,3304.6037347690894,3368.170637729259,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 1999,6,2969.5091984963374,2946.056121471907,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 2000,7,2605.893591553497,2758.910755577657,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 2001,8,3732.961669099812,3833.8450303828113,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 2002,9,3350.4,3498.3,3,3,pers. comm.,NA
+SwissFACE- grass - low N,Van Kessel et al. 2006,0-10 cm,may 2003,10,3292.9458744474136,3198.3367455508283,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 1995,2,3528,3222.8,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 1996,3,3052,3892,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 1997,4,3074.671013683164,3090.946288649598,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 1998,5,3494.433907679282,3606.4888709975953,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 1999,6,2985.9933519520955,3044.595738110672,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 2000,7,2920.1190750950527,2587.7935145458873,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 2001,8,3433.5196177188,3113.8346995461043,3,3,pers. comm.,NA
+SwissFACE- grass - high N,Van Kessel et al. 2006,0-10 cm,may 2002,9,3302,3438.6,3,3,pers. comm.,NA
+NA,Van Kessel et al. 2006,0-10 cm,may 2003,10,3257.867576559836,3331.8592526134535,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 1995,2,2822.36,2872.4,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 1996,3,3048,3500,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 1997,4,2862.24409945582,2930.7469790415225,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 1998,5,3033.6382615360703,3290.5538176065297,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 1999,6,2758.045605930066,2910.961225792722,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 2000,7,2543.99111048472,2987.1524566597295,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 2001,8,3442.7697048447494,3144.7070450526503,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 2002,9,3053,3590.6,3,3,pers. comm.,NA
+SwissFACE- clover - low N,Van Kessel et al. 2006,0-10 cm,may 2003,10,2999.161696322473,3075.6188097309473,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 1995,2,2916.12,3495.68,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 1996,3,3256,3688,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 1997,4,2724.7254821791225,2995.5162925584596,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 1998,5,3233.356068028408,3405.902685282546,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 1999,6,2758.6142562411774,3153.0657275464396,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 2000,7,2630.0517133319736,2434.3774539721317,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 2001,8,3528.4659019930164,3571.558228768908,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 2002,9,3209,3456.1,3,3,pers. comm.,NA
+SwissFACE- clover - high N,Van Kessel et al. 2006,0-10 cm,may 2003,10,2993.058863368545,3235.600890187407,3,3,pers. comm.,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Swiss Greenhouse,Körner and Arnone 1992,0-20 cm,-,0,1280,1280,2,2,table 4,NA
+Swiss Greenhouse,Körner and Arnone 1992,0-20 cm,-,0.25,1205,980,2,2,table 4,NA
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+Tallgrass Prairie,Rice et al. 1994,0-5 cm,nov. 1992,2.5,2985.3,2859.75,3,3,table 1,bulk density = 0.93 g/cm3 (Williams et al. 2000)
+Tallgrass Prairie,Williams et al. 2000,0-5 cm,oct. 1996,8,2180.8500000000004,2371.4999999999995,3,3,table 1,bulk density = 0.93 g/cm3 (Williams et al. 2000)
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+UMBS - aspen,Zak et al. 1993,0-15 cm,may 1991,0,296.54999999999995,296.54999999999995,4,4,table 2,assumed bulk density: 1.0 g/cm3
+UMBS - aspen,Zak et al. 1993,0-15 cm,oct. 1991,0.5,241.5,289.5,4,4,table 2,assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"WSL - loam, low N",Hagedorn et al. 2001,0-10 cm,jan. 1995,0,1290,1290,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+"WSL - loam, low N",Hagedorn et al. 2001,0-10 cm,sept. 1998,3.75,1317.020371556282,1471.392651438713,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"WSL - loam, high N",Hagedorn et al. 2001,0-10 cm,jan. 1995,0,1290,1290,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+"WSL - loam, high N",Hagedorn et al. 2001,0-10 cm,sept. 1998,3.75,1481.5271943807602,1546.9084709882736,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"WSL - sand, low N",Hagedorn et al. 2001,0-10 cm,jan. 1995,0,1310,1310,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+"WSL - sand, low N",Hagedorn et al. 2001,0-10 cm,sept. 1998,3.75,1166.8441371286654,1214.1494333958249,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"WSL - sand, high N",Hagedorn et al. 2001,0-10 cm,jan. 1995,0,1310,1310,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
+"WSL - sand, high N",Hagedorn et al. 2001,0-10 cm,sept. 1998,3.75,1120.1739564578374,1183.4270073535138,4,4,"fig. 4, pers. comm.",assumed bulk density: 1.0 g/cm3
