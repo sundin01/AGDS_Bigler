@@ -12,7 +12,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at University of Bern (Institute of
+Course: Applied Geo-data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -21,21 +21,21 @@ Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
 
 Further information: <https://geco-bern.github.io/agds/>
 
-[You have questions to the workflow? Contact the Author:]{.underline}
+[Do you have questions about the workflow? Contact the Author:]{.underline}
 
 Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 3 (Chapter 8)
+Reference: Report Exercise 4 (Chapter 8)
 
 # Introduction
 
 ## Objectives
 
-Modelling is a important aspect of data sciences. But there are different
-types of models with different complexity. With a realistic problem, the
-following goals should be trained:
+Modeling is an important aspect of data science. But there are different
+types of models with different levels of complexity. With a realistic
+problem, the following goals should be trained:
 
 -   Understand the basics of regression and classification models.
 
@@ -52,10 +52,10 @@ following goals should be trained:
 ## Theory
 
 In environmental and climate science, dozens of variables have been
-measured. With a model we want to try to predict a target. For that we use
-a linear model. Unfortunately, we do not know how many variables and which
-variables we should use. We only know that we try to find a formula like
-this:
+measured. With a model, we want to try to predict a target. For that, we
+use a linear model. Unfortunately, we do not know how many variables and
+which variables we should use. We only know that we try to find a formula
+like this:
 
 $$
 \hat{y}=a_0 +\sum_{n=1}^{N}\hat{a}_n*x_n
@@ -63,48 +63,51 @@ $$
 
 # Methods
 
-To build up the best linear regression model we could, of course, simply
+To build up the best linear regression model, we could, of course, simply
 try all combinations by permutation. But that would be a waste of
-resources. However, we cannot avoid a try and error approach. But we would
-like to reduce the number of combinations. We implement a algorithm which
-works as followed:
+resources. However, we cannot avoid a try-and-error approach. But we would
+like to reduce the number of combinations. We implement an algorithm that
+works as follows:
 
-1.  Let $p\in[1,N]$ and a predictor. Let $N\in[1,max(variable)]$. N could
-    be all variables we have or only a subset of it. Our algorithm will
-    decide this.
+1.  Let $p\in[1,N]$ and a predictor. Let $N\in[1,max(variable)]$. N could
+    be all the variables we have or only a subset of them. Our algorithm
+    will decide this (at the start, we did not know).
 
-2.  The algorithm takes p and create a linear model. The p with the highest
-    RSQ will be used as a predictor.
+2.  The algorithm takes p and creates a linear model. The p with the
+    highest RSQ will be used as a predictor. We delete the predictor from
+    our list because we can use it only once.
 
-3.  The algorithm takes p+1 and create a linear model. The p with the
+3.  The algorithm takes p+1 and creates a linear model. The p with the
     highest RSQ will be used as a predictor. Select the model with the
     highest RSQ and calculate the AIC.
 
-4.  Iterate step 3 until the AIC of the model do not decreasing anymore.
+4.  Iterate step 3 until the AIC of the model does not decrease anymore.
 
 5.  We have found the (presumably) optimal model.
 
-For the first task we apply only the first 2 steps because we want only a
-bivariate model. For the second task we iterate the step 3. If we do that
-we might also be able to chose the best multivariate model.
+For the first task, we apply only the first 2 steps because we want only a
+bivariate model. For the second task, we iterate step 3. If we do that, we
+might also be able to choose the best multivariate model.
 
 ## R: Evaluation of the data
 
-All analysis are done with the open source software R-Studio (Version
-2022.12.0+353). This software use the language R to handle the data. For an
-efficient processing of the data we use the R-package "Tidyverse (and
-others).
+The open-source program R-Studio (Version 2022.12.0+353) was used for all
+studies. The data handling in this program is done using the R language. We
+utilize the R-package "Tidyverse" and other packages to process the data
+effectively.
 
 # Programming and data evaluation
 
 ## Packages
 
 The following code chunk contains all packages we need. Important is the
-package "conflicted". It enables us to chose if different functions have
-the same call but do not make the same thing (a function in a certain
-package can have the same name as a function from another package).
+package "conflicted". It enables us to choose if different functions have
+the same call, but do not make the same thing (a function in a certain
+package can have the same name as a function from another package). In this
+case, we will set preferences.
 
 ```{r Packages, error=FALSE, message=FALSE, warning=FALSE}
+# Load the file
 source("../../R/general/packages.R")
 ```
 
@@ -112,10 +115,10 @@ source("../../R/general/packages.R")
 
 First, we get the data and save it in our repository. But we must do this
 only once. If the file exists, then we can read it directly. That is why we
-implemented a if-else statement.
+implemented an if-else statement.
 
 ```{r Read_file, error=FALSE, message=FALSE, warning=FALSE}
-# We want know, if a certain file already exists
+# We want to know, if a certain file already exists
 name.of.file <- "../../data/re_stepwise/FLX_CH_stepwise.csv"
 
 # If do not exists such a file, create it!
@@ -124,17 +127,16 @@ if (!file.exists(name.of.file)){
   url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/df_for_stepwise_regression
   .csv"
   
-  # Read in the data directly from URL
+  # Read the data directly from an URL
   database.S1 <- read.table(url, header = TRUE, sep = ",")
 
-  # Write a CSV file in the respiratory
+  # Write a CSV file in the repository
   write_csv(database.S1,"../../data/re_stepwise/FLX_CH_stepwise.csv")
   
   # Read the file
   database <- read_csv("../../data/re_stepwise/FLX_CH_stepwise.csv")
 
   # If exists such a file, read it only!
-  # Read the file
   }else{database <- read_csv("../../data/re_stepwise/FLX_CH_stepwise.csv")}
 ```
 
@@ -142,10 +144,10 @@ if (!file.exists(name.of.file)){
 
 ### Missing values
 
-To make a good decision about the predictors we need as much information as
-possible. For that we read our file as a data frame. After that, we want a
-overview about the data ( what variables contains teh data set? What are
-the main statistical parameters?)
+To make a good decision about the predictors, we need as much information
+as possible. For that, we read our file as a data frame. After that, we
+want an overview of the data (what variables contain the data set, and what
+are the main statistical parameters?)
 
 ```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE}
 # Check wheater there are any missing values (We try with only the first six rows)
@@ -154,17 +156,17 @@ head(apply(database,2, function(x) is.na(x)))
 # Load the function
 source("../../R/general/function.visualize.na.values.R")
 
-# Function call to vis. the NA
+# Function call to visualize the NA
 visualize.na.values.without.groups(database)
 
-# Take a overview and main statistic parameters
+# Take an overview and main statistic parameters
 summary(database)
 ```
 
 ## Bivariate linear regression
 
-We chose the best variable for our predictor. For that, we try all
-variables and chose the one with the highest RSQ (see introduction)
+We chose the best variable for our predictor. For that, we tried all
+variables and chose the one with the highest RSQ (see introduction).
 
 ```{r Calculate_best_Bivariante_Model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function for the bivariate model
@@ -177,10 +179,10 @@ knitr::kable(tibble.bi.model)
 
 ### Visualization of the bivariate model
 
-There are meaningful scatter-plot for bivariate lm -models and it gives us
+There are meaningful scatterplots for bivariate LM models, and they give us
 a first impression. But we want to know more about the coefficients, the
-intercept, the distribution and outliers. For that we use summary() and we
-plot the model (see discussion).
+intercept, the distribution, and the outliers. For that, we use summary()
+and plot the model (see discussion).
 
 ```{r Vis_bivariate_regression_model, error=FALSE, message=FALSE, warning=FALSE}
 # Calculate the probebly best multivariate model
@@ -202,11 +204,11 @@ plot(best.bi.lm)
 
 ### Development of RSQ
 
-What is happen with RSQ? Here we visualize the RSQ for each Variable. We
-can easely see that PPFD_IN has the highest RSQ and that is why we chose it
-as our predictor. But what if we want a multivariate regression? One might
-think that we should simply choose the variable with the second highest
-RSQ. But we will see that this is generally not the case.
+What is happening with RSQ? Here we visualize the RSQ for each variable. We
+can easily see that PPFD_IN has the highest RSQ, and that is why we chose
+it as our predictor. But what if we want a multivariate regression? One
+might think that we should simply choose the variable with the
+second-highest RSQ. But we will see that this is generally not the case.
 
 ```{r Vis_RSQ_development, error=FALSE, message=FALSE, warning=FALSE}
 
@@ -219,13 +221,13 @@ Vis_of_the_develop.bi.model(tibble.bi.model)
 
 ## Multivariate linear regression
 
-Here we want to answer the question which predictors we should choose to
-get the probably best linear regression model. For that we have wrote a
+Here we want to answer the question of which predictors we should choose to
+get the probably best linear regression model. For that, we have written a
 function. It works as described in the introduction. We make two function
-calls. For the first we use all variables but the target. This is, however,
-not necessarily the best way. We could say that the time factor and the
-location is irrelevant and we drop out these variables. We can see that the
-difference is huge.
+calls. For the first, we use all variables but the target. This is,
+however, not necessarily the best way. We could say that the time factor
+and the location are irrelevant, so we drop these variables. We can see
+that the difference is huge.
 
 ```{r best_multivariate_model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function of the multivariate model
@@ -247,7 +249,7 @@ knitr::kable(multi.model.2)
 We visualize the development of the model. We can see that the model with
 more variables has a higher RSQ. That is not a surprise because RSQ will
 always increase if we add a variable. Important is the AIC. We can see that
-the AIC is lesser for more variables (21762.2 vs. 24469.3). The RSQ is
+the AIC is lower for more variables (21762.2 vs. 24469.3). The RSQ is
 higher (0.6579 vs. 0.5983). It follows that model 1 is better than model 2.
 We see that also in the coefficients.
 
@@ -262,11 +264,11 @@ vis.and.dev.multi.model(multi.model.2, c("[without siteid and TIMESTAMP]"))
 
 ### Visualization of the multivariate model
 
-There are no meaningful scatter-plot for multidimensional models. But we
-want to know more about the coefficients, the intercept, the distribution
-and outliers. We make some calls by using summary(). We get the same values
-for the RSQ. This is proof that our algorithm works. We see that not all
-coefficients are significant.
+There are no meaningful scatterplots for multidimensional models. But we
+want to know more about the coefficients, the intercept, the distribution,
+and the outliers. We make some calls by using summary(). We get the same
+values for the RSQ. This is proof that our algorithm works. We see that not
+all coefficients are significant.
 
 ```{r Visn_multivariate_regression_model, error=FALSE, message=FALSE, warning=FALSE}
 # Calculate the probably best multivariate model
@@ -292,41 +294,41 @@ plot(best.multi.lm)
 
 ## General
 
-It seems that the step forward algorithm is successfully implemented.
+It seems that the step-forward algorithm has been successfully implemented.
 However, it is important to choose the predictors very carefully because
-the final model could varies. The target, of course, must be removed before
+the final model could vary. The target, of course, must be removed before
 we can use the algorithm because if we use the target as a predictor, RSQ
-will be always 1. Additional, we must be aware of linear combinations. We
-must always know for what each variable stands for. Linear combination
+will always be 1. Additionally, we must be aware of linear combinations. We
+must always know what each variable stands for. The linear combination
 could disrupt our results. After that, we must decide whether the variable
-is a meaningful predictor. For example: a time-factor could be very
-important. Maybe the experiment-setting were outdoor and the climate
-factors were important. It could also be possible, that our experiment
-setting were indoor and there were always labor-conditions. That means,
-that the date and time is irrelevant. It is not always clear what is a
-"good choice".
+is a meaningful predictor. For example, a time factor could be very
+important. Maybe the experiment setting was outdoors and the climate
+factors were important. It could also be possible that our experimental
+setting was indoors and there were always labor conditions. That means,
+that the date and time are irrelevant. It is not always clear what a "good
+choice" is.
 
-For task 1 we could have wrote a very similar function as for task two. But
-we wrote a function which is a little bit complicated as necessary. We did
-this to demonstrate how the algorithm works. The algorithm calculate a
-linear regression model for each predictor. With the table we are able to
-see that the model with the highest RSQ is not necessary the model with the
-lowest AIC.
+For task 1, we could have written a very similar function as for task 2.
+But we wrote a function that is a little bit more complicated than
+necessary. We did this to demonstrate how the algorithm works. The
+algorithm calculates a linear regression model for each predictor. With the
+table, we are able to see that the model with the highest RSQ is not
+necessarily the model with the lowest AIC.
 
-For task two we wrote also a function. It is a step forward algorithm.
-First, the function calculate a bivariate linear regression model and chose
-the one which has the highest RSQ. After that, a multivariate regression
-model is calculated and again the one with the highest RSQ is chosen. For
-each round, we compare the AIC. If the AIC higher than the model before, we
-stop the calculation and we have found our probably best fit model. But
-here we have the same problem as describe above. Our calculation depends on
-our input. Therefore, we need to consider which variables we include in the
-calculation.
+We also wrote a function for task two. It is a step-forward algorithm.
+First, the function calculates a bivariate linear regression model and
+chooses the one with the highest RSQ. After that, a multivariate regression
+model is calculated, and again, the one with the highest RSQ is chosen. For
+each round, we compare the AIC. If the AIC is higher than the model before,
+we stop the calculation, and we have probably found our best-fit model. But
+here we have the same problem as described above. Our calculation depends
+on our input. Therefore, we need to consider which variables we include in
+the calculation.
 
 For demonstration, we made some function calls. We can easily see that the
-results are different. That means we must (1) chose wise (maybe with
-educational guess) (2) try different calls to be able to estimate how big
-the difference is and (3) document how and why we have what decided.
+results are different. That means we must (1) choose wisely (maybe with an
+educational guess), (2) try different calls to be able to estimate how big
+the difference is, and (3) document how and why we have decided.
 
 ## Discussion of plot(model) call
 
@@ -337,66 +339,65 @@ Fahrmeir
 
 Residuals vs. fitted plot
 
-We can see the right line follows almost the dashed line. It is near to
-zero and approximately a horizontal line. That means the linearity is not
-violated and the assumption that we use a linear regression model were ok.
+We can see the right line follows almost the dashed line. It is near zero
+and approximately a horizontal line. That means the linearity is not
+violated and the assumption that we use a linear regression model was ok.
 
 Q-Q-Plot
 
 The Q-Q-Plot shows us that the residuals are almost following a normal
 distribution. The error is probably mainly statistical and not systematic.
-The plot shows also that the choice of a linear model was the right one
-because it follows almost the line with a 45° angle (It would then the
-values has a perfect normal distribution).
+The plot also shows that the choice of a linear model was the right one
+because it follows almost the line with a 45° angle (the values would then
+have a perfect normal distribution).
 
 Scale-Location Plot
 
-The red line should be roughly horizontal across the plot. If it so, then
-the assumption of homoscedasticity is probably right. The scattering should
-be random and there should be no pattern at all. Both are approximately
-true. The spread of the residuals is roughly equal at all fitted values.
+The red line should be roughly horizontal across the plot. If so, then the
+assumption of homoscedasticity is probably right. The scattering should be
+random, and there should be no pattern at all. Both are approximately true.
+The spread of the residuals is roughly equal at all fitted values.
 
 Leverage-Plot
 
-There are none values behind the cook's distance. That means that there are
-no significant outliers which distort our analysis.
+There are no values behind the cook's distance. That means that there are
+no significant outliers that distort our analysis.
 
 ### For the multivariate model
 
 The plots are approximately the same as for the bivariate model and need no
 more discussion. Only the scale-location plot needs a few words: The red
-line is not horizontal. That means there could be a problem with the
-homoscedasticity. But is is not so dramatically and do not need an
-intervention.But we should keep this in mind.
+line is not horizontal. That means there could be a problem with
+homoscedasticity. But it is not so dramatic and does not need an
+intervention. But we should keep this in mind.
 
 ## Development of RSQ and AIC
 
-We can see that RSQ increases fast for the first few steps. But then it
-slows down and suddenly, there is no further improvement and we can stop
-our model. For the AIC we can see a similar behavior. But AIC decreases
-instead of increasing. First, the decreasing is fast and slows down. In the
-last step the AIC increased a bit. That is the time we stop our
-calculation.
+We can see that RSQ increases quickly for the first few steps. But then it
+slows down, and suddenly there is no further improvement, and we can stop
+our model. For the AIC, we can see similar behavior. But AIC decreases
+instead of increasing. First, the decrease is fast and slows down. In the
+last step, the AIC increased a bit. That is when we stop our calculation.
 
 The RSQ is based on the variance decomposition theorem, which states that
 the variance of the dependent variable can be written as the sum of a part
 of the variance explained by the regression model and the variance of the
 residuals (unexplained variance). By definition, it increases with
 additional variables, but the growth flattens out. Actually, we should
-discuss the adjusted RSQ insted of RSQ. RSQ is always a bit higher than the
-adjusted RSQ. But it does does not matter which one we use in the
-algorithm. The algorithm stops, if the AIC increase. If we chose a final
+discuss the adjusted RSQ instead of the RSQ. The RSQ is always a bit higher
+than the adjusted RSQ. But it does not matter which one we use in the
+algorithm. The algorithm stops if the AIC increases. If we choose a final
 model, then we have to use the adjusted RSQ. AIC is a kind of quality
 measure for the models. It is based on log-likelihood and a correction term
-that takes into account the number of variables. At the beginning, AIC
+that takes into account the number of variables. In the beginning, AIC
 becomes smaller. When the influence of the correction term becomes too
-large, the AIC does not get smaller anymore and we have a basis for
-decision making for the model choice.
+large, the AIC does not get smaller anymore, and we have a basis for
+decision-making for the model choice.
 
-It is also important to note that RSQ does not simply add up, but must be
+It is also important to note that RSQ does not simply add up but must be
 recalculated constantly. This means that for a multivariate model, we
 cannot simply use the highest RR of the individual bivariate models or the
 variables with the highest correlation coefficients. This is visible in the
 figures "visualization of the development of RR and AIC (bivariate). That
-why we have to use the AIC for a good model choice and that is also why we
-recalculate the RR in our step forward algorithm in each round.
+is why we have to use the AIC for a good model choice, and that is also why
+we recalculate the RR in our step-forward algorithm in each round.
