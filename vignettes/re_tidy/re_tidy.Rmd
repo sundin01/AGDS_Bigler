@@ -236,7 +236,7 @@ has a good quality.
 # Load the function to prepare the data set
 source("../../R/re_tidy/function.data.preparation.for.LRR.R")
 
-# Function calls
+# Function call
 DB_S1 <- data.preparation.for.LRR(raw.data)
 # Function call
 visualize.na.values.without.groups(DB_S1)
