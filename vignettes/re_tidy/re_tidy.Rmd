@@ -1,5 +1,7 @@
 ---
 title: 'Report Exercise: re_tidy'
+author: "Patrick Bigler"
+date: "2023-04-03"
 output:
   html_document:
     toc: yes

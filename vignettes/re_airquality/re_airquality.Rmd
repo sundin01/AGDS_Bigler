@@ -37,7 +37,7 @@ Visualizations are a proper way to communicate the results. The variety of
 diagrams, colors and shapes is almost limitless. However, not all of them
 are always equally suitable. It is essential to create the right graphic to
 transport the message. With a realistic problem, the following goals should
-be trained:
+be achieved:
 
 -   Appropriate choice of visualisations for different data types and
     different aspects of the data
@@ -133,7 +133,7 @@ source("../../R/general/packages.R")
 
 ## Read the file
 
-First, we get the data and save it in our repository. But we must do this
+First, we get the data and save it in our directory. But we must do this
 only once. If the file exists, then we can read it directly. That is why we
 implemented a if-else statement.
 
@@ -159,23 +159,23 @@ if (!file.exists(name.of.file)){
 
 ## Data Overview
 
-The data is a example data frame in the R package "datasets". The database
-is a secondary source. We must first familiarize ourselves with its
-contents, variables and units. For that we can use R to gather all these
-information.
+The data is a example data frame of "datasets" package. The database is a
+secondary source. We must familiarize ourselves with its contents,
+variables and units. For that we can use R to gather all these information.
 
 ### Missing values
 
 With help() we see that the variables do not have the SI-units. With
-apply() we can see that there are NA. We call a function to visualize the
-NA because we must know where they are.
+sapply() we can check the class of the columns. With apply() we can see
+that there are NA. We call a function to visualize the NA because we must
+know where they are.
 
 ```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
 # Ask for details (units, source and references)
 help("airquality")
 
-# Check data type of every variable in data frame
-str(airquality)
+# Check the class of each column
+as.data.frame(sapply(airquality, class))
 
 # Take a overview and main statistic parameters
 summary(airquality)
@@ -466,7 +466,7 @@ concentration is higher during summer (summer smog), there is not relation
 to the day of a month. The concentrations reacts on physical parameter like
 radiation, wind and temperature. It makes absolutely sense, that the
 temperature is higher Jun, Jul, Aug and Sept than May. The ozone
-concentration tends to be higher if the temperature is high. In a urban
+concentration tends to be higher, if the temperature is high. In a urban
 space this effect will be amplified due to heat-islands. A city like NYC is
 predestined for such an effect.
 
@@ -479,6 +479,9 @@ what would inhibit the ozone production. But first we should collect more
 data. We recommend to build up a city-wide monitoring network, which should
 include more air quality parameters, such as particulate matter. This would
 give us an overall picture and allow us to take evidence-based measures.
+Unfortunately we could not answer our research question. We suppose it is
+possible, if we collect more data. We are convinced (and our analysis seems
+to support the thesis) that we are on the right path.
 
 # Bibliography
 
