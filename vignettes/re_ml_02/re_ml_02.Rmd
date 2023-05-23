@@ -27,7 +27,7 @@ Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 5 (Chapter 10)
+Reference: Report Exercise 7 (Chapter 10, Machine Learning 2)
 
 # Introduction
 
@@ -41,12 +41,31 @@ ecosystem flux observations from one site and predict them for another site
 
 -   Concept of cross validation
 
--   spatially upscalling
+-   spatially up-scalling
 
-## Theory
+## Theory^1^
 
 The theory is very similar to re_ml_01. We change only our method to
-cross-validation.
+cross-validation. Validation is not the same as testing the data.
+Validation is a concept that will be applied during the data training.
+
+Cross-validation is a resampling method that randomly divides the training
+data into n-folds of approximately equal size. We fit the model for n-1
+folds and use the remaining fold to compute model performance. We repeat
+that n times, and for each time we use a different fold as a validation
+set. After we finished this procedure, we had n estimates of the
+generalization error. Thus, the n-fold CV estimate is computed by averaging
+the n test errors, providing us with an approximation of the error we might
+expect on unseen data. There is no formal rule as to the size of n.
+However, as n gets larger, the difference between the estimated performance
+and the true performance to be seen on the test set will decrease. But we
+will need more time to compute the models.
+
+For KNN, k is the only hyperparameter. In exercise re_ml_01, we
+demonstrated how to find the optimal k. If we train our data with the CV
+method, we get a model that has a better bias-variance trade-off than the
+models before. With optimal k and cross-validation, we have a "true"
+out-of-sample prediction. That is why we implemented a CV-KNN algorithm.
 
 # Method
 
@@ -75,22 +94,28 @@ source("../../R/general/packages.R")
 
 First, we get the data and save it in our repository. But we must do this
 only once. If the file exists, then we can read it directly. That is why we
-implemented an if-else statement.
+implemented an if-else statement. We know, that we can do easier. But we
+want to demonstrate, that there are many ways to read the file.
 
 ```{r Load_and_read_data, error=FALSE, message=FALSE, warning=FALSE}
 name.of.file <- "../../data/re_ml_02/daily_fluxes.davos.csv"
 
 # If do not exists such a file, create it!
 if (!file.exists(name.of.file)){
+  
   # Access to the data
   url.1 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_C
   -Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
+  
   # Read in the data directly from URL
   daily_fluxes.davos <- read.table(url.1, header = TRUE, sep = ",")
+  
   # Write a CSV file in the respiratory
   write_csv(daily_fluxes.davos, "../../data/re_ml_02/daily_fluxes.davos.csv")
+  
   # Read the file
   daily_fluxes.davos <- read_csv("../../data/re_ml_02/daily_fluxes.davos.csv")
+  
   # If exists such a file, read it only!
   }else{daily_fluxes.davos <- read_csv("../../data/re_ml_02/daily_fluxes.davos.csv")}
 
@@ -98,15 +123,20 @@ name.of.file <- "../../data/re_ml_02/daily_fluxes.laegern.csv"
 
 # If do not exists such a file, create it!
 if (!file.exists(name.of.file)){
+  
   # Access to the data
   url.2 <- "https://raw.githubusercontent.com/geco-bern/agds/main/data/FLX_CH
   -Lae_FLUXNET2015_FULLSET_DD_2004-2014_1-4.csv"
+  
   # Read in the data directly from URL
   daily_fluxes.davos <- read.table(url.1, header = TRUE, sep = ",")
+  
   # Write a CSV file in the respiratory
   write_csv(daily_fluxes.laegern, "../../data/re_ml_02/daily_fluxes.laegern.csv")
+  
   # Read the file
   daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")
+  
   # If exists such a file, read it!
 }else{daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")}
 ```
@@ -127,24 +157,41 @@ it.
 Here, we work with two locations (Davos and Lägern). But we do not want to
 do everything twice. That is why we define a new data frame that contains
 all the information about the two locations. We use .id = "id" because we
-must know where the values come from. If we know that, we can use the
-filter function from the package "dplyr" to efficiently analyze our data.
+must know where the values come from. But this is not so elegant. Thaty why
+we change the column name (id = Location) and replace the values (1 =
+Davos, 2 = Lägern). If we do that, we can use the filter function from the
+package "dplyr" to efficiently analyze our data.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file (we use the function from another markdown again)
 source("../../R/re_ml_01/function.use.good.quality.only.R")
+source("../../R/general/function.visualize.na.values.R")
 
-# Function call to clean the data of Davos
-daily_fluxes.davos <- use.good.quality(daily_fluxes.davos)
-# Function call to clean the data of Lägern
-daily_fluxes.laegern <- use.good.quality(daily_fluxes.laegern)
+# Function call to clean the data
+daily_fluxes.dav.no <- use.good.quality.only(daily_fluxes.davos)
+daily_fluxes.lag.no <- use.good.quality.only(daily_fluxes.laegern)
+
+# Visualize the result ---> many NA! We woul loos to much data.
+visualize.na.values.without.groups(daily_fluxes.dav.no)
+visualize.na.values.without.groups(daily_fluxes.lag.no)
+
+# Function call to clean the data (Without the columns )
+daily_fluxes.dav <- use.good.quality(daily_fluxes.davos)
+daily_fluxes.lag <- use.good.quality(daily_fluxes.laegern)
+
+# Visualize the results --> Now we can work!
+visualize.na.values.without.groups(daily_fluxes.dav)
+visualize.na.values.without.groups(daily_fluxes.lag)
 
 # We create a new data frame with bind_rows. We us "id" as an identifier. 
-daily_fluxes_both <- bind_rows(daily_fluxes.davos, daily_fluxes.laegern, .id = "id")
+daily_fluxes_both <- bind_rows(daily_fluxes.dav, daily_fluxes.lag, .id = "id")
 
-# We check the again. Now our dataset contains NAs and only the columns of interest
-# Load the function
-source("../../R/general/function.visualize.na.values.R")
+# We change the ID in our location names
+daily_fluxes_both <- daily_fluxes_both|>
+  rename("Location" = "id")|>
+  mutate(Location = ifelse(Location == 1, "Davos", "Lägern"))
+
+# We check the data set. Now our dataset contains NAs and only the columns of interest
 
 # Function call
 visualize.na.values.without.groups(daily_fluxes_both)
@@ -154,18 +201,18 @@ visualize.na.values.without.groups(daily_fluxes_both)
 
 Here, we split our data into a training set and a test set. First, we will
 split the data (80% training and 20% testing). We set the seed for a
-pseudo-random choice (reproducibility).
+pseudo-random choice (for reproducibility).
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # For reproducibility (pseudo-random)
 set.seed(123)  
 # Split 80 % to 20 % 
 split_davos <- rsample::initial_split(daily_fluxes_both|> 
-                                        dplyr::filter(id == 1) , 
+                                        dplyr::filter(Location == "Davos"), 
                                         prop = 0.8, strata = "VPD_F")
 
 split_laegern <- rsample::initial_split(daily_fluxes_both|> 
-                                          dplyr::filter(id == 2), 
+                                          dplyr::filter(Location == "Lägern"), 
                                           prop = 0.8, strata = "VPD_F")
 
 split_both <- rsample::initial_split(daily_fluxes_both, prop = 0.8, strata = "VPD_F")
@@ -196,78 +243,80 @@ three models.
 
 ### Davos
 
-We can see that the optimal k is 59. This seems odd because the data are
+We can see that the optimal k is 50. This seems odd because the data are
 the same as for the exercise re_ml_01 and there was our optimal k = 25. But
 we have to consider that we used a different approach to create our model.
 We use "cross-validation," which is why we find different optimal k for the
-same data (and the same set.seed).
+same data (and the same set.seed). Note that we optimized k. We also used
+other sequences to find the optimal k. Only the results are presented here.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_01/function.parameter.extracter.R")
-
-source("../../R/re_ml_01/function.train.and.test.R")
-
-# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
-my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5), 59)
-
-# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
-parameter.extracter(my.sequence, daily_fluxes_davos_train, daily_fluxes_davos_test)
-```
-
-### Lägern
-
-We make the same thing for Lägern. Here is optimal k equal to 25. We
-visualized the main metrics again.
-
-```{r error=FALSE, message=FALSE, warning=FALSE}
-source("../../R/re_ml_01/function.parameter.extracter.R")
-
+# We also need this function because the function above will call this one
 source("../../R/re_ml_01/function.train.and.test.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
 
-# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
+# Visualize the MAE and RSQ --> optimal k is 50
+parameter.extracter(my.sequence, daily_fluxes_davos_train, daily_fluxes_davos_test,
+                    c("re_ml_02 (Chapter 10)"))
+```
+
+### Lägern
+
+We make the same thing for Lägern. Here is optimal k equal to 23. We
+visualized the main metrics again.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+source("../../R/re_ml_01/function.parameter.extracter.R")
+# We also need this function because the function above will call this one
+source("../../R/re_ml_01/function.train.and.test.R")
+
+# Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
+my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5), 23)
+
+# Visualize the MAE and RSQ --> optimal k is 23 (between 20:30)
 parameter.extracter(my.sequence, daily_fluxes_laegern_train, daily_fluxes_laegern_test)
 ```
 
 ### Davos + Lägern
 
 We do the same thing for the pooled data, and we find an optimal k equal to
-38.
+40.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_01/function.parameter.extracter.R")
-
 source("../../R/re_ml_01/function.train.and.test.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
-my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
+my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5),49)
 
 # Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
 parameter.extracter(my.sequence, daily_fluxes_both_train, daily_fluxes_both_test)
-parameter.extracter(c(30:40), daily_fluxes_both_train, daily_fluxes_both_test)
-
 ```
 
 ## Best models
 
-Now we know the optimal k for each model, and we recalculate them...
+Now we know the optimal k for each model, and we recalculate them. We also
+did that with the function parameter.extractor(). But we do not want a
+visualization. That is why we recalculate the model by the optimal k.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.knn.cv.model.R")
 
 # Function call for Davos
-knn.model.davos.optimal <- knn.cv.model(daily_fluxes_davos_train, 59, 10)
+knn.model.davos.optimal <- knn.cv.model(daily_fluxes_davos_train, 50, 10)
 # Function call for Lägern
-knn.model.laegern.optimal <- knn.cv.model(daily_fluxes_laegern_train, 25, 10)
+knn.model.laegern.optimal <- knn.cv.model(daily_fluxes_laegern_train, 23, 10)
 # Function call for Davos and Lägern
-knn.model.both.optimal <- knn.cv.model(daily_fluxes_both_train, 38, 10)
+knn.model.both.optimal <- knn.cv.model(daily_fluxes_both_train, 49, 10)
 ```
 
 ### Visualization of the models
 
-...and visualize our findings.
+...and evaluate our models. For that, we compare each train data to all
+other test data. It follows, tha we need 9 models.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -276,141 +325,172 @@ source("../../R/re_ml_01/function.evaluation.model.R")
 # Model Davos
 P_1 <- eval_model(knn.model.davos.optimal, daily_fluxes_davos_train, 
                   daily_fluxes_davos_test, 
-                  c("Davos (opt. k = 59)"), c("Davos (opt. k = 59)"))
+                  c("Davos (opt. k = 50)"), c("Davos"))
 
 P_2 <- eval_model(knn.model.davos.optimal, daily_fluxes_davos_train, 
                   daily_fluxes_laegern_test, 
-                  c("Davos (opt. k = 59)"), c("Lägern (opt. k = 59)"))
+                  c("Davos (opt. k = 50)"), c("Lägern"))
 
 P_3 <- eval_model(knn.model.davos.optimal, daily_fluxes_davos_train, 
                   daily_fluxes_both_test, 
-                  c("Davos (opt. k = 59)"), c("Davos and Lägern(opt. k = 59)"))
+                  c("Davos (opt. k = 50)"), c("Davos and Lägern"))
 
 # Model Lägern
 P_4 <- eval_model(knn.model.laegern.optimal, daily_fluxes_laegern_train, 
                   daily_fluxes_davos_test, 
-                  c("Lägern (opt. k = 25)"), c("Davos (opt. k = 25)"))
+                  c("Lägern (opt. k = 23)"), c("Davos"))
 
 P_5 <- eval_model(knn.model.laegern.optimal, daily_fluxes_laegern_train, 
                   daily_fluxes_laegern_test,
-                  c("Lägern (opt. k = 25)"), c("Lägern (opt. k = 25)"))
+                  c("Lägern (opt. k = 23)"), c("Lägern"))
 
 
 P_6 <- eval_model(knn.model.laegern.optimal, daily_fluxes_laegern_train, 
                   daily_fluxes_both_test, 
-                  c("Lägern (opt. k = 25)"), c("Davos+Lägern (opt. k = 25)"))
+                  c("Lägern (opt. k = 23)"), c("Davos+Lägern"))
 
 # Model Davos und Lägern
 P_7 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train,
-                  daily_fluxes_davos_test, c("Davos and Lägern (opt. k = 38)"), 
-                  c("Davos (opt. k = 38)"))
+                  daily_fluxes_davos_test, c("Davos and Lägern (opt. k = 49)"), 
+                  c("Davos"))
 
 P_8 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train, 
-                  daily_fluxes_laegern_test, c("Davos and Lägern (opt. k = 38)"), 
-                  c("Lägern (opt. k = 38)"))
+                  daily_fluxes_laegern_test, c("Davos and Lägern (opt. k = 49)"), 
+                  c("Lägern"))
 
 
 P_9 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train,
-                  daily_fluxes_both_test, c("Davos and Lägern (opt. k = 38)"), 
-                  c("Davos+Lägern (opt. k = 38)"))
+                  daily_fluxes_both_test, c("Davos and Lägern (opt. k = 49)"), 
+                  c("Davos+Lägern"))
 
-# Plots
+# Davvos: Within side, across side and both locations
 cowplot::plot_grid(P_1, P_2, P_3, ncol = 1)
 
+# Lägern: Within side, across side and both locations
 cowplot::plot_grid(P_4, P_5, P_6, ncol = 1)
 
+# Pooled: Within side, across side and both locations
 cowplot::plot_grid(P_7, P_8, P_9, ncol = 1)
+```
+
+## Residue
+
+We want more information about the residue. We use a flexible function to
+get this information. If we do not specify which months we want, then the
+function will use all months. Now we can analyze whether there are any
+patterns. We use the pooled knn-model to predict the locations because we
+are interested in a very generalized model. We use the mean to determine
+whether the model underestimated or overestimated the prediction (if there
+is a bias).We visualize the whole data set (all observations and all test
+data), and we can see that there is annual cycle for both locations.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+# Load the function into the file
+source("../../R/re_ml_02/function.plot.function.R")
+
+# We plot the actually measured GPP in the pooled data set.
+plot.time.variation(daily_fluxes_both,
+     daily_fluxes_both$TIMESTAMP,
+     daily_fluxes_both$GPP_NT_VUT_REF,c("Overview about the pooled measurements"), 
+     sub.lab = c("optimnal k = 38"),prediction = FALSE)
+
+# We plot the test data set from the pooled data set. We did not do any prediction
+plot.time.variation(daily_fluxes_both_test,
+     daily_fluxes_both_test$TIMESTAMP,
+     daily_fluxes_both_test$GPP_NT_VUT_REF, c("Overview about the pooled test data"),
+     prediction = FALSE, sub.lab = c("optimnal k = 38"))
+```
+
+If we predict the test data, we also see a annual cycle for both locations.
+We also see that the cycle is bigger for Lägern than for Davos.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+# Load the function into the file
+source("../../R/re_ml_02/function.plot.function.R")
+
+# We plot the predicted test data set. 
+plot.time.variation(daily_fluxes_both_test,
+     daily_fluxes_both_test$TIMESTAMP,
+     daily_fluxes_both_test$GPP_NT_VUT_REF,c("Overview about the predicted pooled test data"),
+     prediction = TRUE, mod1 = knn.model.both.optimal, sub.lab = c("optimnal k = 38"))
 ```
 
 ### Residue for Davos
 
-The function is very flexible. If we do not specify which months we want,
-then the function will use all months. Now we can analyze whether there are
-any patterns. First, we take a look at the whole year. We can see that the
-model underestimates the GPP values in Davos. For Lägern, the model
-overestimates the GPP value. To explain that, we need a higher resolution
-(monthly). We take a closer look at the seasons (DJF, MAM, JJA, SON). The
-function calculates the difference between the measured GPP and the fitted
-GPP.
+First, we take a look at Davos. We can see that the model underestimates
+the GPP values. But more important is the fact, that there is a annual
+cycle. In summer, the model overestimate the GPP and in winter the model
+underestimate GPP. We want to know, where exactly and why. To answer this
+questions, we push our model to a higher resolution. We take a closer look
+and plot the residue as a function of the day of the year. Now we are sure
+that our model has a negative bias for the winter season and a positive
+bias for the summer.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
-# Load the function into the file
+# Load the function
 source("../../R/re_ml_02/function.vis.residue.R")
 
-# Residue for Davos: train: pooled, test: Davos (year)
+# Residue for Davos: train: pooled, test: Lägern (year)
 time.variation.year(knn.model.both.optimal, daily_fluxes_davos_test,
-                    c("Train: Pooled, Test: Davos, k = 38"), 
+                    c("Train: Pooled, Test: Davos, k = 49"), 
                     c("re_ml_2 (Chapter 10)"))
 
-# Residue for Davos: train: pooled, test: Davos (monthly)
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_davos_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_davos_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("December", "January", "February"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_davos_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("March","April", "May"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_davos_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("June","July", "August"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_davos_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("September","October", "November"))
+# We want a better resolution of the residue of Davos (daily)
+time.variation.year(knn.model.both.optimal, daily_fluxes_davos_test,
+                    c("Train: Pooled, Test: Lägern, k = 49"), 
+                    c("re_ml_2 (Chapter 10)"), plot = FALSE)|>
+  mutate(day = yday(Time))|>
+  group_by(day)|>
+  ggplot(aes(x = day, y = Residue))+
+  geom_line()+
+  geom_smooth(aes(x = day, y = Residue), method = "loess", se = FALSE)+
+  labs(x = "Time [Day of the year]", y = "Residue", 
+       title = "Annual time variation of the GPP-Residue",
+       subtitle = paste("KNN model: Train: pooled, Test: Davos (optimal k = 49)"), 
+       caption = paste("AGDS Report Exercise re_ml_2 (Chapter 10)"))+
+  theme_bw()+
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  # add an individual panel boarder around the whole graph
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
 ```
 
 ### Residue for Lägern
 
-We do the same for Lägern.
+We do the same thing for Lägern. We can also see that there is an annual
+cycle. The model overestimates the GPP values during the summer and
+underestimates them during the winter. To explain that, we need a higher
+resolution. We plot the residue as a function of the day of the year.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
+# Load the function
+source("../../R/re_ml_02/function.vis.residue.R")
 
-# Residue for Läger: train: pooled, test: Lägern (year)
+# Residue for Davos: train: pooled, test: Lägern (year)
 time.variation.year(knn.model.both.optimal, daily_fluxes_laegern_test,
-                    c("Train: Pooled, Test: Lägern, k = 38"), 
+                    c("Train: Pooled, Test: Lägern, k = 49"), 
                     c("re_ml_2 (Chapter 10)"))
 
-# We predict Lägern with pooled
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_laegern_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Lägern, k = 38"),
-                     c("re_ml_02 (Chapter 10)"))
-
-# We predict Lägern with pooled
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_laegern_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Lägern, k = 38"),
-                     c("re_ml_02 (Chapter 10)"),c("December","January", "February"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_laegern_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("December", "January", "February"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_laegern_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("March","April", "May"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_laegern_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("June","July", "August"))
-
-time.variation.ml.02(knn.model.both.optimal, 
-                     daily_fluxes_laegern_test,c("KNN-Model:"), 
-                     c("Train: Pooled, Test: Davos, k = 38"),
-                     c("re_ml_02 (Chapter 10)"), c("September","October", "November"))
+# We want a better resolution of the residue of Lägern (daily)
+time.variation.year(knn.model.both.optimal, daily_fluxes_laegern_test,
+                    c("Train: Pooled, Test: Lägern, k = 49"), 
+                    c("re_ml_2 (Chapter 10)"), plot = FALSE)|>
+  mutate(day = yday(Time))|>
+  group_by(day)|>
+  ggplot(aes(x = day, y = Residue))+
+  geom_line()+
+  geom_smooth(aes(x = day, y = Residue), method = "loess", se = FALSE)+
+  labs(x = "Time [Day of the year]", y = "Residue", 
+       title = "Annual time variation of the GPP-Residue",
+       subtitle = paste("KNN model: Train: pooled, Test: Lägern (optimal k = 49)"), 
+       caption = paste("AGDS Report Exercise re_ml_2 (Chapter 10)"))+
+  theme_bw()+
+  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+  # add an individual panel boarder around the whole graph
+  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
 ```
 
 # Discussion
@@ -418,33 +498,123 @@ time.variation.ml.02(knn.model.both.optimal,
 ## Location
 
 We have merged two data sets. But the two locations are very different.
+Table 1 give you a overview:
 
-| Quantity                         | Davos                 | Lägern            |
-|----------------------------------|-----------------------|-------------------|
-| Coordinates^1^:                  | 46.81°N, 9.84°E       | 47.48°N, 8.4°E    |
-| Elevation^1^:                    | 1594 m.a.s.l.         | 873 m.a.s.l.      |
-| Exposure^1^:                     | South-East slope      | Summit            |
-| 2m Temperature^1^ (1990-2020)    | 3.8°C - 5.3°C         | 6.2°C - 9.4°C     |
-| Precipitation^1^ (1990-2020      | 1046 mm per year      | \-                |
-| Hours of sunshine^1^ (1990-2020) | 1537 h - 2076 h       | 1462 h - 2152 h   |
-| Wind^1^ (1990-2020)              | 6 .8 km/h - 10.4 km/h | 15 km/h - 18 km/h |
-| Vegetation^2^:                   | Coniferous forests    | Deciduous forests |
+| Quantity                         | Davos                     | Lägern                                                                        |
+|-------------------|-------------------|--------------------------------------|
+| Coordinates^2^:                  | 46.81°N, 9.84°E           | 47.48°N, 8.4°E                                                                |
+| Elevation^2^:                    | 1594 m.a.s.l.             | 873 m.a.s.l.                                                                  |
+| Exposure^2^:                     | South-East slope          | Summit                                                                        |
+| 2m Temperature^2^ (1990-2020)    | 3.8°C - 5.3°C             | 6.2°C - 9.4°C                                                                 |
+| Precipitation^2^ (1990-2020      | 1046 mm per year          | Lägern does not have a precipitation series. We use Zurich instead: \< 1000mm |
+| Hours of sunshine^2^ (1990-2020) | 1537 h - 2076 h           | 1462 h - 2152 h                                                               |
+| Wind^2^ (1990-2020)              | 6 .8 km/h - 10.4 km/h     | 15 km/h - 18 km/h                                                             |
+| Vegetation^3^:                   | Mainly doniferous forests | Mainly deciduous forests                                                      |
 
 : Table 1: Comparison of the measuring stations (Davos vs. Lägern)
 
 ## Model
 
-### Interpretation pooled train data applied on test data
-
-### Interpret biases of the out-of-sample predictions with a view to the site characteristics
-
-We tried different approaches to modeling the GPP. We took some metrics
-into account (e.g., RSQ, MAE) and optimized k. Our goal was to create a
+We tried different approaches to modeling the GPP. We took some metrics and
+hyper-parameter into account (e.g., RSQ, MAE, k). Our goal was to create a
 model that is generalizable. That means that we want a model that can
 predict the same variable (GPP) in different locations (Davos, Lägern).
 After we found the probably best model, we applied the model to predict the
 test data. The difference between predicted test data and test data is
 called the bias. With this parameter, we are able to discuss our analysis.
+
+### How do the model metrics on the test set compare to the true out-of-sample setup above?
+
+We can see that if we train our data with cross-validation, our true
+out-of-sample performed best on the test data from the same location. If we
+predict another location, the model performs worst. If we predict pooled
+data, the model performs better. That is not surprising at all. We take a
+closer look:
+
+[Davos:]{.underline}
+
+If we train a model with data from Davos and optimize it (k = 59), RSQ is
+0.73 (which is actually very good). The RMSE is 1.43. If we predict the
+test data from Davos, the RSQ is 0.73 and the RMSE is 1.44. But if we
+predict Lägern, RSQ is decreasing to 0.52, and RMSE is increasing to 3.24.
+It follows that we cannot predict Lägern with a Davos model. If we predict
+with this pooled data set, RMSE is decreasing to 0.61 and increasing to
+2.24.
+
+[Lägern:]{.underline}
+
+For Lägern, the situation is quite similar to Davos. If we train a model
+with Lägern data and optimize it (k = 25), RSQ is 0.66 and RMSE is 2.45.
+The Lägern model performed a little less well than the Davos model. We also
+see that if we predict other data sets, we predict Davos, with RSQ
+decreasing to 0.55 and RMSE increasing to 2.26. That is better than Davos'
+prediction of Lägern. If we predict a pooled data set, RSQ decreases to
+0.62 and RMSE increases to 2.28. This is very similar to Davos.
+
+[Pooled:]{.underline}
+
+Our goal is to create a model that can predict different locations. To
+achieve this, we trained a model and optimized it (k = 38). If we predict
+pooled data, RSQ is 0.67, and RMSE is 2. If we predict Davos, RSW increases
+to 0.71 and RSME decreases to 1.53. This is remarkable and surprising. This
+is almost the same model performance as the Davos model. If we predict
+Lägern, RSQ decreases to 0.64 and RMSE increases to 2.57. This is what we
+expected.
+
+We also see, that for Lägern, the model overestimates GPP over the year by
+about $0.5\:\mu mol*m^{-2}*s^{-1}$. During the summer-season,
+almost $2\:\mu mol*m^{-2}*s^{-1}$). For all other seasons, the mean of the
+prediction is almost zero. For Davos, the model underestimates GPP over the
+year by about $0.5\:\mu mol*m^{-2}*s^{-1}$. Seasonal variations are less
+significant for Davos than for Lägern. Summer and winter have a deviation
+of about $0.8\:\mu mol*m^{-2}*s^{-1}$. Spring and fall have a deviation of
+about $0.2\:\mu mol*m^{-2}*s^{-1}$.
+
+It follows, that we must be extra careful if we want to predict GPP for the
+summer season. But what are the reasons for these deviations? And what can
+we do against it?
+
+### Interpret differences. Is it a valid approach to perform model training like this? 
+
+Before we interpret the difference, we must know what we want to do. Are we
+only interested in a specific location? Or is our interest in predicting
+GPP in general? It is important to know what we want because the approaches
+are not the same.
+
+Let's assume we are interested in a location. It is obvious that we get a
+better model if we use only data from the location of interest. If we
+compare the model to the knn- and lm-model of exercise re_ml_01, we can see
+that the cross-validation performed way better (lm-model: RSQ 0.6, RMSE
+1.64, knn-model (k = 25): 0.65, 1.53). For Lägern we have the same
+situation (lm-model: RSQ XX, RMSE XX knn-model (k=25): XX, XX). We conclude
+that if we want to predict a specific location, we should only use data
+from there and calculate the model by using cross-validation.
+
+But often we are not interested in a specific location, and if we were,
+then we must have something to compare with. Therefore, we need a
+generalized model to predict different locations. The model trained with
+data from both locations predicts the test data less well than a model
+trained with data from only one location. Here, we also calculated a lm and
+a knn model (lm-model: RSQ XX, RMSE XX knn-model (k=25): XX, XX). The fact
+that the model is less good than the specific is unsurprising (RSQ and RMSE
+are higher). KNN "knows" about the underlying pattern, lm-models does that
+not know. That is why knn models performed better than lm model (Besides
+the obvious differences like linear vs. polynomial). Again, it is a matter
+of context. What exactly do we want to show, analyze, or calculate?
+
+Of course, we are not yet satisfied with the model. We suggest that the
+project be extended to the whole of Switzerland. Then we would have dozens
+of measuring stations on different terrains. We could then classify the
+stations. For example, according to their exposure. Then a model could be
+created for all classes. For example, the model "summit" was trained with
+data from stations at summits. It could also make sense to divide the
+stations into regions or altitude levels. One has to make a trade-off
+between generalizability and accuracy. If we generalize, we have fewer
+models. However, this increases the error. If we do not generalize, then we
+have higher accuracy, but we have to use a different one for each
+situation.
+
+### Interpret biases of the out-of-sample predictions with a view to the site characteristics
 
 A very important parameter is the bias. We can see that our model
 underestimates the GPP for Davos. If we group the data by month, then we
@@ -469,9 +639,18 @@ unprofessional).
 
 The vegetational context could also be a explanation. Decidious
 
+In summary, we can say that we should not pool the data randomly. It is
+important that we compare same with same. We suggest, that we classify the
+measurement stations because topology, meteorolgical parameters or
+elevation influence the model.
+
 # Bibliography
 
-[(1) Meteorological Data]{.underline}
+[(1) Cross-validation]{.underline}
+
+<https://bradleyboehmke.github.io/HOML/process.html#k-fold-cross-validation>
+
+[(2) Meteorological Data]{.underline}
 
 Data for Davos:
 <https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#param=messnetz-automatisch&lang=de&station=DAV&chart=year>
@@ -479,6 +658,9 @@ Data for Davos:
 Data for Lägern:
 <https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#param=messnetz-automatisch&lang=de&station=LAE&chart=year>
 
-[(2) Vegetation]{.underline}
+Data for Zürich:
+<https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#lang=de&param=messwerte-niederschlag-10min&station=KLO&chart=year>
+
+[(3) Vegetation]{.underline}
 
 [https://de.wikipedia.org/wiki/Höhenstufe\_%28Ökologie%29](https://de.wikipedia.org/wiki/Höhenstufe_%28Ökologie%29)

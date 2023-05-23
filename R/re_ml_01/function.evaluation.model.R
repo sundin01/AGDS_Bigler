@@ -33,12 +33,13 @@ eval_model <- function(mod, df_train, df_test, model.name.train, model.name.test
     filter(.metric == "rsq") |>
     pull(.estimate)
 
-  # visualize as a scatterplot
+  # visualize as a scatter plot
   # adding information of metrics as sub-titles
   plot_1 <- ggplot(data = df_train, aes(GPP_NT_VUT_REF, fitted)) +
     geom_point(alpha = 0.3) +
-    geom_smooth(method = "lm", se = FALSE, color = "red") +
-    geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 0.5) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dotdash",
+                linewidth = 0.5, color = "orange") +
     labs(subtitle = bquote( italic(R)^2 == .(format(rsq_train, digits = 2)) ~~
                               RMSE == .(format(rmse_train, digits = 3))),
          title = paste("Train:", model.name.train)) +
@@ -46,8 +47,9 @@ eval_model <- function(mod, df_train, df_test, model.name.train, model.name.test
 
   plot_2 <- ggplot(data = df_test, aes(GPP_NT_VUT_REF, fitted)) +
     geom_point(alpha = 0.3) +
-    geom_smooth(method = "lm", se = FALSE, color = "red") +
-    geom_abline(slope = 1, intercept = 0, linetype = "dotted") +
+    geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 0.5) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dotdash",
+                linewidth = 0.5, color = "orange") +
     labs(subtitle = bquote( italic(R)^2 == .(format(rsq_test, digits = 2)) ~~
                               RMSE == .(format(rmse_test, digits = 3))),
     title = paste("Test:", model.name.test)) +

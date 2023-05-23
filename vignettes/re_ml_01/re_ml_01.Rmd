@@ -27,7 +27,7 @@ Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 4 (Chapter 9)
+Reference: Report Exercise 6 (Chapter 9, Machine Learning 1)
 
 # Introduction
 
@@ -410,7 +410,4 @@ my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
 
 # Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
 parameter.extracter(my.sequence, daily_fluxes_train, daily_fluxes_test)
-# Visualize MAE and RSQ for k = 20:30 --> it is 25
-parameter.extracter(c(20:30), daily_fluxes_train, daily_fluxes_test)
-
 ```

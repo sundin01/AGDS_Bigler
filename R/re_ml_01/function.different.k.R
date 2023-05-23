@@ -1,6 +1,6 @@
 different.k <- function(own.sequence, df.train, df.test, name1, name2){
   for (i in own.sequence) {
-    mod.knn <- knn.model(df.train, i)
+    mod.knn <- knn.model(df.train, i) # knn.model is another function
     plot(eval_model(mod.knn, df.train, df.test, paste(name1, "(knn: k=",i,")"),
                                                 paste(name2, "(knn: k=", i,")")))
   }

@@ -339,16 +339,17 @@ na.identifier(airquality_mutated )
 ### Correlation
 
 Now we have an impression of our data. But we want to know whether the
-variables in the hypothesis are promising. For this purpose, we created a
-correlation matrix. Because we do not know if the ozone distribution is
-linear or monotonic, we use the "Pearson" and "Spearman" methods. The
-graphic shows us a high positive correlation between ozone concentration
-and temperature (r = 0.7, \$\\rho = 0.77\$ ) and a high negative
-correlation between ozone concentration and wind ( r = -0.6, \$\\rho =
--0.59\$ ). There is also a positive correlation between the ozone
-concentration and solar radiation (r = 0.35, \$\\rho=0.35\$) but it is not
-so strong. The difference between the methods is not negligible. In this
-exercise, we would use the "Spearman" method because it describes the
+variables in the hypothesis are promising. We could create a correlation
+plot with geom_point for each variable-combination. But we would have a lot
+to do. For this purpose, we created a correlation matrix. Because we do not
+know if the ozone distribution is linear or monotonic, we use the "Pearson"
+and "Spearman" methods. The graphic shows us a high positive correlation
+between ozone concentration and temperature (r = 0.7, \$\\rho = 0.77\$ )
+and a high negative correlation between ozone concentration and wind ( r =
+-0.6, \$\\rho = -0.59\$ ). There is also a positive correlation between the
+ozone concentration and solar radiation (r = 0.35, \$\\rho=0.35\$) but it
+is not so strong. The difference between the methods is not negligible. In
+this exercise, we would use the "Spearman" method because it describes the
 correlation a little bit better. Nevertheless, the chosen variables are
 promising.
 

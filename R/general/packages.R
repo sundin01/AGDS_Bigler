@@ -5,7 +5,7 @@ use_pkgs <-  c("dplyr", "tidyr", "readr", "lubridate", "stringr", "purrr",
                "renv", "rsample", "modelr", "rmarkdown", "rpart",
                "rpart.plot", "ranger", "sessioninfo", "ncdf4","ggcorrplot",
                "corrr", "corrplot", "lattice", "ggpmisc", "caret", "recipes",
-               "conflicted", "naniar","openxlsx", "readxl")
+               "conflicted", "naniar","openxlsx", "readxl", "zoo")
 
 new_pkgs <- use_pkgs[!(use_pkgs %in% installed.packages()[, "Package"])]
 if (length(new_pkgs) > 0) install.packages(new_pkgs)

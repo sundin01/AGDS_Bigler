@@ -33,7 +33,7 @@ extract.rsq <- function(mod, df_train){
   return(rsq_train)
 }
 
-parameter.extracter <- function(own.sequence, df.1, df.2){
+parameter.extracter <- function(own.sequence, df.1, df.2, label = NULL){
   # Set all parameters we need
   add.rsq.1 <- NULL
   add.rsq.2 <- NULL
@@ -82,10 +82,12 @@ parameter.extracter <- function(own.sequence, df.1, df.2){
     # We add a big point for our optimal k
     geom_point(data = my.tibble, aes(x = optimal.k, y = min(my.tibble$MAE_Test),
                                      color = "Optimal K"), size = 4)+
+    ggplot2::annotate('text', x = optimal.k, y = min(my.tibble$MAE_Test),
+                      hjust = 0.5, vjust = -1, label = paste('k=',optimal.k))+
     # label the graph
     labs(x = "# k", y = "RSQ / MAE",
          title = "Overview of the development of RSQ and MAE",
-        subtitle = "by using KNN-Algorithm", caption = "AGDS Report Exercise 5 (Chapter 9)")+
+        subtitle = "by using KNN-Algorithm", caption = paste("AGDS Report Exercise", label))+
     # add our border
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
     theme_bw()+
