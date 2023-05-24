@@ -13,7 +13,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at the University of Bern (Institute of
+Course: Applied Geo-Data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -28,7 +28,7 @@ Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 1 (Chapter 3)
+Reference: Report Exercise 2 (Chapter 3)
 
 # Introduction
 
@@ -56,7 +56,7 @@ The topic of this exercise is the "Logarithmic Respond Ratio" (LRR). The
 LRR is the natural logarithm $(log())$ of the response ratio
 $(\frac{x_{elevated}}{x_{ambient}})$. The LRR describes the elevated
 concentration of a quantity (e.g. CO2 or nitrogen) to the ambient
-concentration and is defined as followed: test
+concentration and is defined as followed:
 
 $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
@@ -101,7 +101,7 @@ task. The following points were changed manually:
 After the manual editing, the xlsx file can be read with the software
 R-Studio (Version 2022.12.0+353). This software uses the language R to
 handle the data. For efficient processing of the data, we use the R-package
-"Tidyverse (and others).
+"Tidyverse" (and others).
 
 ## LRR for each experiment
 
@@ -111,15 +111,16 @@ this in two different ways:
 [Method 1:]{.underline}
 
 First, we group the database by 'Experiment'. Second, we calculate the mean
-for the columns "mean ambient CO2" and "mean increased CO2" (for each
-experiment). Third, we calculate the LRR for each experiment by using the
-values of the second step.
+for the columns "mean ambient CO2" and "mean increased CO2" (now we have a
+average for each experiment). Third, we calculate the LRR for each
+experiment by using the values of the second step.
 
 [Method 2:]{.underline}
 
 First, we calculate the LRR for each row (now, every sample date has a
 LRR). Second, we group the database by "Experiment". Third, we take the
-mean of all LRRs of each experiment by using the values of the first step.
+average of all LRRs of each experiment by using the values of the first
+step.
 
 Although the results of both methods are the LRR for each experiment, they
 will be in general different. Therefore, it is important which method we
@@ -173,7 +174,7 @@ save the new file into it. We read the CSV-file again for further editing.
 But we must do this only once. If the file exists, then we can read it
 directly. That is why we implemented an if-else statement.
 
-```{r error=FALSE, message=FALSE, warning=FALSE}
+```{r read_file, error=FALSE, message=FALSE, warning=FALSE}
 # We want to know, if a certain file already exists
 name.of.file <- "../../data/re_tidy/re_tidy.new.data.csv"
 
@@ -183,7 +184,7 @@ if (!file.exists(name.of.file)){
   raw <- read_xlsx("../../data-raw/re_tidy.raw.data/data.groenigen.xlsx", 
          "Database S1",range = NULL, col_names = TRUE, col_types = NULL, na = "")
 
-  # convert the xlsx to a csv file
+  # Convert the xlsx to a csv file
   write_csv(raw, "../../data/re_tidy.new.data.csv")
   
   # Read the file
@@ -211,13 +212,14 @@ as.data.frame(sapply(raw.data, class))
 # Return the important statistical parameters
 summary(raw.data)
 
-# change the names of the two columns that are needed later on
+# Change the names of the two columns that are needed later on
 raw.data <- raw.data|>
   rename("mean ambient CO2" = `ambient CO2...6`,
          "mean increased CO2" = `increased CO2...7`)
 
 # Load the function
 source("../../R/general/function.visualize.na.values.R")
+
 # Function call
 visualize.na.values.without.groups(raw.data)
 ```
@@ -238,6 +240,7 @@ source("../../R/re_tidy/function.data.preparation.for.LRR.R")
 
 # Function call
 DB_S1 <- data.preparation.for.LRR(raw.data)
+
 # Function call
 visualize.na.values.without.groups(DB_S1)
 ```
@@ -245,7 +248,7 @@ visualize.na.values.without.groups(DB_S1)
 ## LRR calculation for each experiment
 
 Now we calculate the LRR for each experiment and use knitr::kable() for a
-proper outcome...
+proper html outcome...
 
 ```{r}
 # Load the function to calculate the LRR by experiment
@@ -271,6 +274,6 @@ LRR.by.phase(DB_S1)
 
 The result is rounded to 3 digits. As you can see, the results of Method 1
 and Method 2 are different. In this case, Method 2 is more meaningful than
-Method 1 (see theory). But this is not always the case. It is therefore
-important to consider what exactly you want to analyze and what is the
-context of the experiment.
+Method 1 (see theory and method). But this is not always the case. It is
+therefore important to consider what exactly you want to analyze and what
+is the context of the experiment.
