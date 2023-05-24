@@ -12,7 +12,7 @@ airquality.regression <- function(airquality_mutated, xvar, lab){
                size = 0.3, color = "darkmagenta") +
     # Lab the axes and give the graphic a title
     labs(title = paste("Linear Regression: Ozone [ppm] vs. ", lab),
-         x = lab, y = "Ozone [ppm]",
+         x = lab, y = "Ozone [ppb]",
          caption = "AGDS Report Exercise re_airquality (Chapter 4)")+
     # Chose a background and add a panel boarder
     theme_bw() +
