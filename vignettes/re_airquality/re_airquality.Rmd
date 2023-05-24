@@ -12,7 +12,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at the University of Bern (Institute of
+Course: Applied Geo-Data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -27,7 +27,7 @@ Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 2 (Chapter 4)
+Reference: Report Exercise 3 (Chapter 4)
 
 # Introduction
 
@@ -44,22 +44,20 @@ be achieved:
 
 -   Grammar of graphics (ggplot2)
 
--   The proper use of colours in visualization
+-   The proper use of colors in visualization
 
 ## Theory
 
-Air quality depends on factors such as particulate matter (PM10 or PM2.5),
-nitrogen dioxide $(NO_2)$ or ozone $(O_3)$. In this exercise, only
-tropospheric ozone is considered for air quality. Ozone is not a health
-hazard per se, but a high concentration over a longer period of time can
-affect health (Brönnimann 2013, 23). But what are high concentrations? For
-Switzerland, the threshold value for ozone is $120\: \frac{\mu g}{m^3}$.
-This value is the average for an hour and can be exceeded only once per
-year. There are other definitions for a threshold, but here we use this
-definition (Brönnimann 2013, 23). However, this unit depends on the air
-pressure, which decreases with altitude. The volume mixing ratio with the
-unit parts per billion is more suitable, which is about 60 ppb (Brönnimann
-2013, 26). Here, we use this value.
+Air quality depends on factors such as particulate matter, nitrogen dioxide
+$(NO_2)$ or ozone $(O_3)$. Ozone is not a health hazard per se, but a high
+concentration over a longer period of time can affect health (Brönnimann
+2013, 23). But what are high concentrations? The limit value for hourly
+mean ozone concentrations set in the Swiss Air Pollution Control Act is
+$120\: \frac{\mu g}{m^3}$ (Brönnimann 2013, 23). There are other
+definitions for a threshold, but here we use this definition. However, this
+unit depends on the air pressure, which decreases with altitude. The volume
+mixing ratio with the unit parts per billion is more suitable, which is
+about 60 ppb (Brönnimann 2013, 26). Here, we use this value.
 
 Ozone is a molecule consisting of three oxygen atoms and has various
 physical (absorption of UV and IR radiation) and chemical (high reactivity)
@@ -72,19 +70,16 @@ properties. Ozone emerges due to a two-phase chemical reaction (Brönnimann
 
 The reaction equations show that UV radiation, oxygen, and nitrogen dioxide
 are needed for the formation of ozone. The first two are available in
-almost unlimited quantities. Thus, the production depends mainly on
-nitrogen dioxide. For the planetary boundary layer (and therefore for the
-surface as well), motorized traffic is the main source (Brönnimann 2013,
-95). Lastly, many chemical reactions are temperature dependent. This is
-also true for ozone. The higher the temperature, the more the balance of
-the reaction shifts towards ozone production, and the concentration
-increases (Brönnimann 2013, 95).
+almost unlimited quantities. Further, many chemical reactions are
+temperature dependent. This is also true for ozone. The higher the
+temperature, the more the balance of the reaction shifts towards ozone
+production, and the concentration increases (Brönnimann 2013, 95).
 
 In summary, the ozone concentration probably depends on temperature (shift
 of the balance), solar radiation (mostly UV radiation), and the
-concentration of nitrogen dioxide (which depends on traffic and wind). With
-these considerations, a data set on air quality can be studied with a focus
-on ozone.
+concentration of nitrogen dioxide (which depends among other things on
+wind). With these considerations, a data set on air quality can be studied
+with a focus on ozone.
 
 ## Hypothesis
 
@@ -107,7 +102,7 @@ formulas to transform the units into the SI-unit system.
 -   The following formula was used for wind:
     $$1 \left[\frac{mile}{hour} \right] \Longleftrightarrow 0.44704 \left[\frac{meter}{second}\right]$$
 
--   The following formula was used for irradiation
+-   The following formula was used for radiant exposure
     $$1 \left[ Langley \right] \Longleftrightarrow 41840 \left[ \frac{Joule}{m^2}\right]$$
 
 ## R: Evaluation of the data
@@ -152,7 +147,6 @@ if (!file.exists(name.of.file)){
   airquality <- read_csv("../../data/re_airquality/airquality.csv")
 
   # If exists such a file, read it only!
-  # Read the file
   }else{airquality <- read_csv("../../data/re_airquality/airquality.csv")}
 ```
 
@@ -241,19 +235,19 @@ The table shows the results of the statistical parameters for a monthly
 resolution. We round the results to integer numbers because rational or
 real numbers do not make sense in this context. Only a few pieces of data
 are available for the month of June (the frequency is only 10, which means
-only a third of the month is available). The median (May = 18 ppb, Jun = 23
-ppb, Jul = 60 ppb, Aug = 52 ppb, Sept = 23 ppb) is always lower or equal to
-the threshold value (60 ppm). Therefore, the air quality is acceptable. But
-there are measurements every month that exceed the threshold value (maximum
-\> 60 ppm). For July, August, and September, there are even more values
-(0.75 quantiles \> 60 ppm). That means that there are isolated days when
-the ozone concentration is problematic. If we compare the standard
-deviation and IQR, we notice that they are not so different. If we also
-take the span into account, we notice that the core of the data has a
-relatively small scatter. In the range of 0.25 and 0.75, the scatter
-increases, especially for the months of July and August. Last but not
-least, we can see that the median is always smaller than the mean. We can
-conclude that there is a positive skewness.
+only a third of the month is available). The other months are better. The
+median (May = 18 ppb, Jun = 23 ppb, Jul = 60 ppb, Aug = 52 ppb, Sept = 23
+ppb) is always lower or equal to the threshold value (60 ppm). Therefore,
+the air quality is acceptable. But there are measurements every month that
+exceed the threshold value (maximum \> 60 ppm). For July, August, and
+September, there are even more values (0.75 quantiles \> 60 ppm). That
+means that there are isolated days when the ozone concentration is
+problematic. If we compare the standard deviation and IQR, we notice that
+they are not so different. If we also take the span into account, we notice
+that the core of the data has a relatively small scatter. In the range of
+0.25 and 0.75, the scatter increases, especially for the months of July and
+August. Last but not least, we can see that the median is always smaller
+than the mean. We can conclude that there is a positive skewness.
 
 ```{r statistical_parameters, error=FALSE, message=FALSE, warning=FALSE}
 # Calculate the main statistic parameters.
@@ -318,15 +312,13 @@ density.airquality(airquality_mutated)
 
 We detected many missing values. For a stringent analysis, we need to know
 which values are missing and where they are. Is there a systematic error in
-the instrument's sensitivity? We need to know which values are missing and
-where they are. Is there a systematic error in the instrument's
-sensitivity? Or simply forgot someone to write down the measurement? For
-that, we use a bar plot that replaces all NA values with -1. Now we can
-easily see which values are missing. We are missing a lot of values for
-June. Creating new values through linear interpolation is not an option
-because there are (1) too many NAs and (2) the gap between the values is
-too big. We would only falsify our analysis. But all the other missing
-values are not problematic, and we can proceed straight forward.
+the instrument's sensitivity? Or simply forgot someone to write down the
+measurement? For that, we use a bar plot that replaces all NA values with
+-1. Now we can easily see which values are missing. We are missing a lot of
+values for June. Creating new values through linear interpolation is not an
+option because there are (1) too many NAs and (2) the gap between the
+values is too big. We would only falsify our analysis. But all the other
+missing values are not problematic, and we can proceed straight forward.
 
 ```{r bar_plot_missing_ozone_per_month, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -340,10 +332,10 @@ na.identifier(airquality_mutated )
 
 Now we have an impression of our data. But we want to know whether the
 variables in the hypothesis are promising. We could create a correlation
-plot with geom_point for each variable-combination. But we would have a lot
-to do. For this purpose, we created a correlation matrix. Because we do not
-know if the ozone distribution is linear or monotonic, we use the "Pearson"
-and "Spearman" methods. The graphic shows us a high positive correlation
+plot for each variable-combination. But we would have a lot to do. For this
+purpose, we created a correlation matrix. Because we do not know if the
+ozone distribution is linear or monotonic, we use the "Pearson" and
+"Spearman" methods. The graphic shows us a high positive correlation
 between ozone concentration and temperature (r = 0.7, \$\\rho = 0.77\$ )
 and a high negative correlation between ozone concentration and wind ( r =
 -0.6, \$\\rho = -0.59\$ ). There is also a positive correlation between the
@@ -364,9 +356,9 @@ correlation.plot(airquality_mutated, c("spearman"))
 
 ## Modelling
 
-We want to be able to predict new values. For that, we need a model. Here,
-we create a simple linear regression model. For that, we calculated four
-different models.
+We want to be able to predict new values (e.g. for interpolate the missing
+values in June). For that, we need a model. Here, we create a simple linear
+regression model. For that, we calculated four different models.
 
 ### Linear Regression Models
 
@@ -429,25 +421,15 @@ airquality.regression(airquality_mutated, Wind, c("Wind [m/s]"))
 airquality.regression(airquality_mutated, Solar.R, c("Solar.R [W/m^2]"))
 ```
 
-# Discussion
+# Discussion 
 
 In this short analysis, we can see that ozone probably depends on
 temperature, wind, and solar radiation. Although the RSQ and the p-value
-were not bad for the second and third models, none of the models is
-convincing enough to use as an explanatory model. We need better
+were not bad for the second and third linear regression models, none of the
+models is convincing enough to use as an explanatory model. We need better
 approaches. One possibility would be multiple regression or machine
 learning approaches. However, these are not used here because they will be
 introduced later.
-
-Although the RSQ for the second and third models was not so bad, the
-visualization shows a new problem. The RSQ in the model is valid for the
-whole time period. However, in the visualization (regression for each
-month), you can see that the RSQ is highly fluctuating. It could be a good
-idea if we chose a new approach for each month. If we analyzed more data
-(maybe over 20--50 years), we could discover a pattern. Perhaps we should
-use a different variable for May than we do for June. With only this data,
-it is impossible to say what we should do. If we look for patterns in this
-data, any pattern found would probably be random.
 
 But we can take a look at this specific data set and analyze the year 1973.
 First, we must discuss the source. It is problematic that not all variables
@@ -456,38 +438,26 @@ Island. It is an island on the East River in NYC. But the temperature and
 wind were measured at La Guardia Airfield, and the solar irradiance was
 measured in Central Park. The measuring stations are up to 10 kilometers
 apart, and this is in the middle of a city. There is no guarantee that the
-meteorological conditions will be the same. There is probably more wind at
-the airport than on Roosevelt Island. It would be better to collect new,
-up-to-date data ourselves and measure all variables in the same place. It
-would be even better if we implemented an urban measurement network. This
-would probably improve the model massively.
+meteorological conditions will be the same. It would be better to collect
+new, up-to-date data ourselves and measure all variables in the same place.
 
-Second, we can see that the median is lower than the threshold for all
-months. The temperature is an important factor in ozone concentration. The
-same is true for the wind. In the correlation plot, the plot showed us that
-there is a correlation between temperature and wind (which makes sense in a
-meteorological way). We also know that the ozone concentration does not
-correlate with time. This also makes sense. Although the ozone
-concentration is higher during the summer (summer smog), there is no
-relation to the day of the month. The concentrations react to physical
-parameters like radiation, wind, and temperature. It makes absolute sense,
-that the temperature is higher in June, July, August, and September than in
-May. The ozone concentration tends to be higher if the temperature is high.
-In an urban space, this effect will be amplified due to heat islands. A
-city like NYC is predestined for such an effect.
+Second, we can see that the median is lower or equal than the threshold for
+all months. Temperature is an important factor in ozone concentration. The
+same is true for wind. The ozone concentration tends to be higher if the
+temperature is high. In an urban space, this effect will be amplified due
+to heat islands. A city like NYC is predestined for such an effect.
 
 In conclusion, we can say that the air quality is less bad than expected.
 But there are days when the concentration is too high (true for all
 months). The city of New York should take measures to prevent heat islands.
 This could lower the temperature, which inhibits ozone production. Further,
 the source material should be limited. With less traffic, NOX could be
-lowered, which would inhibit ozone production. But first, we should collect
-more data. We recommend building up a city-wide monitoring network that
-should include more air quality parameters, such as particulate matter.
-This would give us an overall picture and allow us to take evidence-based
-measures. Unfortunately, we could not answer our research question. We
-suppose it is possible if we collect more data. We are convinced (and our
-analysis seems to support the thesis) that we are on the right path.
+lowered, which would also inhibit ozone production. Unfortunately, we could
+not answer our research question. We suppose it is possible if we collect
+more data. We are convinced (and our analysis seems to support the thesis)
+that we are on the right path.
+
+(364 words)
 
 # Bibliography
 
