@@ -15,7 +15,10 @@ multivariate.model <- function(dataframe, vector){
   collect.AIC <- NULL
   # Start with a big number. While loop should run till the AIC become bigger again
   AIC.old <- 9999999
-  AIC.new <- 9999998
+  AIC.new <- 9999998 # We also could control the while with TRUE nd if-else statement.
+                     # But never change a function which work perfectly...
+
+  # Start the while-loop
   while (AIC.new < AIC.old) {
     # Change the watcher for the while loop. We change the watcher for each round
     AIC.old <- AIC.new
@@ -37,19 +40,26 @@ multivariate.model <- function(dataframe, vector){
         AIC.new <- extractAIC(lm.model)[2]
         # We read the column name. If the AIC bigger for another predictor, we will overwrite it
         column.name <- as.character(i)
+
       } # end if condition
+
       # else does nothing
       else{NULL
       } # end else condition
+
     }# end for loop
+
     # Delete the name of the best fit of this round from the vector
     col.names <- col.names[!col.names == column.name]
+
     # prepare the predictors for the next round
     predictors <- c(predictors, column.name)
     predictors.tibble <- predictors
     collect.RR <- c(collect.RR, RR.now)
     collect.AIC <- c(collect.AIC, AIC.new)
+
   }# end while loop
+
   # if we finished the while loop, we print our model
   print(paste("Best model fit has AIC =", AIC.old))
   predictors <- predictors[-length(predictors)]
