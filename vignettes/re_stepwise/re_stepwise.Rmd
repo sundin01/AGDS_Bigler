@@ -12,7 +12,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at the University of Bern (Institute of
+Course: Applied Geo-Data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -27,7 +27,7 @@ Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 4 (Chapter 8)
+Reference: Report Exercise 5 (Chapter 8)
 
 # Introduction
 
@@ -37,7 +37,7 @@ Modeling is an important aspect of data science. But there are different
 types of models with different levels of complexity. With a realistic
 problem, the following goals should be trained:
 
--   Understand the basics of regression and classification models.
+-   Understand the basics of regression models and their classification.
 
 -   Fit linear and logistic regression models in R.
 
@@ -58,8 +58,31 @@ which variables we should use. We only know that we try to find a formula
 like this:
 
 $$
-\hat{y}=a_0 +\sum_{n=1}^{N}\hat{a}_n*x_n
+\hat{y}=\hat{a}_0 +\sum_{n=1}^{N}\hat{a}_n*x_n
 $$
+
+In this formula, $\hat{a}_0$ is the estimated intercept, $\hat{a}_n$ is the
+n-th estimated coefficient, and $x_n$ is the n-th variable. With this
+formula, we want to estimate the target $\hat{y}$ as accurately as
+possible. For that, we calculate $R^2$ which is a metric that allows us to
+estimate how much of the total variance is explained by the model. If we
+add an additional variable to the model, then R always increases for
+mathematical reasons.
+
+Unfortunately, this does not necessarily mean that the model becomes
+better. We still need another quality measure, which is why we implement
+the Akaike Information Criterion (AIC). The model with the minimum value of
+the AIC is often the best model for generalizing to new data. The AIC is
+based on log-likelihood and a correction term that takes into account the
+number of variables. In the beginning, AIC becomes smaller. When the
+influence of the correction term becomes too large (because we added
+variables), the AIC does not get smaller anymore, and we have a basis for
+decision-making for the model choice.
+
+In summary, we can say that $R^2$ increases with each additional variable.
+To account for the complexity of the model, we also observe the AIC. If it
+stops decreasing, we have found our most likely best multivariate linear
+model, and we can choose it for our predictions.
 
 # Methods
 
@@ -77,7 +100,7 @@ works as follows:
     highest RSQ will be used as a predictor. We delete the predictor from
     our list because we can use it only once.
 
-3.  The algorithm takes p+1 and creates a linear model. The p with the
+3.  The algorithm takes p+1 and creates a linear model. The p+1 with the
     highest RSQ will be used as a predictor. Select the model with the
     highest RSQ and calculate the AIC.
 
@@ -113,9 +136,9 @@ source("../../R/general/packages.R")
 
 ## Read the file
 
-First, we get the data and save it in our repository. But we must do this
-only once. If the file exists, then we can read it directly. That is why we
-implemented an if-else statement.
+First, we downloaded the data and saved it in our repository. But we must
+do this only once. If the file exists, then we can read it directly. That
+is why we implemented an if-else statement.
 
 ```{r Read_file, error=FALSE, message=FALSE, warning=FALSE}
 # We want to know, if a certain file already exists
@@ -146,8 +169,11 @@ if (!file.exists(name.of.file)){
 
 To make a good decision about the predictors, we need as much information
 as possible. For that, we read our file as a data frame. After that, we
-want an overview of the data (what variables contain the data set, and what
-are the main statistical parameters?)
+want an overview of the data. What variables contain the data set? What are
+the main statistical parameters? What about the missing values? We can see
+that Long-wave incoming radiation has a lot of missing values. This could
+be a problem. Our model will probably not chose this variable because $R^2$
+will be low. But if we had all the data, it might be different.
 
 ```{r Read_the_data, error=FALSE, message=FALSE, warning=FALSE}
 # Check wheater there are any missing values (We try with only the first six rows)
@@ -166,21 +192,24 @@ summary(database)
 ## Bivariate linear regression
 
 We chose the best variable for our predictor. For that, we tried all
-variables and chose the one with the highest RSQ (see introduction).
+variables and chose the one with the highest RSQ (see introduction). We can
+see that the chosen variable does not have the lowest AIC. But here, we are
+talking about a bivariate linear regression, and the AIC is not reliable
+anymore. We use $R^2$ instead.
 
 ```{r Calculate_best_Bivariante_Model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function for the bivariate model
 source("../../R/re_stepwise/function.bivariate.model.R")
 
-# Function call
+# Function call. 16 is the column-number of the target
 tibble.bi.model <- model.fitter(database, 16)
 knitr::kable(tibble.bi.model)
 ```
 
 ### Visualization of the bivariate model
 
-There are meaningful scatterplots for bivariate LM models, and they give us
-a first impression. But we want to know more about the coefficients, the
+There are meaningful scatter-plots for bivariate lm-models, and they give
+us a first impression. But we want to know more about the coefficients, the
 intercept, the distribution, and the outliers. For that, we use summary()
 and plot the model (see discussion).
 
@@ -195,6 +224,7 @@ source("../../R/re_stepwise/function.vis.bi.model.R")
 vis.bi.model(database)
 
 # Overview about all important model parameter
+
 # Model Call. We are also interested for the p-values
 summary(best.bi.lm)
 
@@ -222,12 +252,20 @@ Vis_of_the_develop.bi.model(tibble.bi.model)
 ## Multivariate linear regression
 
 Here we want to answer the question of which predictors we should choose to
-get the probably best linear regression model. For that, we have written a
-function. It works as described in the introduction. We make two function
-calls. For the first, we use all variables but the target. This is,
-however, not necessarily the best way. We could say that the time factor
-and the location are irrelevant, so we drop these variables. We can see
-that the difference is huge.
+get the probably best linear regression model. Should we choose all of them
+or only a subset? For that, we have written a function. It works as
+described in the introduction. Now we need to consider which variables make
+any sense at all. This depends on the target and the context. Therefore, we
+have programmed the function so that it can be used flexibly. We can simply
+enter the variables we don't need as column numbers. We made two function
+calls to demonstrate it. For the first, we use all variables but the
+target. This is, however, not necessarily the best way. We could say that
+the time factor and the location are irrelevant, so we drop these
+variables, too. We can see that the difference is huge. The output is an
+HTML table again. Every row is a regression model and contains all the
+variables above. We can see that the $R^2$ with every additional variable
+increases a bit. The AIC decreases first and then increases again. This is
+exactly what we expected.
 
 ```{r best_multivariate_model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function of the multivariate model
@@ -236,22 +274,32 @@ source("../../R/re_stepwise/function.multivariate.model.R")
 # Function call with all column but target (column number 16)
 multi.model.1 <- multivariate.model(database, c(16))
 
+# Function call without the long-wave variable
+multi.model.2 <- multivariate.model(database, c(5,16))
+
 # Function call without the variables siteid, TIMESTAMP and GPP_NT_VUT_REF
-multi.model.2 <- multivariate.model(database, c(1,2,16))
+multi.model.3 <- multivariate.model(database, c(1,2,16))
 
 # Overview about the models
 knitr::kable(multi.model.1)
 knitr::kable(multi.model.2)
+knitr::kable(multi.model.3)
 ```
 
 ### Development of RSQ and AIC
 
-We visualize the development of the model. We can see that the model with
-more variables has a higher RSQ. That is not a surprise because RSQ will
-always increase if we add a variable. Important is the AIC. We can see that
-the AIC is lower for more variables (21762.2 vs. 24469.3). The RSQ is
-higher (0.6579 vs. 0.5983). It follows that model 1 is better than model 2.
-We see that also in the coefficients.
+We visualize the development of the model. For that, we create a plot with
+two different y-axes. We can see that the model with more variables has a
+higher RSQ. That is not a surprise because RSQ will always increase if we
+add a variable. Important is the AIC. It decreases with each added variable
+until it increases again. That is the point at which we stopped our
+algorithm.
+
+We calculated two models (one with all variables but the target and one
+without the target, sited, and Time). We compare the two models and we can
+see that the AIC is lower for the probably best model (21762.2 vs.
+24469.3). The RSQ is higher (0.6579 vs. 0.5983). Model 1 is therefore
+better than model 2.
 
 ```{r Vis_RSQ_AIC_development, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -259,12 +307,13 @@ source("../../R/re_stepwise/function.vis.and.dev.multi.R")
 
 # Function call
 vis.and.dev.multi.model(multi.model.1)
-vis.and.dev.multi.model(multi.model.2, c("[without siteid and TIMESTAMP]"))
+vis.and.dev.multi.model(multi.model.2, c("[without incoming long-wave]"))
+vis.and.dev.multi.model(multi.model.3, c("[without siteid and TIMESTAMP]"))
 ```
 
 ### Visualization of the multivariate model
 
-There are no meaningful scatterplots for multidimensional models. But we
+There are no meaningful scatter-plots for multidimensional models. But we
 want to know more about the coefficients, the intercept, the distribution,
 and the outliers. We make some calls by using summary(). We get the same
 values for the RSQ. This is proof that our algorithm works. We see that not
@@ -276,7 +325,12 @@ best.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS +
                       SW_IN_F + P_F + WS_F + CO2_F_MDS + PA_F + siteid + TIMESTAMP, 
                     data = database)
 
-second.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS + 
+
+second.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN  + VPD_F + TA_F_MDS + 
+                      SW_IN_F + P_F + WS_F + CO2_F_MDS + PA_F + siteid + TIMESTAMP, 
+                    data = database)
+
+third.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS + 
                       SW_IN_F + P_F + WS_F + CO2_F_MDS + PA_F, 
                     data = database)
 
@@ -285,6 +339,8 @@ second.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS +
 summary(best.multi.lm)
 
 summary(second.multi.lm)
+
+summary(third.multi.lm)
 
 # Plot the model 
 plot(best.multi.lm)
@@ -328,42 +384,47 @@ the calculation.
 For demonstration, we made some function calls. We can easily see that the
 results are different. That means we must (1) choose wisely (maybe with an
 educational guess), (2) try different calls to be able to estimate how big
-the difference is, and (3) document how and why we have decided.
+the difference is, and (3) document how and why we have what decided.
 
 ## Discussion of plot(model) call
 
 Inspired by: <https://www.statology.org> and the book: "Statistik" form L.
 Fahrmeir
 
-### For the bivariate model
+### Bivariate model
 
-Residuals vs. fitted plot
+[Residuals vs. fitted plot]{.underline}
 
-We can see the right line follows almost the dashed line. It is near zero
-and approximately a horizontal line. That means the linearity is not
-violated and the assumption that we use a linear regression model was ok.
+We can see the red line follows almost the dashed line. It is near zero and
+approximately a horizontal line. That means the linearity is not violated
+and the assumption that we use a linear regression model was ok. But we
+also see that for the lowest and the highest value, the linearity is a bit
+violated (Especially for high values).
 
-Q-Q-Plot
+[Q-Q-Plot]{.underline}
 
 The Q-Q-Plot shows us that the residuals are almost following a normal
 distribution. The error is probably mainly statistical and not systematic.
-The plot also shows that the choice of a linear model was the right one
-because it follows almost the line with a 45° angle (the values would then
-have a perfect normal distribution).
+But for the highest and the lowest values, the derivation become bigger.
+That means, that we probably have a systematic error for high and low
+values (Especially for highly values). The plot also shows that the choice
+of a linear model was the right one because it follows almost the line with
+a 45° angle (the values would then have a perfect normal distribution).
 
-Scale-Location Plot
+[Scale-Location Plot]{.underline}
 
 The red line should be roughly horizontal across the plot. If so, then the
 assumption of homoscedasticity is probably right. The scattering should be
 random, and there should be no pattern at all. Both are approximately true.
-The spread of the residuals is roughly equal at all fitted values.
+The spread of the residuals is roughly equal at all fitted values. Only for
+the lowest values we are able to see a bit of a pattern.
 
-Leverage-Plot
+[Leverage-Plot]{.underline}
 
 There are no values behind the cook's distance. That means that there are
 no significant outliers that distort our analysis.
 
-### For the multivariate model
+### Multivariate model
 
 The plots are approximately the same as for the bivariate model and need no
 more discussion. Only the scale-location plot needs a few words: The red
@@ -387,17 +448,54 @@ additional variables, but the growth flattens out. Actually, we should
 discuss the adjusted RSQ instead of the RSQ. The RSQ is always a bit higher
 than the adjusted RSQ. But it does not matter which one we use in the
 algorithm. The algorithm stops if the AIC increases. If we choose a final
-model, then we have to use the adjusted RSQ. AIC is a kind of quality
-measure for the models. It is based on log-likelihood and a correction term
-that takes into account the number of variables. In the beginning, AIC
-becomes smaller. When the influence of the correction term becomes too
-large, the AIC does not get smaller anymore, and we have a basis for
-decision-making for the model choice.
+model, then we have to use the adjusted RSQ.
 
 It is also important to note that RSQ does not simply add up but must be
 recalculated constantly. This means that for a multivariate model, we
-cannot simply use the highest RR of the individual bivariate models or the
+cannot simply use the highest RSQ of the individual bivariate models or the
 variables with the highest correlation coefficients. This is visible in the
 figures "visualization of the development of RR and AIC (bivariate). That
 is why we have to use the AIC for a good model choice, and that is also why
 we recalculate the RR in our step-forward algorithm in each round.
+
+## Considerations about the variables
+
+We can consider why a particular variable was included in the model and why
+another variable was not. For this we need a close look at the variables.
+It is important to know which variables we used and why.
+
+### Bivariate Model
+
+For the bivariate model, the highest RSQ reached the variable PPFD_IN
+(Photosynthetic photon flux density, incoming). This makes sense since the
+target was GPP_NT_VUT_REF (Gross Primary Productivity). The GPP depends,
+among other things, on Photosynthetic flux density. The second and
+third-best models used variables of short-wave radiation. This also makes
+sense because photosynthesis depends on short-wave radiation. In short-wave
+radiation, the photons have more energy than in long-wavelength radiation.
+Moreover, the energy is transported in photons. That means not the
+intensity of the light is crucial for photosynthesis, but the photon
+energy. The photon energy is a function of the frequency. Long-wave
+radiation has less energy and contributes almost nothing to photosynthesis.
+This is why we do not have a correlation between GPP and long-wave
+variables. TA is the air temperature and VPD is the vapor pressure. They
+contribute a bit to the GPP but they are not as important as SW-variables
+or PPFD-variables.
+
+### Multivariate Model
+
+We see the same in our multivariate model. In the first multiple-variable
+model, we chose all variables. The first variable is PPFD_In again (what
+confirms the correctness of the algorithm because it is the same as for the
+bivariate model). It may be surprising that the long-wave variable was
+chosen second by the algorithm. It seems that it is important after all.
+But this is deceptive. In the second model, we exclude the variable. The
+metrics changed only insignificantly (RSQ from 0.6579 to 0.6552 and AIC
+from 21762 to 21780). That means that the variable is not important for
+modeling, and our argument is probably right.
+
+But which variable we chose is very important. We can see that in our third
+model. We exclude the variables time and location, and RSQ and AIC are very
+different from the first two models (from about 0.65 to about 0.598 and
+from about 21600 to 24470, respectively). That proves to us that we are
+also right here with our considerations.
