@@ -1,0 +1,39 @@
+---
+title: "Report Exercise: re_workspace"
+author: "Patrick Bigler"
+date: "2023-05-26"
+output: 
+  html_document:
+    toc: yes
+    toc_float: yes
+    number_sections: yes
+editor_options: 
+  markdown: 
+    wrap: 75
+---
+
+Course: Applied Geo-Data Science at the University of Bern (Institute of
+Geography)
+
+Supervisor: Prof. Dr. Benjamin Stocker
+
+Adviser: Dr. Koen Hufkens, Pepa Aran, Pascal Schneider
+
+Further information: <https://geco-bern.github.io/agds/>
+
+Do you have questions about the workflow? Contact the Author:
+
+Author: Bigler Patrick
+([patrick.bigler1\@students.unibe.ch](mailto:patrick.bigler1@students.unibe.ch){.email})
+
+Matriculation number: 20-100-178
+
+Reference: Report Exercise 1 (Chapter 1)
+
+# Introduction
+
+## Objectives
+
+## Theory
+
+# Method
