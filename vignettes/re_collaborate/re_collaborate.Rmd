@@ -34,6 +34,106 @@ Reference: Report Exercise 5 (Chapter 7)
 
 ## Objectives
 
+Code management is key for managing any data science project, especially
+when collaborating. Proper code management limits mistakes, such as code
+loss, and increases efficiency by structuring projects. It is therefore
+important to work properly so that several people can contribute to a
+project. In this exercise, the following goals should be achieved:
+
+-   Create a git project (new or from a template)
+
+-   Track changes in your code project
+
+-   Collaborate with others
+
+-   Ensure reproducibility of your project by openly sharing your work and
+    progress.
+
 ## Theory
 
+Keeping files and working with *git* locally limit the extent to which we
+can collaborate with others. This is where *git* comes in. It provides a
+cloud-based *git* repository that we can associate with our local project.
+Here is a small overview of the most important orders for git. It is
+neither complete nor final. We will learn it by trial and error. 
+
+-   use_git(): It will create a new *git* repository (but it will not track
+    the files).
+
+```{=html}
+<!-- -->
+```
+-   Stage the file: We use *add* so that we can track the files (use the
+    terminal! If we want to work with RStudio, we can use the *git*-panel).
+
+-   git commit-m "text": We can commit the changes to our staged files (or
+    we use the *git*-panel in RStudio)
+
+-   git push: Compares our local *git* repository with the remote one and
+    integrates the more recent changes, if there are any.
+
+-   merge conflicts: If we make changes in our local and remote
+    repositories at the same time, we will generate a merge conflict. We
+    must then resolve the conflict manually and commit it again.
+
+-   Clone a repository: With git clone, we can create a local copy of our
+    remote repository.
+
+-   Fork a repository: If we fork a project, then we create a copy of the
+    project in our account. Now we can change everything, and it will not
+    affect the original project. But maybe we could make some improvements,
+    and we want to implement our changes into the original project. For
+    that, we can send a pull request. If the owner of the original project
+    accepts our request, then we replace the original file with our
+    changes.
+
 # Method
+
+To apply our new knowledge, we collaborate as a team. We tried to solve the
+following task:
+
+-   Person 1 - Create a new repository (can be the same as you created
+    following the tutorial but should no be the same as the one where you
+    hand in your report)
+
+-   Person 2 - Fork the GitHub project that Person 1 created in Step 1.
+
+-   Person 2 - Create a new file in this project
+
+-   Person 2 - Commit and push these changes to this project. Create a pull
+    request to the original project of Person 1.
+
+-   Person 1 - Review the pull request from Person 2. Provide some
+    comments, accept the pull request, letting it the new code by Person 2
+    be integrated into the project.
+
+-   Person 1 - Add a new file to your own project, and update the GitHub
+    project.
+
+-   Person 2 - Sync your forked project to integrate the changes made by
+    Person 1 into your own repository.
+
+-   To complete the exercise, reverse rolls between Person 1 and Person 2.
+
+# Results
+
+[Here is the link to Patrick's repository:]{.underline}
+
+<https://github.com/sundin01/GECO_EX_3>
+
+[Here is the link to Michele's repository:]{.underline}
+
+<https://github.com/michele005/report_7>
+
+# Discussion
+
+There are many way how we can work with git. Personally, we prefer this
+way:
+
+-   We pull the file from our remote to our local repository
+
+-   We make our changes
+
+-   We commit our changes
+
+-   We push the file from our local to the remote repository.
