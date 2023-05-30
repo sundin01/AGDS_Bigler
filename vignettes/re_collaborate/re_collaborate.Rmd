@@ -60,9 +60,8 @@ neither complete nor final. We will learn it by trial and error. 
 -   use_git(): It will create a new *git* repository (but it will not track
     the files).
 
-```{=html}
 <!-- -->
-```
+
 -   Stage the file: We use *add* so that we can track the files (use the
     terminal! If we want to work with RStudio, we can use the *git*-panel).
 
