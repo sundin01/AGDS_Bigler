@@ -48,7 +48,7 @@ time.variation.ml.02 <- function(mod1, df_test_1, lab.model=NULL,
   return(plot_1)
 }
 
-time.variation.year <- function(mod1, df_test,label = NULL, caption = NULL, plot = TRUE){
+time.variation.year <- function(mod1, df_test, label = NULL, caption = NULL, annual = TRUE){
 
   df_test_predicted.mod1 <- df_test |>
     drop_na()
@@ -59,12 +59,14 @@ time.variation.year <- function(mod1, df_test,label = NULL, caption = NULL, plot
   residue.mod1 <- tibble("Time" = df_test$TIMESTAMP,
                          "Residue" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod1$fitted)
 
+  bias <- round(mean(residue.mod1$Residue, na.rm = TRUE), digits = 3)
+
   plot_1 <- ggplot(data = residue.mod1)+
     geom_line(aes(x = residue.mod1$Time, y = residue.mod1$Residue))+
     geom_smooth(aes(x = residue.mod1$Time, y = residue.mod1$Residue), method = "loess", se = FALSE)+
     labs(x = "Time", y = "Residue",
        title = "Time variation of GPP prediction ",
-       subtitle = paste("KNN model",label ), caption = paste("AGDS Report Exercise",caption ))+
+       subtitle = paste("Model:",label, ", Bias =", bias), caption = paste("AGDS Report Exercise",caption ))+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     # add an individual panel boarder around the whole graph
@@ -72,9 +74,25 @@ time.variation.year <- function(mod1, df_test,label = NULL, caption = NULL, plot
           panel.background = element_rect(fill = "white"),
           plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
 
-  if(plot == TRUE){
+  plot_2 <-   residue.mod1|>
+    mutate(day = yday(Time))|>
+    group_by(day)|>
+    ggplot(aes(x = day, y = Residue))+
+    geom_line()+
+    geom_smooth(aes(x = day, y = Residue), method = "loess", se = FALSE)+
+    labs(x = "Time", y = "Residue",
+         title = "Time variation of GPP prediction ",
+         subtitle = paste("Model:",label, ", Bias =", bias), caption = paste("AGDS Report Exercise",caption ))+
+    theme_bw()+
+    theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
+    # add an individual panel boarder around the whole graph
+    theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
+
+  if(annual == TRUE){
     return(plot_1)
-  }else{return(residue.mod1)}
+  }else{return(plot_2)}
 
 }
 

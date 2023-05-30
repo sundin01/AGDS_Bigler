@@ -9,9 +9,9 @@ time.variation <- function(mod1, mod2=NULL, df_test){
                           "Residue" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod1$fitted)
 
   plot_1 <- ggplot(data = residue.mod1)+
-    geom_point(aes(x = residue.mod1$Time, y = residue.mod1$Residue),
+    geom_line(aes(x = residue.mod1$Time, y = residue.mod1$Residue),
                alpha = 0.3)+
-    geom_hline(yintercept = mean(residue.mod1$Residue,na.rm=TRUE),color = "royalblue")+
+    geom_smooth(aes(x = residue.mod1$Time, y = residue.mod1$Residue), method = "loess", se = FALSE)+
     labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
          subtitle = "KNN model (k=8)", caption = "AGDS Report Exercise re_ml_01 (Chapter 9)")+
@@ -31,8 +31,8 @@ time.variation <- function(mod1, mod2=NULL, df_test){
                           "Residue" = df_test$GPP_NT_VUT_REF - df_test_predicted.mod2$fitted)
 
   plot_2 <- ggplot(data = residue.mod2)+
-    geom_point(aes(x = residue.mod2$Time, y = residue.mod2$Residue), alpha = 0.3)+
-    geom_hline(yintercept = mean(residue.mod2$Residue,na.rm=TRUE),color = "royalblue")+
+    geom_line(aes(x = residue.mod2$Time, y = residue.mod2$Residue), alpha = 0.3)+
+    geom_smooth(aes(x = residue.mod1$Time, y = residue.mod1$Residue), method = "loess", se = FALSE)+
     labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
          subtitle = "linear regression model", caption = "AGDS Report Exercise re_ml_01 (Chapter 9)")+
@@ -43,7 +43,7 @@ time.variation <- function(mod1, mod2=NULL, df_test){
           panel.background = element_rect(fill = "white"),
           plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
 
-  out <- cowplot::plot_grid(plot_1, plot_2)
+  out <- cowplot::plot_grid(plot_2, plot_1)
 
   return(out)
 }
