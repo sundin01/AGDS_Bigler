@@ -40,7 +40,7 @@ realistic problem, the following goals should be trained:
 
 -   Discuss the bias-variance trade-off
 
--   The role of k
+-   The role of the hyper-parameter k
 
 ## Theory
 
@@ -50,44 +50,37 @@ as possible (with the lowest error in the new data). But this approach has
 some challenges. For example, we need to know how good the quality of the
 predicted data is. Therefore, we use only a part of the labeled data for
 training. With the other part of the labeled data, we quantify the error.
+The KNN-algorithm will be trained to predict new data. With the
+hyper-parameter k we can fit our model (a polynomial with a certain
+degree). But this is not so easy because we do not know what optimal k is.
 
-There are many ways to train the algorithm. Here we use polynomials to
-approximate the target. If we use a polynomial with \$deg=0\$, then we
-describe the data with an intercept, and this is probably a very poor
-choice. The bias will be very high since we will not hit almost any value
-of the target exactly. The model explains only very little of the variance
-of the target. The higher the degree of the polynomial, the more flexible
-we can be in bending, stretching, or compressing our function. In the best
-case, we have found a polynomial that hits every target value in the
-training data exactly. The bias in the training data will be zero. We tend
-to say that our best model would be the one that best describes the target
-of the training data. But this is not true.
+Consider the following: With a polynomial p with $deg(p) = n$, we can
+easily hit every target value in the training data exactly because the
+polynomial can be bent, stretched, or compressed. The bias in the training
+data will be zero. Unfortunately, it would also include all errors. The
+target and the predictor come from measurements and have always errors
+(always statistical and almost always systematic errors (measurement
+noise)). If we apply this model to predict new data, then we would project
+the error into the new data. That will cause a higher variance in the
+predicted data because our model is overfitted. The bias-variance trade-off
+in the train data shifts to the variance.
 
-Consider the following: If we use the model that approximates the target in
-the training data best, then we also have to include all errors. The target
-and the predictor come from measurements and have always had errors (always
-statistical and almost always systematic errors (measurement noise)). If we
-use a polynomial with \$deg = 0\$ we will not have a good prediction. The
-model describes the target in the training data so badly that it will not
-be able to predict it well. The RSME is high in the training data and will
-be high in the test data. We call that an underfitted model, and the
-bias-variance trade-off shifts to a very high bias. Because of the high
-variance in the predicted data, the RSME will also be high in the predicted
-data.
+If we use a polynomial p with $deg(p) = 0$ we will not have a good
+prediction. The model describes the target in the training data so badly
+that it will not be able to predict it well. The RSME
+(root-square-mean-error) is high in the training data and will be high in
+the test data. We call that an underfitted model, and the bias-variance
+trade-off shifts to a very high bias.
 
-If we use a polynomial with $deg = n$, then we project the error into the
-new data. That will cause a higher variance in the predicted data because
-our model is overfitted. The bias-variance trade-off in the train data
-shifts to the variance. The goal is to find the model with the best
-generalisability, which is the model with the best bias-variance trade-off.
-This exercise shows you how we can find the best model with a KNN
-algorithm.
+The goal is to find the model with the best generalisability, which is the
+model with the probably best bias-variance trade-off. This exercise shows
+you how we can find the best model with a KNN algorithm.
 
 # Methods
 
 We use the KNN (k-nearest neighbors) algorithm and compare the model to a
 multivariate linear regression model. For the KNN, we split our data. We
-use 70% for training and 30% to validate the model. Because the algorithm
+use 70% for training and 30% to evaluate the model. Because the algorithm
 uses distance, we have to standardize our data. With the box-cox function,
 we transform our data into a normal distribution. We use set.seed for
 reproducibility.
@@ -124,6 +117,7 @@ name.of.file <- "../../data/re_ml_01/daily_fluxes.csv"
 
 # If do not exists such a file, create it!
 if (!file.exists(name.of.file)){
+  
   # Access to the data
   url <- "https://raw.githubusercontent.com/geco-bern/agds/main/data
   /FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"
@@ -136,6 +130,7 @@ if (!file.exists(name.of.file)){
   
   # Read the file
   daily_fluxes.raw <- read_csv("../../data/re_ml_01/daily_fluxes.csv")
+  
   # If exists such a file, read it only!
   }else{daily_fluxes.raw <- read_csv("../../data/re_ml_01/daily_fluxes.csv")}
 ```
@@ -153,12 +148,20 @@ variables. That is why we have to clean our data first.
 We select only the columns we need. Further, we can see that some columns
 contain -9999 as a value. Our quality function changed that to NA. Then we
 use ymd() from the lubridate package to rewrite the date in a proper way.
-Further, we want only columns that contain good quality. For that, we check
-selected columns with their quality control column. If the proportion of
-good measurement is less than 80%, then we overwrite the value with NA (and
-do not drop the row!). After that, we discard all quality-control columns.
-Now we know that our data set is of high enough quality to perform analyses
-with it.
+Further, we want only columns which contain good quality. For that, we
+check selected columns with their quality control column. If the proportion
+of good measurement is less than 80%, then we overwrite the value with NA
+(and do not drop the row!). After that, we discard all quality-control
+columns. Now we can see that the variable LW_IN_F (long-wave radiation)
+contains about 56% NAs. This is very problematic because for model
+calculation we will drop all rows that contain NAs. We would lose about 56%
+of our data. Further, the variable TIMESTAMP contains the date. But we are
+not sure if we can standardize time with box-cox. That is why we do not use
+these variables. All other variables have good quality.
+
+Attention: unlike here, the variables PA_F and P_F are not used in the AGDS
+script. Therefore, the results will be significantly different, for example
+RMSE, RSQ or *optimal k*.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file
@@ -180,11 +183,10 @@ visualize.na.values.without.groups(daily_fluxes)
 
 Here we split our data into a training subset and a test subset (70%
 training and 30% test). After we split the data, we can calculate our
-model. We use these three variables as predictors: SW_IN_F, VPD_F, and TA_F
-. For KNN, we use k = 8 as a first try. This choice is random. The last
-code chunk in this workflow will show you which k is the optimal one (we do
-not want to spoil anything here). That is why you should use k = 8 first.
-Now we calculate a KNN model and an LM model.
+model. We use all variables except TIMESTAMP and LW_IN_F. For KNN, we use
+*k* = 8 as a first try. This choice is random. The last code chunk in this
+workflow will show you which *k* is the optimal one (we do not want to
+spoil anything here). That is why you should use *k* = 8 first.
 
 ```{r split_data, error=FALSE, message=FALSE, warning=FALSE}
 # For reproducibility (pseudo-random)
@@ -214,11 +216,28 @@ function call is for the LM model. The function needs the model, which we
 have calculated in the code chunk above. This is a multivariate regression
 model, and therefore, we cannot improve the formula.
 
-The second function call is for the KNN model. The function needs the
-knn-model as an input. The knn-model has been calculated in the code chunk
-above. The number for k was 8. If we want a model with a different k, we
-have to recalculate the knn-model with the function in the code chunk
-above.
+The second function call is for the KNN model. The knn-model has been
+calculated in the code chunk above. The number for *k* was 8. If we want a
+model with a different *k*, we have to recalculate the knn-model with the
+function in the code chunk above.
+
+[lm-Model]{.underline}
+
+The orange line has the slope of 45°. If the model predicted all values
+accurately, all values would lie on this line because the fitted value
+would be the same as the target.
+
+The red line is the calculated regression line. It shows that it has a
+lower angle than the orange line. It follows that our model systematically
+underestimates the values. It also shows that especially high values are
+more underestimated than smaller ones.
+
+[knn-Model]{.underline}
+
+The situation for knn is very similar. The regression line is a little
+steeper than that of the lm model. This means that knn underestimates the
+values less than the lm model. But also knn tends to underestimate high
+values more than small values.
 
 ```{r model_eval, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -233,19 +252,20 @@ eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_
 
 ### Visualization
 
-Here you can see how the knn-model depends on k. If we use k=0, then we
-have perfect training data. But the RMSE in the test data is high (the
-model is overfitted). If we use k = n our model would be underfitted, and
-therefore the RMSE in the test data would also be high. For a visualization
-of the development of RSQ and RSME as a function of k, please take a look
-at the last visualization.
+Here you can see how the knn-model depends on *k*. If we use *k* = 0, then
+we have perfect training data (perfect prediction. The regression line has
+the a 45° slope and all values lie on it. The bias is zero). But the RMSE
+in the test data is high (the model is overfitted). If we use *k* = n our
+model would be underfitted, and therefore the RMSE in the test data would
+also be high. For a visualization of the development of RSQ and RSME as a
+function of *k*, please take a look at the last visualization.
 
 ```{r vis_generalisability, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
 source("../../R/re_ml_01/function.different.k.R")
 
 # Define a sequence for k
-my.sequence <- c(1, 8, 25, 50, 100)
+my.sequence <- c(1, 8, 15, 50, 100)
 # Function call
 different.k(my.sequence,daily_fluxes_train,daily_fluxes_test,c("Davos"),c("Davos"))
 ```
@@ -257,149 +277,174 @@ exercise and discuss each aspect shortly. First, we need to know how to
 judge the models. For this, we need to know why one model can be considered
 better than another. How can we estimate the bias-variance trade-off?
 Second, we need to know how the KNN algorithm works. For this, we need
-knowledge about the role of k-neighbors.
+knowledge about the role of the hyper-parameter.
 
 ## Model discussion and the role of the bias-variance trade-off
-
-In this part, we discuss the differences between a LM model and a KNN
-model.
 
 #### Why is the difference between the evaluation on the training and the test set larger for the KNN model than for the linear regression model?
 
 To answer this question, we have to take a closer look at the formulas:
 
-An LM model uses all predictors to calculate a multivariate regression
+An lm model uses all predictors to calculate a multivariate regression
 model. However, it is a linear regression. It means that the polynomial has
-a deg(polynomial) = 1. In the training set, it creates a straight line in a
-multidimensional space with dim = N.
+a deg(polynomial) = 1. If we use this equation, then we made some
+assumption (linearity, normality, homoscedasticity and independence). If
+our data has a annual cycle, then we will never have a good fit (because we
+violated the linearity). We must that consider.
 
 $$
 \hat{y}=a_0 +\sum_{n=1}^{N}\hat{a}_n*x_n
 $$
 
 Obviously, a lm model does not look for any underlying pattern. It creates
-a linear combination, and all predictors should be linearly independent. If
-we want to apply the model then we must consider this fact. To create a lm
-model, we use the training data. But we calculate only regression, and
-therefore it is not possible that RSQ = 1 (only if the predictor is also
-the target and the predictors are linearly dependent). Therefore, the lm
-model will always have a bias. Most likely, the RMSE and MAE will increase
-if we make predictions because the lm model does not know anything about
-the underlying pattern.
+simply a linear combination with all available variables. Further, it is
+not possible that RSQ = 1 (only if the predictor is also the target and the
+predictors are linearly dependent). Therefore, the lm model will always
+have a bias. It follows that the lm model has a higher RMSE (e.g. because
+linearity is violated) in the training data set and therefore, the RMSE in
+the prediction will be high.
 
-The situation for KNN is different. KNN calculates a polynomial regression
-with the following formula:
+The situation for KNN is different. We could calculate a polynomial
+regression with the following formula:
 
 $$
 \hat{y}=\sum_{n=0}^{N}\hat{a}_n*x^n
 $$
 
-It uses not only all predictors. It uses k neighbors to calculate a local
-regression. The KNN model looks for an underlying pattern. That is why the
-RSQ in the training data is lower than for the lm model. If we want to make
-a prediction, the KNN has an advantage over the lm. KNN "knows" the
-underlying pattern, and the RMSE and MAE will not increase fast.
+Knn does not necessarily use all predictors. It uses *k* neighbors to
+calculate a local polynomial regression. The KNN model looks for an
+underlying pattern. That is why the RSQ in the training data is lower than
+for the lm model. If we want to make a prediction, the KNN has an advantage
+over the lm. KNN "knows" the underlying pattern, and the RMSE and MAE will
+not increase so fast as for the lm model.
 
 #### Why does the evaluation on the test set indicate a better model performance of the KNN model than the linear regression model?
 
-Because the RMSE and MAE in the KNN are lower than in the lm model.
-Further, RSQ is higher in the KNN model than in the lm model. The KNN model
-performs predictions with a low bias (MAE) and low variance (high RSQ) and
-is better than the lm model with a higher bias (MAE is higher) and more
-variance (lower RSQ). It follows that the KNN model has a better
-bias-variance trade-off than lm model But be careful: RMSE and RSQ in the
-KNN model are dependence directly on k.
+We also see that knn has the higher RSQ than lm (0.64 vs. 0.62) and the
+lower MAE (1.63 vs. 1.55). It follows that knn has a higher RSQ and a
+smaller MAE which means it is clearly the better model than lm. But be
+careful: RMSE and RSQ in the KNN model depends directly on *k*. We must
+optimize k first!
 
 #### How would you position the KNN and the linear regression model along the spectrum of the bias-variance trade-off?
 
-For the lm model the variance increased.
+The lm-model tends to be underfitted and thus has a high bias. The
+trade-off shifts to the bias.
 
-The KNN model seems overfitted. The RSQ in the training data is high and
-jumps down for the test data. The RMSE increased from the training data to
-the test data. This concludes that the KNN model is more on the biased side
-in the bias-variance trade-off.
-
-The lm model is more or less the same.
+We are not sure weather we understand the question right. For the knn-model
+with *k* = 8, RMSE is lower as for the lm model. But we know that optimal
+*k* is 15 which means our model is underfitted. The trade-off shifts to the
+bias. But the shift is not so big as for the lm model which means knn with
+*k* = 8 has the better trad-off than lm but it is not better than knn with
+*k* = 15. Knn-models with *k* = 50 and *k*= 100 are overfitted. The
+trade-off shifts to the variance.
 
 #### Visualize temporal variations of observed and modeled GPP for both models, covering all available dates.
 
-It seems that our model predicts better if the target is between 2005 and
-2010. We can also see that the difference between the models is not very
-big. But the residue is very high because the target has a quantity of
-about \$10\^{-1}\$.
+[lm-model]{.underline}
+
+First, there is a annual cycle. We also see that the prediction varies in
+quality. There are years with a lower residue than other years. The model
+underestimate the target for a certain season and overestimate for the
+opposite season. We want to know more. We plot the residue as a function of
+the day of the year. Now we see, that our lm-model underestimate the target
+in winter and overestimate it in summer. Because the target is GPP (Gross
+Primary Productivity) it makes totally sense.
+
+[knn-model]{.underline}
+
+We make the same thing for the knn-model. The results is very similar to
+the lm-model. For knn, the bias is lower. But the model underestimate also
+the winter target and overestimate the values during summer.
 
 ```{r Vis_time_variation, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
-source("../../R/re_ml_01/function.time.variation.R")
 source("../../R/re_ml_02/function.vis.residue.R")
 
-# Function call
-time.variation(mod.knn, mod.lm, daily_fluxes_test)
+# Residue for Davos: train: pooled, test: Lägern (year)
+time.variation.year(mod.lm, daily_fluxes_test,
+                    c("multiple linear regression (lm)"), 
+                    c("re_ml_1 (Chapter 9)"))
 
-# lm, monthly resolution
-time.variation.ml.02(mod.lm,daily_fluxes_test,c("lm-Model"), c("Davos"),
-                     c("re_ml_01 (Chapter 9)"))
+time.variation.year(mod.lm, daily_fluxes_test,   
+                    c("multiple linear regression (lm)"), 
+                    c("re_ml_1 (Chapter 9)"), annual = FALSE)
 
-# KNN, monthly resoultion
-time.variation.ml.02(mod.knn,daily_fluxes_test, c("KNN-Model"),
-                     c("Train: Davos, Test: Davos, k = 25"),
-                     c("re_ml_01 (Chapter 9)"))
+# Residue for Davos: train: pooled, test: Lägern (year)
+time.variation.year(mod.knn, daily_fluxes_test,
+                    c("KNN with: Train = Davos, Test = Davos, k = 15"), 
+                    c("re_ml_1 (Chapter 9)"))
+
+# We want a better resolution of the residue of Davos (daily). We use plot = false to return a tibble. After that, we can pipe it
+time.variation.year(mod.knn, daily_fluxes_test,   
+                    c("KNN with: Train = Davos, Test = Davos, k = 15"), 
+                    c("re_ml_1 (Chapter 9)"), annual = FALSE)
 ```
 
-## Discussion the role of "k" and generalisability of a model
+## Discus the role of *k* and generalisability of a model
 
-The "k" in KNN is a parameter that refers to the number of nearest
-neighbors. Here, we use MAE instead of RMSE. Although the values are
-different, the flows are synchronous. That means that both MAE and RMSE are
-hyperbolas and have their global minima at the same k.
+The *k* in KNN is a hyper-parameter that refers to the number of nearest
+neighbors. To quantify the "errors", we use MAE instead of RMSE. Although
+the values are different, their flows are synchronous. That means that both
+MAE and RMSE are hyperbolas and have their global minima at the same *k*.
 
 [**Hypothesis:**]{.underline}
 
-The lower we chose k, the higher the RSQ in the training data, but the
-higher the variance in the test data, therefore the higher the MAE.
+*"The lower we chose k, the higher the RSQ in the training data, but the
+higher the variance in the test data."*
 
-Explanation: Let k = 1. Then the training data would be perfectly predicted
-because only one\
-The nearest) neighbor would be taken into account. The bias would be zero,
-and therefore RSQ = 1, and the MAE is 0 as well. But the model would be
-totally overfitted. That means there is a bias-variance trade-off. If the
-bias in the training data is low, then the variance in the test data is, in
-general, high.
+Explanation: Let *k* = 1. Then the training data would be perfectly
+predicted because only one\
+(the nearest) neighbor would be taken into account. We would hit every
+target value. The bias would be zero, and therefore RSQ = 1, and the MAE is
+0 as well. But the model would be totally overfitted. That means there is a
+bias-variance trade-off. If the bias in the training data is low, then the
+variance in the test data is, in general, high.
 
-Let k = N. Then it would follow: RSQ is an element of (0, 1), and the MAE
-is an element of [0, inf). But we do not know where it is. However, the
-model tends to be underfitted because it takes all neighbors into account.
-Therefore, the prediction would be the mean value of the observations.
+Let *k* = N. Then it would follow: $RSQ\in(0,1]$ and $MAE\in[0, \infty)$.
+But we do not know where it is. However, the model tends to be underfitted
+because it takes all neighbors into account. Therefore, the prediction
+would be the mean value of the observations.
 
 Conclusion: We want a model with zero bias and zero variance. But this
 seems impossible, so we have to find the model with the best
 bias-variance-trade-off.
 
-#### Showing model generalisability as a function of model complexity and optimal k
+#### Showing model generalisability as a function of model complexity and optimal *k*
 
 The hypothesis is not fully true. RSQ is a quantity to describe the
 variance. Or better, it describes how much of the variance explains the
-model. For the best bias-variance trade-off, we want the k where the bias
-in the test data is lowest (low MAE), and the variance should be. The model
-for k = 1 is totally overfitted. In the training data, the RSQ is 1 and it
-follows that the bias must be 0. But in the test data, the MAE is at a
-global maximum. The model is useless for any predictions, and the trade-off
-is on the side of too much variance.
+model. For the best bias-variance trade-off, we want *k* where the bias in
+the test data is lowest (low MAE).
 
-For k = 200 the RSQ is lowest in the training data. The MAE increased for
+The model for *k* = 1 is totally overfitted. In the training data, RSQ is 1
+and it follows that the bias must be 0. But in the test data, MAE is at a
+global maximum. The model is useless for any predictions, and the trade-off
+shifts to too much variance.
+
+If we slowly increase *k*, then increase MAE and decrease RSQ on the train
+set. In the test data RSQ increase and MAE decrease. If we exceed *optimal
+k*, then RSQ decrease and MAE increase in the test set. We see, there mus
+be a *optimal k*.
+
+For *k* = 100 the RSQ is lowest in the training data. The MAE increased for
 both data sets but is not at a maximum. The model is not suitable for
 predictions because the trade-off is on the side of too much bias.
 
-The optimal k is there, where the trade-off is best. Generalisability means
-that we want the model with the lowest MAE in the test data (low bias) and
-the highest RSQ (low variance). For that, we mark the minimum of the RMSE
-test data hyperbola (green point = 25). Unfortunately, k = 25 is not
-necessarily the best model. We have only seen that it is between 20 and 30.
-We make another function call and use all k between 20 and 30. Now we see
-that optimal k is 25, and we can choose this model.
+Long story short: If *k* is to the left of *optimal k*, then the model is
+overfitted. If *k* is to the right of *optimal k*, then it is underfitted.
+
+The *optimal k* is there, where the trade-off is best. Generalisability
+means that we want the model with the lowest MAE in the test data (and so
+the lowest bias) and the highest RSQ (low variance). For that, we mark the
+minimum of the RMSE test data hyperbola (green point = 15). Unfortunately,
+*k* = 15 is not necessarily the best model. With our function we have only
+seen that it is between 10 and 20. If we make another function call and use
+all k between 10 and 20, then we would see that *optimal k* is 15. We
+choose this hyper-parameter to calculate our model.
 
 Important: Here we set a seed and split our data only pseudo-randomly. If
-we do not use set.seed(123), then it would be another optimal k.
+we do not use set.seed(123), then it would be another *optimal k*.
 
 ```{r vis_generalisability_optimal_k, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
@@ -408,6 +453,7 @@ source("../../R/re_ml_01/function.parameter.extracter.R")
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
 
-# Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
-parameter.extracter(my.sequence, daily_fluxes_train, daily_fluxes_test)
+# Visualize the MAE and RSQ --> optimal k is 15
+parameter.extracter(my.sequence, daily_fluxes_train, daily_fluxes_test, 
+                    c("re_ml_01 (Chapter 9"))
 ```
