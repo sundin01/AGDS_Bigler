@@ -30,6 +30,10 @@ data.preparation.for.LRR <- function(database){
 
     # Select only the columns which are needed
     dplyr::select("Experiment", "mean ambient CO2", "mean increased CO2", "Phase")
+
+  new.database$Phase <- factor(new.database$Phase,
+                               levels =  c("early", "mid", "late"),
+                               labels = c("early", "mid", "late"))
   # return a data frame
   return(new.database)
 }
