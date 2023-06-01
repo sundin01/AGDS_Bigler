@@ -1529,9 +1529,9 @@ nitrogen) to the ambient concentration and is defined as followed:</p>
 \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)\]</span></p>
 <p>In this exercise, we worked with a data set that includes data of
 soil organic carbon measurements in experiments where ecosystems are
-exposed to ambient (low) and elevated (high) CO2 concentrations. The
-mean soil organic carbon of multiple samples is recorded within each
-experiment for different dates.</p>
+exposed to ambient (low) and elevated (high) <span class="math inline">\(CO_2\)</span>-concentrations. The mean soil
+organic carbon of multiple samples is recorded within each experiment
+for different dates.</p>
 </div>
 <div id="original-source-of-the-file" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Original source of
@@ -1592,10 +1592,10 @@ first step.</p>
 <p>Although the results of both methods are the LRR for each experiment,
 they will be in general different. Therefore, it is important which
 method we chose. In this case, it is more meaningful to use method 2
-because we use CO2 concentrations that have been measured during the
-experiment. It makes more sense that we take this into account and
-calculate the LRR for a specific sample date. If we use method 1, we
-would calculate the LRR with a CO2 concentration that never existed in
+because we use <span class="math inline">\(CO_2\)</span>-concentrations
+that have been measured during the experiment. It makes more sense that
+we take this into account and calculate the LRR for a specific sample
+date. If we use method 1, we would calculate the LRR with a <span class="math inline">\(CO_2\)</span>-concentration that never existed in
 the experimental setup. In this exercise, we will calculate the LRR with
 both methods because we want to demonstrate, that there is a
 difference.</p>
@@ -1618,8 +1618,7 @@ greater than 6 years</p></li>
 Here, we are confronted with the same problem as in the first task
 because there are again two methods to calculate the LRR. We chose
 method 2 again (same considerations and the same argumentation as for
-task one). We calculate the LRR with both methods because we want to
-demonstrate that there is a difference as well.</p>
+task one).</p>
 </div>
 </div>
 <div id="programming-and-data-evaluation" class="section level1" number="3">
@@ -1653,7 +1652,7 @@ if (!file.exists(name.of.file)){
   raw &lt;- read_xlsx(&quot;../../data-raw/re_tidy.raw.data/data.groenigen.xlsx&quot;, 
          &quot;Database S1&quot;,range = NULL, col_names = TRUE, col_types = NULL, na = &quot;&quot;)
 
-  # convert the xlsx to a csv file
+  # Convert the xlsx to a csv file
   write_csv(raw, &quot;../../data/re_tidy.new.data.csv&quot;)
   
   # Read the file
@@ -1712,7 +1711,7 @@ summary(raw.data)</code></pre>
 ##  3rd Qu.: 4.000                                                 
 ##  Max.   :10.000                                                 
 ##  NA&#39;s   :53</code></pre>
-<pre class="r"><code># change the names of the two columns that are needed later on
+<pre class="r"><code># Change the names of the two columns that are needed later on
 raw.data &lt;- raw.data|&gt;
   rename(&quot;mean ambient CO2&quot; = `ambient CO2...6`,
          &quot;mean increased CO2&quot; = `increased CO2...7`)
@@ -1726,13 +1725,13 @@ visualize.na.values.without.groups(raw.data)</code></pre>
 </div>
 <div id="quality-control" class="section level2" number="3.4">
 <h2><span class="header-section-number">3.4</span> Quality Control</h2>
-<p>We want to edit the data. We wrote a function to wrangle our data.
-After the call we want to know, whether the function has worked and if
-there an improvement. That is why we make a quality control call. We can
-see the function did exactly what we wanted it to do. The new table
-DB_S1 contains only selected columns. Further, we used bind_rows() to
-add a new column with the corresponding phase for each row. Now we are
-sure that our data has a good quality.</p>
+<p>Now we want to edit the data. We wrote a function to wrangle our
+data. After the call we want to know, whether the function has worked
+and if there an improvement. That is why we make a quality control call.
+We can see the function did exactly what we wanted it to do. The new
+table DB_S1 contains only selected columns. Further, we used bind_rows()
+to add a new column with the corresponding phase for each row. Now we
+are sure that our data has a good quality.</p>
 <pre class="r"><code># Load the function to prepare the data set
 source(&quot;../../R/re_tidy/function.data.preparation.for.LRR.R&quot;)
 
@@ -2059,14 +2058,14 @@ LRR.by.phase(DB_S1)</code></pre>
 <td align="right">-0.013</td>
 </tr>
 <tr class="even">
-<td align="left">late</td>
-<td align="right">0.035</td>
-<td align="right">0.031</td>
-</tr>
-<tr class="odd">
 <td align="left">mid</td>
 <td align="right">-0.023</td>
 <td align="right">-0.017</td>
+</tr>
+<tr class="odd">
+<td align="left">late</td>
+<td align="right">0.035</td>
+<td align="right">0.031</td>
 </tr>
 </tbody>
 </table>

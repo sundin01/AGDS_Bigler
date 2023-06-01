@@ -62,9 +62,9 @@ $$LRR = \log\left(\frac{x_{eluvated}}{x_{ambient}}\right)$$
 
 In this exercise, we worked with a data set that includes data of soil
 organic carbon measurements in experiments where ecosystems are exposed to
-ambient (low) and elevated (high) CO2 concentrations. The mean soil organic
-carbon of multiple samples is recorded within each experiment for different
-dates.
+ambient (low) and elevated (high) $CO_2$-concentrations. The mean soil
+organic carbon of multiple samples is recorded within each experiment for
+different dates.
 
 ## Original source of the file
 
@@ -125,10 +125,10 @@ step.
 Although the results of both methods are the LRR for each experiment, they
 will be in general different. Therefore, it is important which method we
 chose. In this case, it is more meaningful to use method 2 because we use
-CO2 concentrations that have been measured during the experiment. It makes
-more sense that we take this into account and calculate the LRR for a
+$CO_2$-concentrations that have been measured during the experiment. It
+makes more sense that we take this into account and calculate the LRR for a
 specific sample date. If we use method 1, we would calculate the LRR with a
-CO2 concentration that never existed in the experimental setup. In this
+$CO_2$-concentration that never existed in the experimental setup. In this
 exercise, we will calculate the LRR with both methods because we want to
 demonstrate, that there is a difference.
 
@@ -146,9 +146,7 @@ corresponds to the duration of the experiments. We define three phases:
 For an efficient way to process the data, we use "Tidyverse" again. Here,
 we are confronted with the same problem as in the first task because there
 are again two methods to calculate the LRR. We chose method 2 again (same
-considerations and the same argumentation as for task one). We calculate
-the LRR with both methods because we want to demonstrate that there is a
-difference as well.
+considerations and the same argumentation as for task one).
 
 # Programming and data evaluation
 
@@ -226,13 +224,13 @@ visualize.na.values.without.groups(raw.data)
 
 ## Quality Control
 
-We want to edit the data. We wrote a function to wrangle our data. After
-the call we want to know, whether the function has worked and if there an
-improvement. That is why we make a quality control call. We can see the
-function did exactly what we wanted it to do. The new table DB_S1 contains
-only selected columns. Further, we used bind_rows() to add a new column
-with the corresponding phase for each row. Now we are sure that our data
-has a good quality.
+Now we want to edit the data. We wrote a function to wrangle our data.
+After the call we want to know, whether the function has worked and if
+there an improvement. That is why we make a quality control call. We can
+see the function did exactly what we wanted it to do. The new table DB_S1
+contains only selected columns. Further, we used bind_rows() to add a new
+column with the corresponding phase for each row. Now we are sure that our
+data has a good quality.
 
 ```{r Calculate_the_LRR, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function to prepare the data set
