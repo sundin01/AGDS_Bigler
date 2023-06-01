@@ -28,6 +28,7 @@ extract.mae <- function(mod, df){
 }
 
 parameter.extracter.knn.cv <- function(own.sequence, df.1, df.2, number.of.validation){
+  source("../../R/re_ml_02/function.knn.cv.model.R")
   add.rsq.1 <- NULL
   add.rsq.2 <- NULL
   add.mae.1 <- NULL
@@ -70,7 +71,8 @@ parameter.extracter.knn.cv <- function(own.sequence, df.1, df.2, number.of.valid
                                      color = "Optimal K"), size = 4)+
     labs(x = "# k", y = "RSQ / MAE",
          title = "Overview of the development of RSQ and MAE",
-         subtitle = "by using KNN-Algorithm", caption = "AGDS Report Exercise re_ml_02 (Chapter 9)")+
+         subtitle = paste("by using KNN-Algorithm,"," Method: cv with n-fold = ",number.of.validation),
+         caption = "AGDS Report Exercise re_ml_02 (Chapter 10)")+
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
