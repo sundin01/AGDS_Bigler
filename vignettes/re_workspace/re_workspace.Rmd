@@ -39,20 +39,22 @@ non-experienced user. The following goals should be achieved:
 
 -   Work with R and RStudio.
 
--   Know basic R objects and classes.
-
 -   Understand how R interacts with files on your computer.
 
-This exercise also has the goal of providing some information about GIT to
-non-experienced users. The following goals should be achieved:
+This exercise also has the goal of providing some information about *git*
+to non-experienced users. The following goals should be achieved:
 
--   Organize your workspace for efficient data science projects.
+-   Organize our workspace for efficient data science projects.
 
--   Have installed *git* and all R packages used throughout the book.
+-   Install *git* and create a github account.
 
 ## Theory
 
-### R
+We will not show you how to programming in R. We would like to help you to
+help yourself. That is why we provide information where you get all the
+information you need.
+
+### R^1^
 
 R is a free, open-source programming language and software environment for
 statistical computing and graphics. It is widely used, not only among
@@ -61,13 +63,13 @@ by scientists in various domains for data analysis, visualization, and
 modeling. RStudio is an integrated development environment (IDE) that
 provides a user-friendly "center stage" for your work in R.
 
-### GIT
+### git^1^
 
-*git* is a version control system that keeps track of all changes to your
-code, who made them, and when. It allows you to go back to previous changes
-and lets you control when to iterate from one state of the code to the
-next. The basic unit of *git* is a git repository, where all the code is
-contained in a project directory. That\'s why *R projects* work well
+*git* is a version control system that keeps track of all changes to our
+code, who made them, and when. It allows us to go back to previous changes
+and let us control when to iterate from one state of the code to the next.
+The basic unit of *git* is a git repository, where all the code is
+contained in a project directory. That's why R projects work well
 with *git*. *git* can also keep track of changes in data, so long as the
 data is small and in text format.
 
@@ -75,18 +77,18 @@ data is small and in text format.
 
 ## Install R and RStudio
 
-To use R and RStudio, you have to download and install them first:
+To use R and RStudio, we have to download and install them first:
 
-To install R, go to the Cran website and download the latest version of R
-for your operating system. Please use
-this: [https://cran.r-project.org/](https://cran.r-project.org/){style="color: rgb(37, 37, 37);"}
+To install R, we go to the cran website and download the latest version of
+R for your operating system (use
+this: [https://cran.r-project.org/](https://cran.r-project.org/){style="color: rgb(37, 37, 37);"})
 
-To install RStudio, go to the RStudio website and download the latest
-version of RStudio for your operating system. Please use
-this: [https://posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop){style="color: rgb(37, 37, 37);"}
+To install RStudio, we go to the RStudio website and download the latest
+version of RStudio for our operating system (use
+this: [https://posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop){style="color: rgb(37, 37, 37);"}).
 
-If you want to learn programming in R, please use the manuals or books from
-the following links:
+If we want to learn programming in R, we use the manuals or books from the
+following links:
 
 [Manuals:]{.underline}
 
@@ -96,26 +98,26 @@ the following links:
 
 <https://www.r-project.org/doc/bib/R-books.html>
 
-## GIT
+## git
 
-To use *git*, you have to download and install them first:
+To use *git*, we have to download and install them first:
 
 -   Create a GitHub account and sign in.
 
     <https://github.com> 
 
--   Follow the *git* download and installation instructions for your OS as
+-   Follow the *git* download and installation instructions for the OS as
     outlined:
 
      [https://git-scm.com/downloads](https://git-scm.com/downloads){style="color: rgb(37, 37, 37);"}
 
--   Connect your GitHub account with *git* locally, using SSH keys. 
+-   We connect our GitHub account with *git* locally, using SSH key. 
 
--   Log into GitHub in your browser and create a new repository.
+-   We log into GitHub in our browser and create a new repository.
 
--   Clone your repository.
+-   We clone the repository.
 
--   Create a new R-Project from a GitHub repository.
+-   We create a new R-Project from a GitHub repository.
 
 If you need more information, please take a closer look to these manuals:
 
@@ -125,4 +127,10 @@ If you need more information, please take a closer look to these manuals:
 
 It might be really complicated if you do it the first time. But it is very
 important, and we assure you that you will not regret it. The time you need
-to understand this task is well spent!
+to understand how *git* works is well spent!
+
+# Bibliography
+
+(1) Stocker Benjamin, Hufkens Koen, Aran Pepa, Schneider Pascal (2023):
+Applied Geodata Science 1.
+<https://geco-bern.github.io/agds/index.html#about-this-book>
