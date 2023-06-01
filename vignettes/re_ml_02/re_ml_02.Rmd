@@ -49,22 +49,22 @@ The theory is very similar to re_ml_01. We change only our method to
 cross-validation. Validation is not the same as testing the data.
 Validation is a concept that will be applied during the data training.
 
-Cross-validation is a resampling method that randomly divides the training
-data into n-folds of approximately equal size. We fit the model for n-1
-folds and use the remaining fold to compute model performance. We repeat
-that n times, and for each time we use a different fold as a validation
-set. After we finished this procedure, we had n estimates of the
-generalization error. Thus, the n-fold CV estimate is computed by averaging
+Cross-validation (cv) is a resampling method that randomly divides the
+training data into n-folds of approximately equal size. We fit the model
+for n-1 folds and use the remaining fold to compute model performance. We
+repeat that n times, and for each time we use a different fold as a
+validation set. After we finished this procedure, we had n estimates of the
+generalization error. Thus, the n-fold cv estimate is computed by averaging
 the n test errors, providing us with an approximation of the error we might
-expect on unseen data. There is no formal rule as to the size of n.
-However, as n gets larger, the difference between the estimated performance
-and the true performance to be seen on the test set will decrease. But we
-will need more time to compute the models.
+expect on unseen data. There is no formal rule as to the size of *n*.
+However, as *n* gets larger, the difference between the estimated
+performance and the true performance to be seen on the test set will
+decrease. But we will need more time to compute the models.
 
-For KNN, k is the only hyperparameter. In exercise re_ml_01, we
-demonstrated how to find the optimal k. If we train our data with the CV
-method, we get a model that has a better bias-variance trade-off than the
-models before. With optimal k and cross-validation, we have a "true"
+For KNN, *k* is the only hyperparameter. In exercise re_ml_01, we
+demonstrated how to find the *optimal k*. If we train our data with the
+cv-method, we get a model that has a better bias-variance trade-off than
+the models before. With *optimal k* and cross-validation, we have a "true"
 out-of-sample prediction. That is why we implemented a CV-KNN algorithm.
 
 # Method
@@ -157,17 +157,23 @@ it.
 Here, we work with two locations (Davos and Lägern). But we do not want to
 do everything twice. That is why we define a new data frame that contains
 all the information about the two locations. We use .id = "id" because we
-must know where the values come from. But this is not so elegant. Thaty why
-we change the column name (id = Location) and replace the values (1 =
+must know where the values come from. But this is not so elegant. That is
+why we change the column name (id = Location) and replace the values (1 =
 Davos, 2 = Lägern). If we do that, we can use the filter function from the
 package "dplyr" to efficiently analyze our data.
+
+We can see that there are many missing values in incoming long-wave
+(LW_IN_F) in Davos and precipitation (P_F) in Lägern. We would lose almost
+half of our data. That is why we do not use this column. We make a quality
+check again and we see: our data is ok! We bind our rows and make a quality
+check one last time. Now we are sure, that everything is ok.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file (we use the function from another markdown again)
 source("../../R/re_ml_01/function.use.good.quality.only.R")
 source("../../R/general/function.visualize.na.values.R")
 
-# Function call to clean the data
+# Function call to clean the data. But the quality is poor and we do not use them!
 daily_fluxes.dav.no <- use.good.quality.only(daily_fluxes.davos)
 daily_fluxes.lag.no <- use.good.quality.only(daily_fluxes.laegern)
 
@@ -175,7 +181,7 @@ daily_fluxes.lag.no <- use.good.quality.only(daily_fluxes.laegern)
 visualize.na.values.without.groups(daily_fluxes.dav.no)
 visualize.na.values.without.groups(daily_fluxes.lag.no)
 
-# Function call to clean the data (Without the columns )
+# Function call to clean the data (We use another function to clean our data)
 daily_fluxes.dav <- use.good.quality(daily_fluxes.davos)
 daily_fluxes.lag <- use.good.quality(daily_fluxes.laegern)
 
@@ -191,9 +197,7 @@ daily_fluxes_both <- daily_fluxes_both|>
   rename("Location" = "id")|>
   mutate(Location = ifelse(Location == 1, "Davos", "Lägern"))
 
-# We check the data set. Now our dataset contains NAs and only the columns of interest
-
-# Function call
+# Function call: we make a quality control one last time --> everything is ok!
 visualize.na.values.without.groups(daily_fluxes_both)
 ```
 
@@ -244,56 +248,57 @@ three models.
 ### Davos
 
 We can see that the optimal k is 50. This seems odd because the data are
-the same as for the exercise re_ml_01 and there was our optimal k = 25. But
-we have to consider that we used a different approach to create our model.
-We use "cross-validation," which is why we find different optimal k for the
-same data (and the same set.seed). Note that we optimized k. We also used
-other sequences to find the optimal k. Only the results are presented here.
+the same as for the exercise re_ml_01 and there was our *optimal k* = 15.
+But we have to consider that we used a different approach to create our
+model. We use "cross-validation," which is why we find different optimal k
+for the same data (and the same set.seed). Note that we optimized k. We
+also used other sequences to find the *optimal k*. Only the results are
+presented here.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
-source("../../R/re_ml_01/function.parameter.extracter.R")
-# We also need this function because the function above will call this one
-source("../../R/re_ml_01/function.train.and.test.R")
+source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5))
 
-# Visualize the MAE and RSQ --> optimal k is 50
-parameter.extracter(my.sequence, daily_fluxes_davos_train, daily_fluxes_davos_test,
-                    c("re_ml_02 (Chapter 10)"))
+# Visualize the MAE and RSQ --> optimal k is 50, note that 10 is the number of n-folds
+parameter.extracter.knn.cv(my.sequence, 
+                           daily_fluxes_davos_train, 
+                           daily_fluxes_davos_test, 10)
 ```
 
 ### Lägern
 
-We make the same thing for Lägern. Here is optimal k equal to 23. We
+We make the same thing for Lägern. Here is *optimal k* equal to 23. We
 visualized the main metrics again.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
-source("../../R/re_ml_01/function.parameter.extracter.R")
-# We also need this function because the function above will call this one
-source("../../R/re_ml_01/function.train.and.test.R")
+source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5), 23)
 
 # Visualize the MAE and RSQ --> optimal k is 23 (between 20:30)
-parameter.extracter(my.sequence, daily_fluxes_laegern_train, daily_fluxes_laegern_test)
+parameter.extracter.knn.cv(my.sequence, 
+                           daily_fluxes_laegern_train, 
+                           daily_fluxes_laegern_test, 10)
 ```
 
 ### Davos + Lägern
 
-We do the same thing for the pooled data, and we find an optimal k equal to
-40.
+We do the same thing for the pooled data, and we find an *optimal k* equal
+to 49.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
-source("../../R/re_ml_01/function.parameter.extracter.R")
-source("../../R/re_ml_01/function.train.and.test.R")
+source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
 my.sequence <- c(1, 2, 3, 4, seq(5, to = 100, by = 5),49)
 
 # Visualize the MAE and RSQ --> optimal k is 25 (between 20:30)
-parameter.extracter(my.sequence, daily_fluxes_both_train, daily_fluxes_both_test)
+parameter.extracter.knn.cv(my.sequence, 
+                       daily_fluxes_both_train, 
+                       daily_fluxes_both_test, 10)
 ```
 
 ## Best models
@@ -501,7 +506,7 @@ We have merged two data sets. But the two locations are very different.
 Table 1 give you a overview:
 
 | Quantity                         | Davos                     | Lägern                                                                        |
-|-------------------|-------------------|--------------------------------------|
+|------------------|------------------|----------------------------------------|
 | Coordinates^2^:                  | 46.81°N, 9.84°E           | 47.48°N, 8.4°E                                                                |
 | Elevation^2^:                    | 1594 m.a.s.l.             | 873 m.a.s.l.                                                                  |
 | Exposure^2^:                     | South-East slope          | Summit                                                                        |
