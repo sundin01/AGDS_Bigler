@@ -253,7 +253,7 @@ proper html outcome...
 source("../../R/re_tidy/function.LRR.by.experiment.R")
 
 # Function call to calculate the LRR for each experiment and save it as a HTML kable
-LRR.by.experiment(DB_S1)
+LRR.by.experiment(DB_S1, 1)
 ```
 
 ## LRR calculation for each phase
@@ -265,7 +265,7 @@ LRR.by.experiment(DB_S1)
 source("../../R/re_tidy/function.LRR.by.phase.R")
 
 # Function call to calculate the LRR for each phase and save it as a HTML kable
-LRR.by.phase(DB_S1)
+LRR.by.phase(DB_S1, 2)
 ```
 
 # Discussion
