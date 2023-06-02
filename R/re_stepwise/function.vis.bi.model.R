@@ -8,7 +8,7 @@ vis.bi.model <- function(database){
          y = "GPP_NT_VUT_REF", x = "PPFD_IN",
          caption = "AGDS Report re_stepwise (Chapter 8)") +
     # Add some important parameters
-    stat_poly_eq(use_label(c("eq", "R2", "AIC")), label.x = "right",
+    stat_poly_eq(use_label(c("eq", "R2")), label.x = "right",
                  label.y = "bottom",) +
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +

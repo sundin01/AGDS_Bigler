@@ -17,7 +17,7 @@ Vis_of_the_develop.bi.model <- function(tibble.bi.model){
     geom_text(aes(label = `RR`), vjust = 0, hjust = 0, colour = "black", angle = 90) +
     scale_y_continuous(limits = c(0 , 0.6)) +
     labs(x = "Predictors"
-         , y = "RR",
+         , y = "RSQ",
          title = "Overview about the RSQ",
          subtitle = "RSQ for each bivariate linear Regression model",
          caption = "AGDS Report re_stepwise (Chapter 8)")+
