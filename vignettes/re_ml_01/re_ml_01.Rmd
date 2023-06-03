@@ -57,7 +57,7 @@ distance and the Manhattan distance. With the hyper-parameter k we can fit
 our model. But what is the hyper-parameter *k* ?:
 
 Euclidean distance:$$
-\sqrt{\sum_{j=1}^P (X_{a,j} - X_{b,j})^2}
+\sqrt[2]{\sum_{j=1}^P (X_{a,j} - X_{b,j})^2}
 $$Manhattan distance:$$
 \sum_{j=1}^P |X_{a,j} - X_{b,j}|
 $$
