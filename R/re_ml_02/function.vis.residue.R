@@ -66,7 +66,7 @@ time.variation.year <- function(mod1, df_test, label = NULL, caption = NULL, ann
     geom_smooth(aes(x = residue.mod1$Time, y = residue.mod1$Residue), method = "loess", se = FALSE)+
     labs(x = "Time", y = "Residue",
        title = "Time variation of GPP prediction ",
-       subtitle = paste("Model:",label, ", Bias =", bias), caption = paste("AGDS Report Exercise",caption ))+
+       subtitle = paste("Model:",label), caption = paste("AGDS Report Exercise",caption ))+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     # add an individual panel boarder around the whole graph
@@ -82,7 +82,7 @@ time.variation.year <- function(mod1, df_test, label = NULL, caption = NULL, ann
     geom_smooth(aes(x = day, y = Residue), method = "loess", se = FALSE)+
     labs(x = "Time", y = "Residue",
          title = "Time variation of GPP prediction ",
-         subtitle = paste("Model:",label, ", Bias =", bias), caption = paste("AGDS Report Exercise",caption ))+
+         subtitle = paste("Model:",label), caption = paste("AGDS Report Exercise",caption ))+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     # add an individual panel boarder around the whole graph
