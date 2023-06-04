@@ -12,7 +12,7 @@ editor_options:
     wrap: 75
 ---
 
-Course: Applied Geo-data Science at the University of Bern (Institute of
+Course: Applied Geo-Data Science at the University of Bern (Institute of
 Geography)
 
 Supervisor: Prof. Dr. Benjamin Stocker
@@ -27,17 +27,18 @@ Author: Bigler Patrick (patrick.bigler1\@students.unibe.ch)
 
 Matriculation number: 20-100-178
 
-Reference: Report Exercise 7 (Chapter 10, Machine Learning 2)
+Reference: Report Exercise 7 (Chapter 10)
 
 # Introduction
 
 ## Objectives
 
-Here, we explore the role of structure in the data for model
+In this exercise we explore the role of structure in the data for model
 generalisability and how to best estimate a "true" out-of-sample error that
 corresponds to the prediction task. The task here is to train a model on
 ecosystem flux observations from one site and predict them for another site
-(spatially upscaling).
+(spatially upscaling). With a realistic problem, the following goals should
+be trained:
 
 -   Concept of cross validation
 
@@ -61,13 +62,18 @@ However, as *n* gets larger, the difference between the estimated
 performance and the true performance to be seen on the test set will
 decrease. But we will need more time to compute the models.
 
-For KNN, *k* is the only hyperparameter. In exercise re_ml_01, we
-demonstrated how to find the *optimal k*. If we train our data with the
+For KNN, *k* is the only hyper-parameter. In exercise re_ml_01, we
+demonstrated how to find *optimal k*. If we train our data with the
 cv-method, we get a model that has a better bias-variance trade-off than
 the models before. With *optimal k* and cross-validation, we have a "true"
-out-of-sample prediction. That is why we implemented a CV-KNN algorithm.
+out-of-sample prediction. That is why we implemented a cv-KNN algorithm.
 
 # Method
+
+We split our data and use 80% for training and 20% for model evaluation. We
+use 10 folds for cross-validation. Because the algorithm uses distance, we
+have to standardize our data. With the box-cox function, we transform our
+data into a normal distribution. We use set.seed for reproducibility.
 
 ## R: Evaluation of the data
 
@@ -141,9 +147,7 @@ if (!file.exists(name.of.file)){
 }else{daily_fluxes.laegern <- read_csv("../../data/re_ml_02/daily_fluxes.laegern.csv")}
 ```
 
-## Data Overview
-
-### Data cleaning
+## Data cleaning
 
 We can see that some columns contain -9999 as a value. Our quality function
 changed that to NA. Then we use ymd() from the "lubridate" package to
@@ -157,16 +161,17 @@ it.
 Here, we work with two locations (Davos and Lägern). But we do not want to
 do everything twice. That is why we define a new data frame that contains
 all the information about the two locations. We use .id = "id" because we
-must know where the values come from. But this is not so elegant. That is
-why we change the column name (id = Location) and replace the values (1 =
-Davos, 2 = Lägern). If we do that, we can use the filter function from the
-package "dplyr" to efficiently analyze our data.
+must know where the values come from. But this is not so elegant. We change
+the column name (id = Location) and replace the values (1 = Davos, 2 =
+Lägern). If we do that, we can use the filter function from the package
+"dplyr" to efficiently analyze our data.
 
 We can see that there are many missing values in incoming long-wave
 (LW_IN_F) in Davos and precipitation (P_F) in Lägern. We would lose almost
-half of our data. That is why we do not use this column. We make a quality
-check again and we see: our data is ok! We bind our rows and make a quality
-check one last time. Now we are sure, that everything is ok.
+half of our data in our recipe call (data training). That is why we do not
+use this column. After we descard the columns we make a quality check again
+and we see: our data is ok! We bind our rows and make a quality check one
+last time. Now we are sure, that everything is ok.
 
 ```{r Dataquality, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function in the file (we use the function from another markdown again)
@@ -177,17 +182,17 @@ source("../../R/general/function.visualize.na.values.R")
 daily_fluxes.dav.no <- use.good.quality.only(daily_fluxes.davos)
 daily_fluxes.lag.no <- use.good.quality.only(daily_fluxes.laegern)
 
-# Visualize the result ---> many NA! We woul loos to much data.
-visualize.na.values.without.groups(daily_fluxes.dav.no)
-visualize.na.values.without.groups(daily_fluxes.lag.no)
+# Visualize the result ---> many NA! We would loos to much data.
+visualize.na.values.without.groups(daily_fluxes.dav.no, c(" Davos: Problem with LW_IN_F!"))
+visualize.na.values.without.groups(daily_fluxes.lag.no, c(" Lägern: Problem with P_F!"))
 
 # Function call to clean the data (We use another function to clean our data)
 daily_fluxes.dav <- use.good.quality(daily_fluxes.davos)
 daily_fluxes.lag <- use.good.quality(daily_fluxes.laegern)
 
 # Visualize the results --> Now we can work!
-visualize.na.values.without.groups(daily_fluxes.dav)
-visualize.na.values.without.groups(daily_fluxes.lag)
+visualize.na.values.without.groups(daily_fluxes.dav, c("Davos: Everything ok!"))
+visualize.na.values.without.groups(daily_fluxes.lag, c("Lägern: Everything ok!"))
 
 # We create a new data frame with bind_rows. We us "id" as an identifier. 
 daily_fluxes_both <- bind_rows(daily_fluxes.dav, daily_fluxes.lag, .id = "id")
@@ -198,7 +203,7 @@ daily_fluxes_both <- daily_fluxes_both|>
   mutate(Location = ifelse(Location == 1, "Davos", "Lägern"))
 
 # Function call: we make a quality control one last time --> everything is ok!
-visualize.na.values.without.groups(daily_fluxes_both)
+visualize.na.values.without.groups(daily_fluxes_both, c("Pooled: Everything ok!"))
 ```
 
 ## Split the data
@@ -236,10 +241,10 @@ daily_fluxes_both_test <- rsample::testing(split_both)
 
 ## Find optimal k
 
-We use a sequence to determine the optimal k. The model with an optimal k
-has the smallest mean absolute error (MAE). But we are also interested in
-other metrics, like RSQ. Our function will read RSQ as well. We created
-three models.
+We use a sequence to determine the *optimal k*. The model with an *optimal
+k* has the smallest mean absolute error (MAE). But we are also interested
+in other metrics, like RSQ. Our function will determine RSQ as well. We
+create three models:
 
 1.  We train a model with data from Davos
 2.  We train a model with data from Lägern
@@ -247,15 +252,20 @@ three models.
 
 ### Davos
 
-We can see that the optimal k is 50. This seems odd because the data are
+We can see that the *optimal k* is 50. This seems odd because the data are
 the same as for the exercise re_ml_01 and there was our *optimal k* = 15.
 But we have to consider that we used a different approach to create our
-model. We use "cross-validation," which is why we find different optimal k
-for the same data (and the same set.seed). Note that we optimized k. We
-also used other sequences to find the *optimal k*. Only the results are
-presented here.
+model. We use "cross-validation," which is why we find different *optimal
+k* for the same data (and the same set.seed). Further, in this exercise we
+us 80% instead of 70% of the data set for training.
 
-```{r error=FALSE, message=FALSE, warning=FALSE}
+We also used other sequences to find the *optimal k* (because with the call
+below we only know *optimal k* lies in a certain interval). Only the
+results are presented here. We set eval = false because the time to compute
+the value is high. If you want to check, please run the code manually (it
+will work).
+
+```{r optimal_k_davos, eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
@@ -269,10 +279,11 @@ parameter.extracter.knn.cv(my.sequence,
 
 ### Lägern
 
-We make the same thing for Lägern. Here is *optimal k* equal to 23. We
-visualized the main metrics again.
+We make the same thing for Lägern. Here is *optimal k* equal to 23. We set
+eval = false because the time to compute the value is high. If you want to
+check, please run the code manually (it will work).
 
-```{r error=FALSE, message=FALSE, warning=FALSE}
+```{r optimal_k_laegern, eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
@@ -287,9 +298,9 @@ parameter.extracter.knn.cv(my.sequence,
 ### Davos + Lägern
 
 We do the same thing for the pooled data, and we find an *optimal k* equal
-to 49.
+to 49. Please be patient. The calculation time is high.
 
-```{r error=FALSE, message=FALSE, warning=FALSE}
+```{r optimal_k_pooled, error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.parameter.extracter.cv.R")
 
 # Define a sequence for k. Use 1,2,3,4 to show the curve at the beginning
@@ -303,25 +314,23 @@ parameter.extracter.knn.cv(my.sequence,
 
 ## Best models
 
-Now we know the optimal k for each model, and we recalculate them. We also
-did that with the function parameter.extractor(). But we do not want a
-visualization. That is why we recalculate the model by the optimal k.
+Now we know the *optimal k* for each model, and we recalculate them.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 source("../../R/re_ml_02/function.knn.cv.model.R")
 
-# Function call for Davos
+# Function call for Davos, 50 = k, 10 = cv
 knn.model.davos.optimal <- knn.cv.model(daily_fluxes_davos_train, 50, 10)
-# Function call for Lägern
+# Function call for Lägern, 23 = k, 10 = cv
 knn.model.laegern.optimal <- knn.cv.model(daily_fluxes_laegern_train, 23, 10)
-# Function call for Davos and Lägern
+# Function call for Davos and Lägern, 49 = k, 10 = cv
 knn.model.both.optimal <- knn.cv.model(daily_fluxes_both_train, 49, 10)
 ```
 
 ### Visualization of the models
 
-...and evaluate our models. For that, we compare each train data to all
-other test data. It follows, tha we need 9 models.
+We evaluate our models. For that, we compare each train data to all other
+test data. It follows, that we need 9 evaluations.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -368,7 +377,7 @@ P_9 <- eval_model(knn.model.both.optimal, daily_fluxes_both_train,
                   daily_fluxes_both_test, c("Davos and Lägern (opt. k = 49)"), 
                   c("Davos+Lägern"))
 
-# Davvos: Within side, across side and both locations
+# Davos: Within side, across side and both locations
 cowplot::plot_grid(P_1, P_2, P_3, ncol = 1)
 
 # Lägern: Within side, across side and both locations
@@ -381,13 +390,11 @@ cowplot::plot_grid(P_7, P_8, P_9, ncol = 1)
 ## Residue
 
 We want more information about the residue. We use a flexible function to
-get this information. If we do not specify which months we want, then the
-function will use all months. Now we can analyze whether there are any
-patterns. We use the pooled knn-model to predict the locations because we
-are interested in a very generalized model. We use the mean to determine
-whether the model underestimated or overestimated the prediction (if there
-is a bias).We visualize the whole data set (all observations and all test
-data), and we can see that there is annual cycle for both locations.
+get this information. We plot a time variation. Now we can analyze whether
+there are any patterns. We use the pooled KNN-model to predict the
+locations because we are interested in a very generalized model. We
+visualize the whole data set (all observations and all test data), and we
+can see that there is annual cycle for both locations.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
@@ -397,17 +404,14 @@ source("../../R/re_ml_02/function.plot.function.R")
 plot.time.variation(daily_fluxes_both,
      daily_fluxes_both$TIMESTAMP,
      daily_fluxes_both$GPP_NT_VUT_REF,c("Overview about the pooled measurements"), 
-     sub.lab = c("optimnal k = 38"),prediction = FALSE)
+     sub.lab = c("optimal k = 49"),prediction = FALSE)
 
 # We plot the test data set from the pooled data set. We did not do any prediction
 plot.time.variation(daily_fluxes_both_test,
      daily_fluxes_both_test$TIMESTAMP,
      daily_fluxes_both_test$GPP_NT_VUT_REF, c("Overview about the pooled test data"),
-     prediction = FALSE, sub.lab = c("optimnal k = 38"))
+     prediction = FALSE, sub.lab = c("optimal k = 49"))
 ```
-
-If we predict the test data, we also see a annual cycle for both locations.
-We also see that the cycle is bigger for Lägern than for Davos.
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
@@ -417,7 +421,7 @@ source("../../R/re_ml_02/function.plot.function.R")
 plot.time.variation(daily_fluxes_both_test,
      daily_fluxes_both_test$TIMESTAMP,
      daily_fluxes_both_test$GPP_NT_VUT_REF,c("Overview about the predicted pooled test data"),
-     prediction = TRUE, mod1 = knn.model.both.optimal, sub.lab = c("optimnal k = 38"))
+     prediction = TRUE, mod1 = knn.model.both.optimal, sub.lab = c("optimal k = 49"))
 ```
 
 ### Residue for Davos
@@ -442,23 +446,8 @@ time.variation.year(knn.model.both.optimal, daily_fluxes_davos_test,
 
 # We want a better resolution of the residue of Davos (daily)
 time.variation.year(knn.model.both.optimal, daily_fluxes_davos_test,
-                    c("Train: Pooled, Test: Lägern, k = 49"), 
-                    c("re_ml_2 (Chapter 10)"), plot = FALSE)|>
-  mutate(day = yday(Time))|>
-  group_by(day)|>
-  ggplot(aes(x = day, y = Residue))+
-  geom_line()+
-  geom_smooth(aes(x = day, y = Residue), method = "loess", se = FALSE)+
-  labs(x = "Time [Day of the year]", y = "Residue", 
-       title = "Annual time variation of the GPP-Residue",
-       subtitle = paste("KNN model: Train: pooled, Test: Davos (optimal k = 49)"), 
-       caption = paste("AGDS Report Exercise re_ml_2 (Chapter 10)"))+
-  theme_bw()+
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
-  # add an individual panel boarder around the whole graph
-  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
-          panel.background = element_rect(fill = "white"),
-          plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
+                    c("Train: Pooled, Test: Davos, k = 49"), 
+                    c("re_ml_2 (Chapter 10)"), annual = FALSE)
 ```
 
 ### Residue for Lägern
@@ -480,22 +469,7 @@ time.variation.year(knn.model.both.optimal, daily_fluxes_laegern_test,
 # We want a better resolution of the residue of Lägern (daily)
 time.variation.year(knn.model.both.optimal, daily_fluxes_laegern_test,
                     c("Train: Pooled, Test: Lägern, k = 49"), 
-                    c("re_ml_2 (Chapter 10)"), plot = FALSE)|>
-  mutate(day = yday(Time))|>
-  group_by(day)|>
-  ggplot(aes(x = day, y = Residue))+
-  geom_line()+
-  geom_smooth(aes(x = day, y = Residue), method = "loess", se = FALSE)+
-  labs(x = "Time [Day of the year]", y = "Residue", 
-       title = "Annual time variation of the GPP-Residue",
-       subtitle = paste("KNN model: Train: pooled, Test: Lägern (optimal k = 49)"), 
-       caption = paste("AGDS Report Exercise re_ml_2 (Chapter 10)"))+
-  theme_bw()+
-  theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
-  # add an individual panel boarder around the whole graph
-  theme(plot.margin = margin(0.3, 0.3, 0.3, 0.3, "cm"),
-          panel.background = element_rect(fill = "white"),
-          plot.background = element_rect(fill = "grey90",colour = "black", linewidth = 1))
+                    c("re_ml_2 (Chapter 10)"), annual = FALSE)
 ```
 
 # Discussion
@@ -505,28 +479,29 @@ time.variation.year(knn.model.both.optimal, daily_fluxes_laegern_test,
 We have merged two data sets. But the two locations are very different.
 Table 1 give you a overview:
 
-| Quantity                         | Davos                     | Lägern                                                                        |
-|------------------|------------------|----------------------------------------|
-| Coordinates^2^:                  | 46.81°N, 9.84°E           | 47.48°N, 8.4°E                                                                |
-| Elevation^2^:                    | 1594 m.a.s.l.             | 873 m.a.s.l.                                                                  |
-| Exposure^2^:                     | South-East slope          | Summit                                                                        |
-| 2m Temperature^2^ (1990-2020)    | 3.8°C - 5.3°C             | 6.2°C - 9.4°C                                                                 |
-| Precipitation^2^ (1990-2020      | 1046 mm per year          | Lägern does not have a precipitation series. We use Zurich instead: \< 1000mm |
-| Hours of sunshine^2^ (1990-2020) | 1537 h - 2076 h           | 1462 h - 2152 h                                                               |
-| Wind^2^ (1990-2020)              | 6 .8 km/h - 10.4 km/h     | 15 km/h - 18 km/h                                                             |
-| Vegetation^3^:                   | Mainly doniferous forests | Mainly deciduous forests                                                      |
+**Table 1:** Comparison of the measuring stations (Davos vs. Lägern)
 
-: Table 1: Comparison of the measuring stations (Davos vs. Lägern)
+| Quantity             | Davos                                                                                                                                                                                                          | Lägern                                                                                                                                                                                                                                                       |
+|:------------------|:--------------------------|:-----------------------------|
+| Coordinates^2^:      | 46.81°N, 9.84°E                                                                                                                                                                                                | 47.48°N, 8.4°E                                                                                                                                                                                                                                               |
+| Elevation^2^:        | 1639 m.a.s.l.                                                                                                                                                                                                  | 689 m.a.s.l.                                                                                                                                                                                                                                                 |
+| Exposure^2^:         | South-East slope                                                                                                                                                                                               | Summit                                                                                                                                                                                                                                                       |
+| 2m Temperature^3^    | 2.8° C                                                                                                                                                                                                         | 8.3° C                                                                                                                                                                                                                                                       |
+| Precipitation^3^     | 1062 mm per year                                                                                                                                                                                               | 1100 mm per year                                                                                                                                                                                                                                             |
+| Climate^3^ [Koeppen] | Tundra                                                                                                                                                                                                         | \-                                                                                                                                                                                                                                                           |
+| Hours of sunshine^2^ | 1537 h - 2076 h                                                                                                                                                                                                | 1462 h - 2152 h                                                                                                                                                                                                                                              |
+| Wind^2^              | 8 km/h                                                                                                                                                                                                         | 17 km/h                                                                                                                                                                                                                                                      |
+| Vegetation^3^:       | ENF (Evergreen Needleleaf Forests: Lands dominated by woody vegetation with a percent cover \>60% and height exceeding 2 meters. Almost all trees remain green all year. Canopy is never without green foliage | MF (Mixed Forests: Lands dominated by trees with a percent cover \>60% and height exceeding 2 meters. Consists of tree communities with interspersed mixtures or mosaics of the other four forest types. None of the forest types exceeds 60% of landscape.) |
 
 ## Model
 
-We tried different approaches to modeling the GPP. We took some metrics and
-hyper-parameter into account (e.g., RSQ, MAE, k). Our goal was to create a
-model that is generalizable. That means that we want a model that can
-predict the same variable (GPP) in different locations (Davos, Lägern).
-After we found the probably best model, we applied the model to predict the
-test data. The difference between predicted test data and test data is
-called the bias. With this parameter, we are able to discuss our analysis.
+We tried different approaches to modeling GPP. We took some metrics and
+hyper-parameter into account (e.g., RSQ, MAE, *k*). Our goal was to create
+a model that is generalizable. That means that we want a model that can
+predict GPP in different locations (Davos or Lägern). After we found the
+probably best model, we applied the model to predict the test data. The
+difference between predicted test data and test data is called the bias.
+With this parameter, we are able to discuss our analysis.
 
 ### How do the model metrics on the test set compare to the true out-of-sample setup above?
 
@@ -538,74 +513,56 @@ closer look:
 
 [Davos:]{.underline}
 
-If we train a model with data from Davos and optimize it (k = 59), RSQ is
+If we train a model with data from Davos and optimize it (*k* = 50), RSQ is
 0.73 (which is actually very good). The RMSE is 1.43. If we predict the
-test data from Davos, the RSQ is 0.73 and the RMSE is 1.44. But if we
+test data from Davos, the RSQ is 0.73 and the RMSE is 1.44. The bias is
+about -0.06 which means our model underestimate gpp in general. If we
 predict Lägern, RSQ is decreasing to 0.52, and RMSE is increasing to 3.24.
 It follows that we cannot predict Lägern with a Davos model. If we predict
-with this pooled data set, RMSE is decreasing to 0.61 and increasing to
-2.24.
+pooled data, RMSE is decreasing to 0.61 and increasing to 2.24. The bias is
+about 0.42.
 
 [Lägern:]{.underline}
 
 For Lägern, the situation is quite similar to Davos. If we train a model
-with Lägern data and optimize it (k = 25), RSQ is 0.66 and RMSE is 2.45.
-The Lägern model performed a little less well than the Davos model. We also
-see that if we predict other data sets, we predict Davos, with RSQ
-decreasing to 0.55 and RMSE increasing to 2.26. That is better than Davos'
-prediction of Lägern. If we predict a pooled data set, RSQ decreases to
-0.62 and RMSE increases to 2.28. This is very similar to Davos.
+with Lägern data and optimize it (*k* = 23), RSQ is 0.66 and RMSE is 2.44.
+The bias is 0.01 which means the model overestimate GPP in general. We also
+see that if we predict Davos, RSQ decreasing to 0.55 and RMSE increasing to
+2.33. The bias increase to -1.07. If we predict pooled data, RSQ decreases
+to 0.61 and RMSE increases to 2.32. The bias is about -0.68 and therefore
+higher than for the Davos model (but opposite sign!).
 
 [Pooled:]{.underline}
 
 Our goal is to create a model that can predict different locations. To
-achieve this, we trained a model and optimized it (k = 38). If we predict
-pooled data, RSQ is 0.67, and RMSE is 2. If we predict Davos, RSW increases
-to 0.71 and RSME decreases to 1.53. This is remarkable and surprising. This
-is almost the same model performance as the Davos model. If we predict
-Lägern, RSQ decreases to 0.64 and RMSE increases to 2.57. This is what we
-expected.
+achieve this, we trained a model and optimized it (*k* = 38). If we predict
+pooled data, RSQ is 0.67, and RMSE is 2. The bias is almost zero. If we
+predict Davos, RSQ increases to 0.71, RSME decreases to 1.53, and the bias
+to about -0.29. This is remarkable and surprising. This is almost the same
+model performance as the Davos model. If we predict Lägern, RSQ decreases
+to 0.64, RMSE increases to 2.62, and the bias to 0.59.
 
-We also see, that for Lägern, the model overestimates GPP over the year by
-about $0.5\:\mu mol*m^{-2}*s^{-1}$. During the summer-season,
-almost $2\:\mu mol*m^{-2}*s^{-1}$). For all other seasons, the mean of the
-prediction is almost zero. For Davos, the model underestimates GPP over the
-year by about $0.5\:\mu mol*m^{-2}*s^{-1}$. Seasonal variations are less
-significant for Davos than for Lägern. Summer and winter have a deviation
-of about $0.8\:\mu mol*m^{-2}*s^{-1}$. Spring and fall have a deviation of
-about $0.2\:\mu mol*m^{-2}*s^{-1}$.
-
-It follows, that we must be extra careful if we want to predict GPP for the
-summer season. But what are the reasons for these deviations? And what can
-we do against it?
+We also see, that for Davos, the model overestimates GPP with
+almost $2\:\mu mol*m^{-2}*s^{-1}$ during summer-season and underestimate
+GPP with almost $-2\:\mu mol*m^{-2}*s^{-1}$ during winter-season. For all
+other seasons, the mean of the prediction is almost zero. For Lägern, the
+model underestimates GPP with almost $5\:\mu mol*m^{-2}*s^{-1}$ during
+summer and almost $-5\:\mu mol*m^{-2}*s^{-1}$ during winter. It seems that
+the model performs way better for Davos than for Lägern. The reason could
+be that we have a lot more data for Davos (6574 rows) than for Lägern (4018
+rows).
 
 ### Interpret differences. Is it a valid approach to perform model training like this? 
 
 Before we interpret the difference, we must know what we want to do. Are we
 only interested in a specific location? Or is our interest in predicting
-GPP in general? It is important to know what we want because the approaches
-are not the same.
+GPP in general?
 
 Let's assume we are interested in a location. It is obvious that we get a
-better model if we use only data from the location of interest. If we
-compare the model to the knn- and lm-model of exercise re_ml_01, we can see
-that the cross-validation performed way better (lm-model: RSQ 0.6, RMSE
-1.64, knn-model (k = 25): 0.65, 1.53). For Lägern we have the same
-situation (lm-model: RSQ XX, RMSE XX knn-model (k=25): XX, XX). We conclude
-that if we want to predict a specific location, we should only use data
-from there and calculate the model by using cross-validation.
-
-But often we are not interested in a specific location, and if we were,
-then we must have something to compare with. Therefore, we need a
-generalized model to predict different locations. The model trained with
-data from both locations predicts the test data less well than a model
-trained with data from only one location. Here, we also calculated a lm and
-a knn model (lm-model: RSQ XX, RMSE XX knn-model (k=25): XX, XX). The fact
-that the model is less good than the specific is unsurprising (RSQ and RMSE
-are higher). KNN "knows" about the underlying pattern, lm-models does that
-not know. That is why knn models performed better than lm model (Besides
-the obvious differences like linear vs. polynomial). Again, it is a matter
-of context. What exactly do we want to show, analyze, or calculate?
+better model if we use only data from the location of interest. But often
+we are not interested in a specific location, and if we were, then we must
+have something to compare with. Therefore, we need a generalized model to
+predict different locations.
 
 Of course, we are not yet satisfied with the model. We suggest that the
 project be extended to the whole of Switzerland. Then we would have dozens
@@ -616,37 +573,28 @@ data from stations at summits. It could also make sense to divide the
 stations into regions or altitude levels. One has to make a trade-off
 between generalizability and accuracy. If we generalize, we have fewer
 models. However, this increases the error. If we do not generalize, then we
-have higher accuracy, but we have to use a different one for each
-situation.
+have higher accuracy, but we have to use a different one for each location.
 
 ### Interpret biases of the out-of-sample predictions with a view to the site characteristics
 
 A very important parameter is the bias. We can see that our model
-underestimates the GPP for Davos. If we group the data by month, then we
-can see that the model underestimates every month. However, not every month
-has the same dispersion. In the winter season (DJF) the dispersion is
-smaller than in the spring (MAM).
+underestimates GPP for Davos and underestimates for Lägern. The reason for
+that is not clear. In Davos, the model overestimate GPP about 150th day of
+the year (mid May). In Lägern this happens already for the 100th day of the
+year (mid April). It could be the elevation (see table 1). In April, Davos
+has still snow and the vegetation growth later. It also could be
+temperature because low temperature inhibit GPP.
 
-The bias for Lägern is positive. Therefore, the model overestimates the GPP
-in Lägern. But if we take a monthly resolution, we can see that this is
-true, but the amplitude varies. For example, overestimate the model GPP in
-summer (JJA) by almost $1.8\:\mu mol*m^{-2}*s^{-1}$ and for all other
-months by almost zero.The reason for that is not clear. It could be the
-elevation. In Davos, the dispersion starts in April. The later snowmelt
-could be responsible for this. In Lägern not so much snowfall is measured.
-The dispersion starts in February. That means that the vegetation in Lägern
-was earlier "active" than in Davos.
-
-Another explanation could be exposure. In Lägern, the station is at a
-"summit". That means there is more wind. Maybe the wind falsifies the
-measurement (but we do not think that because that would be very
-unprofessional).
-
-The vegetational context could also be a explanation. Decidious
+Another explanation could be exposure (see table 1). In Lägern, the station
+is at a "summit". That means there is more wind. Maybe the wind falsifies
+the measurement (but we do not think that because that would be very
+unprofessional). It is different whether the sun shins direct on the
+surface or is there always a shadow (different amount of energy per square
+meter).
 
 In summary, we can say that we should not pool the data randomly. It is
 important that we compare same with same. We suggest, that we classify the
-measurement stations because topology, meteorolgical parameters or
+measurement stations because topology, meteorological parameters or
 elevation influence the model.
 
 # Bibliography
@@ -663,9 +611,6 @@ Data for Davos:
 Data for Lägern:
 <https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#param=messnetz-automatisch&lang=de&station=LAE&chart=year>
 
-Data for Zürich:
-<https://www.meteoschweiz.admin.ch/service-und-publikationen/applikationen/messwerte-und-messnetze.html#lang=de&param=messwerte-niederschlag-10min&station=KLO&chart=year>
+[(3) Fluxnet]{.underline}
 
-[(3) Vegetation]{.underline}
-
-[https://de.wikipedia.org/wiki/Höhenstufe\_%28Ökologie%29](https://de.wikipedia.org/wiki/Höhenstufe_%28Ökologie%29)
+<https://fluxnet.org/sites/siteinfo/CH-Dav>
