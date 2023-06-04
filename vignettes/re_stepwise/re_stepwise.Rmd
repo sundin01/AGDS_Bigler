@@ -82,7 +82,7 @@ the model choice.
 In summary, we can say that $R^2$ increases with each additional variable.
 To account for the complexity of the model, we also observe the AIC. If it
 stops decreasing, we have found our most likely best multivariate linear
-model, and we can choose it for our predictions.
+model.
 
 # Methods
 
@@ -102,7 +102,7 @@ works as follows:
     our list because we can use it only once.
 
 3.  The algorithm takes p+1 and creates a linear model. The p+1 with the
-    highest RSQ will be used as a predictor. Select the model with the
+    highest RSQ will be used as a predictor. We select the model with the
     highest RSQ and calculate the AIC.
 
 4.  Iterate step 3 until the AIC of the model does not decrease anymore.
@@ -172,7 +172,7 @@ To make a good decision about the predictors, we need as much information
 as possible. For that, we read our file as a data frame. After that, we
 want an overview of the data. What variables contain the data set? What are
 the main statistical parameters? What about the missing values? We can see
-that Long-wave incoming radiation has a lot of missing values. This could
+that long-wave incoming radiation has a lot of missing values. This could
 be a problem. Our model will probably not chose this variable because $R^2$
 will be low. But if we had all the data, it might be different.
 
@@ -184,7 +184,7 @@ head(apply(database, 2, function(x) is.na(x)))
 source("../../R/general/function.visualize.na.values.R")
 
 # Function call to visualize the NA
-visualize.na.values.without.groups(database)
+visualize.na.values.without.groups(database, c("Problem with long-wave radiation!"))
 
 # Take an overview and main statistic parameters
 summary(database)
@@ -192,11 +192,11 @@ summary(database)
 
 ## Bivariate linear regression
 
-We chose the best variable for our predictor. For that, we tried all
-variables and chose the one with the highest RSQ (see introduction). We can
-see that the chosen variable does not have the lowest AIC. But here, we are
-talking about a bivariate linear regression, and the AIC is not reliable
-anymore. We use $R^2$ instead.
+Now we want to chose the best variable for our predictor. For that, we
+tried all variables and chose the one with the highest RSQ (see
+introduction). We can see that the chosen variable does not have the lowest
+AIC. But here, we are talking about a bivariate linear regression, and the
+AIC is not reliable anymore. We use $R^2$ instead.
 
 ```{r Calculate_best_Bivariante_Model, error=FALSE, message=FALSE, warning=FALSE}
 # Access the outsourced function for the bivariate model
@@ -254,13 +254,13 @@ Vis_of_the_develop.bi.model(tibble.bi.model)
 
 ## Multivariate linear regression
 
-Here we want to answer the question of which predictors we should choose to
-get the probably best linear regression model. Should we choose all of them
-or only a subset? For that, we have written a function. It works as
+Here, we want to answer the question of which predictors we should choose
+to get the probably best linear regression model. Should we choose all of
+them or only a subset? For that, we have written a function. It works as
 described in the introduction. Now we need to consider which variables make
 any sense at all. This depends on the target and the context. Therefore, we
 have programmed the function so that it can be used flexibly. We can simply
-enter the variables we don't need as column numbers. We made two function
+enter the variables we don't need as column numbers. We made three function
 calls to demonstrate it. For the first, we use all variables but the
 target. This is, however, not necessarily the best way. We could say that
 the time factor and the location are irrelevant, so we drop these
@@ -350,7 +350,8 @@ third.multi.lm <- lm(GPP_NT_VUT_REF~PPFD_IN + LW_IN_F + VPD_F + TA_F_MDS +
 plot(best.multi.lm)
 ```
 
-If you interest in a summary, you can run this code chunk manually.
+If you interest in a summary, you can run this code chunk manually (set
+eval=true and it will work).
 
 ```{r vis. residues, eval=FALSE, error=FALSE, message=FALSE, warning=FALSE}
 # Overview about all important model parameter
@@ -471,7 +472,7 @@ cannot simply use the highest RSQ of the individual bivariate models or the
 variables with the highest correlation coefficients. This is visible in the
 figures "visualization of the development of RSQ and AIC (bivariate). That
 is why we have to use the AIC for a good model choice, and that is also why
-we recalculate the RR in our step-forward algorithm in each round.
+we recalculate the RSQ in our step-forward algorithm in each round.
 
 ## Considerations about the variables
 
