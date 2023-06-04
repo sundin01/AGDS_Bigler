@@ -53,11 +53,11 @@ training. With the other part of the labeled data, we quantify the error.
 The KNN-algorithm (k nearest neighbors) will be trained to predict new
 data. The basis to calculate a model is distance between values of the
 variable. The two most important distance metrics for KNN are the euclidean
-distance and the Manhattan distance. With the hyper-parameter k we can fit
-our model. But what is the hyper-parameter *k* ?:
+distance and the Manhattan distance. With the hyper-parameter *k* we can
+fit our model. But what is the hyper-parameter *k* ?:
 
 Euclidean distance:$$
-\sqrt[2]{\sum_{j=1}^P (X_{a,j} - X_{b,j})^2}
+\left(\sum_{j=1}^P (X_{a,j} - X_{b,j})^2\right)^{\frac{1}{2}}
 $$Manhattan distance:$$
 \sum_{j=1}^P |X_{a,j} - X_{b,j}|
 $$
@@ -80,7 +80,7 @@ in the training data and will be high in the test data. We call that an
 underfitted model, and the bias-variance trade-off shifts to a very high
 bias.
 
-The *optimal k* (prediction with the lowest bias) will be between this two
+The *optimal k* (prediction with the lowest error) will be between this two
 extreme scenarios. But where is not so easy to answer. The goal is to find
 the model with the best generalisability, which is the model with the
 probably best bias-variance trade-off. This exercise shows you how we can
@@ -164,10 +164,11 @@ value with NA (and do not drop the row!). After that, we discard all
 quality-control columns. Now we can see that the variable LW_IN_F
 (long-wave radiation) contains about 56% NAs. This is very problematic
 because for model calculation we will drop all rows which contains NAs. We
-would lose about 56% of our data. Further, the variable TIMESTAMP contains
-the date. But we are not sure if we can standardize time with box-cox. That
-is why we do not use these variables. All other variables have good
-quality.
+would lose about 56% of our data. We also can to this because we know from
+"re_stepwise" that the influence of long-wave on GPP is negligible.
+Further, the variable TIMESTAMP contains the date. But we are not sure if
+we can standardize time with box-cox. That is why we do not use these
+variables. All other variables have good quality.
 
 Attention: unlike here, the variables PA_F and P_F are not used in the AGDS
 script. Therefore, the results will be significantly different, for example
@@ -184,7 +185,7 @@ daily_fluxes <- use.good.quality.only(daily_fluxes.raw)
 source("../../R/general/function.visualize.na.values.R")
 
 # Function call
-visualize.na.values.without.groups(daily_fluxes)
+visualize.na.values.without.groups(daily_fluxes, c("Problem with long-wave radiation!"))
 ```
 
 ## Implementation of the KNN algorithm
@@ -222,11 +223,11 @@ mod.lm <- lm.model(daily_fluxes_train)
 ### Evaluation
 
 After we split our data, we have to make a model evaluation. The first
-function call is for the LM model. The function needs the model, which we
+function call is for the lm-model. The function needs the model, which we
 have calculated in the code chunk above. This is a multivariate regression
 model, and therefore, we cannot improve the formula.
 
-The second function call is for the KNN model. The knn-model has been
+The second function call is for the KNN-model. The KNN-model has been
 calculated in the code chunk above. The number for *k* was 8. If we want a
 model with a different *k*, we have to recalculate the knn-model with the
 function in the code chunk above.
@@ -250,8 +251,8 @@ general impossible).
 
 The situation for KNN is very similar. The regression line is a little
 steeper than that of the lm-model. This means that KNN underestimates the
-values less than the lm-model. We also see that in the lower bias tan for
-the lm-model. But also knn tends to underestimate high values more than
+values less than the lm-model. We also see that in the lower bias than for
+the lm-model. But also KNN tends to underestimate high values more than
 small values.
 
 ```{r model_eval, error=FALSE, message=FALSE, warning=FALSE}
@@ -267,14 +268,15 @@ eval_model(mod = mod.knn, df_train = daily_fluxes_train, df_test = daily_fluxes_
 
 ### Visualization
 
-Here you can see how the KNN-model depends on *k*. If we use *k* = 1, then
+Here we can see how the KNN-model depends on *k*. If we use *k* = 1, then
 we have perfect training data (the regression line has a 45° slope and all
 values lie on it. RMSE and bias are zero). But the RMSE in the test data is
 high (the model is overfitted). If we use *k* = n our model would be
 underfitted, and therefore the RMSE in the test data would also be high.
 For a visualization of the development of RSQ and RSME as a function of
-*k*, please take a look at the last visualization. For almost all *k* the
-bias is negative which means our models underestimate the target.
+*k*, please take a look at the last visualization (discussion part). For
+almost all *k* the bias is negative which means our models underestimate
+the target.
 
 ```{r vis_generalisability, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
@@ -309,7 +311,7 @@ noise in the training data, rather than the intended outputs.
 
 [bias-variance trade-off^1^:]{.underline}
 
-Both bias and variance are connected to the model\'s complexity. Low
+Both bias and variance are connected to the model's complexity. Low
 complexity means high bias and low variance. Increased complexity means low
 bias and high variance. Ideally, we want a model with a low bias and a low
 variance. But this is often impossible and therefore we need the best
@@ -330,7 +332,7 @@ normality, homoscedasticity and independence).
 
 Obviously, a lm-model does not looks for any underlying pattern. It creates
 simply a linear combination with all available variables. Further, we can
-not optimize lm-models like KNN-models. The lm- model describes the ttarin
+not optimize lm-models like KNN-models. The lm-model describes the train
 data with all the metrics (bias, variance, or RMSE etc.). It is therefore
 logical that all these metrics are projected into the new data. These
 metrics are then relatively similar in the test data as in the train data.
@@ -338,7 +340,7 @@ metrics are then relatively similar in the test data as in the train data.
 [KNN-model (*k* = 8):]{.underline}
 
 The situation for KNN is different. KNN uses a "distance". KNN does not
-necessarily use all predictors. It uses *k*neighbors to calculate a local
+necessarily use all predictors. It uses *k* neighbors to calculate a local
 regression. The KNN-model looks for an underlying pattern. If we optimize
 the KNN-model due to the hyperparameter *k*, then we change the metrics in
 the train data. We can overfit our model and get a low bias but a high
@@ -363,12 +365,13 @@ optimize *k* first!
 The KNN-model (*k* = 8) has a bias of -0.06 and lm-model has bias of -0.1
 which means the lm-model has a lower model complexity than KNN-model. It
 follows that lm-model is more on the bias side than KNN-model. We also see
-that in RSQ. Lm-model has a
+that in RSQ. It is in KNN a little bit higher than in lm and therefore a
+bit less unexplained variance.
 
-But now we know, that *optimal k* is 15. Therefore, KNN with *k* = 8 has
-not the best trade-off and it is also on the bias side (but lesser than
-lm-model). The other KNN-models (*k* =50 and *k* = 100) are on the variance
-side in the trade-off.
+But now we know, that *optimal k* is 15 (spoiler alert!). Therefore, KNN
+with *k* = 8 has not the best trade-off and it is also on the bias side
+(but lesser than lm-model). The other KNN-models (*k* =50 and *k* = 100)
+are on the variance side in the trade-off.
 
 #### Visualize temporal variations of observed and modeled GPP for both models, covering all available dates.
 
@@ -382,7 +385,7 @@ the day of the year. Now we see, that our lm-model underestimate the target
 in winter and overestimate it in summer. Because the target is GPP (Gross
 Primary Productivity) it makes totally sense.
 
-[knn-model:]{.underline}
+[KNN-model:]{.underline}
 
 We make the same thing for the KNN-model. The results is very similar to
 the lm-model. The model underestimate also the winter target and
@@ -436,10 +439,10 @@ target value. The bias would be zero, and therefore RSQ = 1, and the MAE is
 bias-variance trade-off. If the bias in the training data is low, then the
 variance in the test data is, in general, high.
 
-Let *k* = N. Then it would follow: $RSQ\in(0,1]$ and $MAE\in[0, \infty)$.
+Let *k* = n. Then it would follow: $RSQ\in(0,1]$ and $MAE\in[0, \infty)$.
 But we do not know where it is. However, the model tends to be underfitted
 because it takes all neighbors into account. Therefore, the prediction
-would be the mean value of the observations.
+would be the mean value of the observations (worst case).
 
 Conclusion: We want a model with zero bias and zero variance. But this
 seems impossible, so we have to find the model with the best
@@ -450,12 +453,11 @@ bias-variance-trade-off.
 The hypothesis is not fully true. RSQ is a quantity to describe the
 variance. Or better, it describes how much of the variance explains the
 model. For the best bias-variance trade-off, we want *k* where the error in
-the test data is lowest (low MAE).
+the test data is lowest (lowest MAE).
 
 The model for *k* = 1 is totally overfitted. In the training data, RSQ is 1
 and it follows that MAE (or RSME) must be 0. But in the test data, MAE is
-at a global maximum. The model is useless for any predictions, and the
-trade-off shifts to too much variance.
+at a global maximum. The model is useless for any predictions.
 
 If we slowly increase *k*, then increase MAE and decrease RSQ on the train
 set. In the test data RSQ increase and MAE decrease. If we exceed *optimal
@@ -469,17 +471,11 @@ predictions because the trade-off is on the side of too much bias.
 Long story short: If *k* is to the left of *optimal k*, then the model is
 overfitted. If *k* is to the right of *optimal k*, then it is underfitted.
 
-The *optimal k* is there, where the trade-off is best. Generalisability
-means that we want the model with the lowest MAE in the test data (and so
-the lowest bias) and the highest RSQ (low variance). For that, we mark the
-minimum of the RMSE test data hyperbola (green point = 15). Unfortunately,
-*k* = 15 is not necessarily the best model. With our function we have only
-seen that it is between 10 and 20. If we make another function call and use
-all k between 10 and 20, then we would see that *optimal k* is 15. We
-choose this hyper-parameter to calculate our model.
-
-Important: Here we set a seed and split our data only pseudo-randomly. If
-we do not use set.seed(123), then it would be another *optimal k*.
+Generalisability means that we want the model with the lowest MAE in the
+test data. For that, we mark the minimum of the RMSE test data hyperbola
+(green point = 15). Important: Here we set a seed and split our data only
+pseudo-randomly. If we do not use set.seed(123), then it would be another
+*optimal k*.
 
 ```{r vis_generalisability_optimal_k, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function into the file
