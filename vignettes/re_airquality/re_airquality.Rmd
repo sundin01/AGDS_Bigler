@@ -84,8 +84,8 @@ with a focus on ozone.
 
 This exercise is supposed to answer the following research question:
 
-*"Quantify the dependency of tropospheric ozone concentration on
-temperature, solar radiation, and wind."*
+*"The tropospheric ozone concentration depends on temperature, solar
+radiation, and wind."*
 
 # Methods
 
@@ -180,7 +180,7 @@ head(apply(airquality,2, function(x) is.na(x)))
 source("../../R/general/function.visualize.na.values.R")
 
 # Function call to vis. the NA
-visualize.na.values(airquality)
+visualize.na.values(airquality, c("Many NAs between day 25 and 60!"))
 ```
 
 ### Sources
@@ -237,15 +237,15 @@ values. An environment with a very high ozone concentration can be toxic
 The table shows the results of the statistical parameters for a monthly
 resolution. We round the results to integer numbers because rational or
 real numbers do not make sense in this context. Only a few pieces of data
-are available for the month of June (the frequency is only 10, which means
-only a third of the month is available). The other months are better. The
-median (May = 18 ppb, Jun = 23 ppb, Jul = 60 ppb, Aug = 52 ppb, Sept = 23
-ppb) is always lower or equal to the threshold value (60 ppm). Therefore,
-the air quality is not acceptable for almost every second day
+are available for the month of June (the frequency is only 9 which means
+only about a third of the month is available). The other months are better.
+The median (May = 18 ppb, Jun = 23 ppb, Jul = 60 ppb, Aug = 52 ppb, Sept =
+23 ppb) is always lower or equal to the threshold value (60 ppm).
+Therefore, the air quality is not acceptable for almost every second day
 (statistically speaking). There are measurements every month that exceed
-the threshold value (maximum \> 60 ppm). For July, August, and September,
-there are even more values (0.75 quantiles \> 60 ppm). That means that
-there are isolated days when the ozone concentration is problematic.
+the threshold value (maximum \> 60 ppm). For July and August there are even
+more values (0.75 quantiles \> 60 ppm). That means that there are isolated
+days when the ozone concentration is problematic.
 
 If we compare the standard deviation and IQR, we notice that they are not
 so different. If we also take the span into account, we notice that the
@@ -317,6 +317,20 @@ source("../../R/re_airquality/function.density.plot.R")
 density.airquality(airquality_mutated)
 ```
 
+### Empirical Cumulative Density Function
+
+In this plot we can see that 73% of the values are smaller than the
+threshold value. It follows that approximately 27% of the days has a exceed
+of the threshold value.
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+# Load the function
+source("../../R/re_airquality/function.empirical.R")
+
+# Function call
+emp.dist.airquality(airquality_mutated)
+```
+
 ### Bar Plot and the distribution of the missing values in a timeline
 
 We detected many missing values. For a stringent analysis, we need to know
@@ -368,7 +382,7 @@ We have seen that there is a negative correlation between temperature and
 wind. From a meteorological point of view, this makes sense. That is why we
 make a scatter plot where the wind has a temperature dependency. We see
 that higher temperatures tend to produce lower winds. We also see that the
-higher the wind, the higher the ozone concentration.
+lower the wind, the higher the ozone concentration.
 
 ```{r wind_temp, error=FALSE, message=FALSE, warning=FALSE}
 # Load the function
@@ -476,7 +490,7 @@ to heat islands. A city like NYC is predestined for such an effect.
 
 In conclusion, we can say that the air quality is less bad than expected.
 But it is still poor air quality. The median is often just not exceeded.
-But there are still almost 50% of the days above the treshold value. There
+But there are still almost 27% of the days above the treshold value. There
 are days when the concentration is too high (true for all months). The city
 of New York should take measures to prevent heat islands. This could lower
 the temperature, which inhibits ozone production. Further, the source
