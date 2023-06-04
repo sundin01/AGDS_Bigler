@@ -5,7 +5,8 @@ vis.bi.model <- function(database){
     # create the model
     geom_smooth(formula = y~x, method = "lm", se = TRUE) +
     labs(title = "Bivariate lineare Regression Model",
-         y = "GPP_NT_VUT_REF", x = "PPFD_IN",
+         y = expression(paste("GPP [", mu,"mol CO"[2], " m"^-2, "s"^-1, "]")),
+         x = expression(paste("PPFD_IN [", mu,"mol Photon", " m"^-2, "s"^-1, "]")),
          caption = "AGDS Report re_stepwise (Chapter 8)") +
     # Add some important parameters
     stat_poly_eq(use_label(c("eq", "R2")), label.x = "right",
