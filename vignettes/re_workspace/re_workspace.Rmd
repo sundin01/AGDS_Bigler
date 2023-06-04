@@ -34,17 +34,13 @@ Reference: Report Exercise 1 (Chapter 1)
 
 ## Objectives
 
-This exercise has the goal of providing some information for a
-non-experienced user. The following goals should be achieved:
+This exercise has the goal of providing some information to non-experienced
+user. The following goals should be achieved:
 
 -   Work with R and RStudio.
 
--   Understand how R interacts with files on your computer.
-
 This exercise also has the goal of providing some information about *git*
 to non-experienced users. The following goals should be achieved:
-
--   Organize our workspace for efficient data science projects.
 
 -   Install *git* and create a github account.
 
@@ -68,7 +64,7 @@ provides a user-friendly "center stage" for your work in R.
 *git* is a version control system that keeps track of all changes to our
 code, who made them, and when. It allows us to go back to previous changes
 and let us control when to iterate from one state of the code to the next.
-The basic unit of *git* is a git repository, where all the code is
+The basic unit of *git* is a *git* repository, where all the code is
 contained in a project directory. That's why R projects work well
 with *git*. *git* can also keep track of changes in data, so long as the
 data is small and in text format.
@@ -87,7 +83,7 @@ To install RStudio, we go to the RStudio website and download the latest
 version of RStudio for our operating system (use
 this: [https://posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop){style="color: rgb(37, 37, 37);"}).
 
-If we want to learn programming in R, we use the manuals or books from the
+If we want to learn programming in R, we use manuals or books from the
 following links:
 
 [Manuals:]{.underline}
@@ -119,7 +115,8 @@ To use *git*, we have to download and install them first:
 
 -   We create a new R-Project from a GitHub repository.
 
-If you need more information, please take a closer look to these manuals:
+If you need more information, please take a closer look to these manuals
+(or re_collaborate):
 
 <https://git-scm.com/docs/user-manual>
 
@@ -132,5 +129,5 @@ to understand how *git* works is well spent!
 # Bibliography
 
 (1) Stocker Benjamin, Hufkens Koen, Aran Pepa, Schneider Pascal (2023):
-Applied Geodata Science 1.
-<https://geco-bern.github.io/agds/index.html#about-this-book>
+    Applied Geodata Science 1.
+    <https://geco-bern.github.io/agds/index.html#about-this-book>
