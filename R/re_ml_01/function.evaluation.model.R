@@ -48,7 +48,8 @@ eval_model <- function(mod, df_train, df_test, model.name.train, model.name.test
     geom_abline(slope = 1, intercept = 0, linetype = "dotdash",
                 linewidth = 0.5, color = "orange") +
     labs(subtitle = paste("RSQ = ",rsq_train,", RMSE = ",rmse_train,", Bias = ",bias.train),
-         title = paste("Train:", model.name.train)) +
+         title = paste("Train:", model.name.train),
+         x = expression(paste("GPP [", mu,"mol CO"[2], " m"^-2, "s"^-1, "]"))) +
     theme_classic()
 
   plot_2 <- ggplot(data = df_test, aes(GPP_NT_VUT_REF, fitted)) +
@@ -57,7 +58,8 @@ eval_model <- function(mod, df_train, df_test, model.name.train, model.name.test
     geom_abline(slope = 1, intercept = 0, linetype = "dotdash",
                 linewidth = 0.5, color = "orange") +
     labs(subtitle = paste("RSQ = ",rsq_test,", RMSE = ",rmse_test,", Bias = ",bias.test),
-    title = paste("Test:", model.name.test)) +
+    title = paste("Test:", model.name.test),
+    x = expression(paste("GPP [", mu,"mol CO"[2], " m"^-2, "s"^-1, "]"))) +
     theme_classic()
 
   out <- cowplot::plot_grid(plot_1, plot_2)

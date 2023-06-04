@@ -1,12 +1,12 @@
 plot.time.variation <- function(database, xvar, yvar, title.label = c("Title"),
-                                xlab = c("Time"), ylab = c("GPP_NT_VUT_REF"),
                                 sub.lab = c(NULL), cap.lab = c("re_ml_02"),
                                 prediction = FALSE, mod1 = NULL){
   if(prediction == FALSE){
     plot_1 <- database|>
       ggplot(aes(x = xvar, y = yvar))+
       geom_line(aes(color = Location))+
-      labs(x = paste(xlab, "μmol*m"), y = paste(ylab),
+      labs(x = expression(paste("Time")),
+           y = expression(paste("GPP [", mu,"mol CO"[2], " m"^-2, "s"^-1, "]")),
            title = paste(title.label),
            subtitle = paste("KNN model:",sub.lab),
            caption = paste("AGDS Report Exercise",cap.lab))+
@@ -30,9 +30,11 @@ plot.time.variation <- function(database, xvar, yvar, title.label = c("Title"),
 
   plot_1 <- ggplot(data = residue.mod1)+
     geom_line(aes(x = residue.mod1$Time, y = residue.mod1$Residue, color = Location))+
-    labs(x = paste(xlab), y = paste(ylab),
+    labs(x = expression(paste("Time")),
+         y = expression(paste("GPP [", mu,"mol CO"[2], " m"^-2, "s"^-1, "]")),
          title = paste(title.label),
-         subtitle = paste("KNN model",sub.lab), caption = paste("AGDS Report Exercise",cap.lab ))+
+         subtitle = paste("KNN model",sub.lab),
+         caption = paste("AGDS Report Exercise",cap.lab ))+
     theme_bw()+
     theme(panel.border = element_rect(colour = "black", fill = NA, linewidth = 1)) +
     theme(legend.background = element_rect(fill = "lightblue",
