@@ -70,7 +70,7 @@ different dates.
 
 The data originate from a paper by Groenigen et al. (2014). In this
 exercise, we take a close look to the $CO_2$ - concentrations
-$(\: [\frac{g}{m^{-2}}])$ in the experiments and calculate the LRR. For
+$(\: [\frac{g}{m^{2}}])$ in the experiments and calculate the LRR. For
 scientific reproducibility, you will find the original source in the
 following article (or in the folder "data-raw"):
 
@@ -91,7 +91,7 @@ we must the file edit manually. The software EXCEL (MS Office 360 with a
 license from the University of Bern, status: 2023-05-07) is used for this
 task. The following points were changed manually:
 
-1.  Filled the gaps between two Experiments with the name of the
+1.  Filled the gaps between two experiments with the name of the
     experiment.
 
 2.  Removed the co- and sub-headers and all comments
@@ -126,11 +126,10 @@ Although the results of both methods are the LRR for each experiment, they
 will be in general different. Therefore, it is important which method we
 chose. In this case, it is more meaningful to use method 2 because we use
 $CO_2$-concentrations that have been measured during the experiment. It
-makes more sense that we take this into account and calculate the LRR for a
-specific sample date. If we use method 1, we would calculate the LRR with a
-$CO_2$-concentration that never existed in the experimental setup. In this
-exercise, we will calculate the LRR with both methods because we want to
-demonstrate, that there is a difference.
+makes more sense that we take this into account. If we use method 1, we
+would calculate the LRR with a $CO_2$-concentration that never existed in
+the experimental setup. In this exercise, we will calculate the LRR with
+both methods because we want to demonstrate, that there is a difference.
 
 ## LRR for each phase
 
@@ -139,7 +138,7 @@ corresponds to the duration of the experiments. We define three phases:
 
 1)  Phase "early" $\Longrightarrow$ lesser than 3 years
 
-2)  Phase "med" $\Longrightarrow$ between 3 and 6 years
+2)  Phase "mid" $\Longrightarrow$ between 3 and 6 years
 
 3)  Phase "late" $\Longrightarrow$ greater than 6 years
 
@@ -199,9 +198,10 @@ if (!file.exists(name.of.file)){
 Information about the data is key. That is why we make some calls. We
 change the names of the columns we need. Now, we can refer to them better.
 Furthermore, we want to know which class the columns have and whether there
-are missing values. We can see there are many NA (23.6%). The horizontal
-lines imply that there are empty rows. But this is not a problem at all. R
-will ignore them and we are good to go.
+are missing values. We can see there are many NA (23.6%). The high
+frequency of NA in "value treatment" is not a problem because we do not use
+this column. The horizontal lines imply that there are empty rows. But this
+is not a problem at all. R will ignore them and we are good to go.
 
 ```{r Quality_control, error=FALSE, message=FALSE, warning=FALSE}
 # Check the class of each column
@@ -219,7 +219,7 @@ raw.data <- raw.data|>
 source("../../R/general/function.visualize.na.values.R")
 
 # Function call
-visualize.na.values.without.groups(raw.data)
+visualize.na.values.without.groups(raw.data, c("Problems with empty rows and value treatment!"))
 ```
 
 ## Quality Control
@@ -240,7 +240,7 @@ source("../../R/re_tidy/function.data.preparation.for.LRR.R")
 DB_S1 <- data.preparation.for.LRR(raw.data)
 
 # Function call
-visualize.na.values.without.groups(DB_S1)
+visualize.na.values.without.groups(DB_S1, c("Everything ok!"))
 ```
 
 ## LRR calculation for each experiment
