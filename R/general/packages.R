@@ -8,7 +8,7 @@ use_pkgs <-  c("dplyr", "tidyr", "readr", "lubridate", "stringr", "purrr",
                "conflicted", "naniar","openxlsx", "readxl", "zoo", "kableExtra")
 
 new_pkgs <- use_pkgs[!(use_pkgs %in% installed.packages()[, "Package"])]
-if (length(new_pkgs) > 0) install.packages(new_pkgs)
+if (length(new_pkgs) > 0) install.packages(new_pkgs,repos = "http://cran.us.r-project.org")
 invisible(lapply(use_pkgs, require, character.only = TRUE))
 
 
