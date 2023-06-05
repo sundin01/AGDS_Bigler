@@ -482,7 +482,7 @@ Table 1 give you a overview:
 **Table 1:** Comparison of the measuring stations (Davos vs. Lägern)
 
 | Quantity             | Davos                                                                                                                                                                                                          | Lägern                                                                                                                                                                                                                                                       |
-|:---------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|:-------------|:--------------------------|:---------------------------------|
 | Coordinates^2^:      | 46.81°N, 9.84°E                                                                                                                                                                                                | 47.48°N, 8.4°E                                                                                                                                                                                                                                               |
 | Elevation^2^:        | 1639 m.a.s.l.                                                                                                                                                                                                  | 689 m.a.s.l.                                                                                                                                                                                                                                                 |
 | Exposure^2^:         | South-East slope                                                                                                                                                                                               | Summit                                                                                                                                                                                                                                                       |
@@ -578,7 +578,7 @@ have higher accuracy, but we have to use a different one for each location.
 ### Interpret biases of the out-of-sample predictions with a view to the site characteristics
 
 A very important parameter is the bias. We can see that our model
-underestimates GPP for Davos and underestimates for Lägern. The reason for
+underestimates GPP for Davos and overestimates for Lägern. The reason for
 that is not clear. In Davos, the model overestimate GPP about 150th day of
 the year (mid May). In Lägern this happens already for the 100th day of the
 year (mid April). It could be the elevation (see table 1). In April, Davos
